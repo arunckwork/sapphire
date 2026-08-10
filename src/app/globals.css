@@ -23,28 +23,44 @@
     --input: 214.3 31.8% 91.4%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
+
+    /* Gem palette — light mode */
+    --gem-sapphire: 221 91% 48%;
+    --gem-ruby: 350 89% 48%;
+    --gem-emerald: 152 76% 36%;
+    --gem-amethyst: 270 67% 52%;
+    --gem-gold: 43 96% 52%;
+    --gem-diamond: 200 20% 92%;
   }
 
   .dark {
-    --background: 222.2 84% 4.9%;
-    --foreground: 210 40% 98%;
-    --card: 222.2 84% 4.9%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222.2 84% 4.9%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 217.2 91.2% 59.8%;
-    --primary-foreground: 222.2 47.4% 11.2%;
-    --secondary: 217.2 32.6% 17.5%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217.2 32.6% 17.5%;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 217.2 32.6% 17.5%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217.2 32.6% 17.5%;
-    --input: 217.2 32.6% 17.5%;
-    --ring: 224.3 76.3% 48%;
+    --background: 224 40% 6%;
+    --foreground: 210 40% 96%;
+    --card: 224 35% 9%;
+    --card-foreground: 210 40% 96%;
+    --popover: 224 35% 9%;
+    --popover-foreground: 210 40% 96%;
+    --primary: 217 91% 60%;
+    --primary-foreground: 224 40% 6%;
+    --secondary: 224 30% 14%;
+    --secondary-foreground: 210 40% 96%;
+    --muted: 224 30% 14%;
+    --muted-foreground: 215 20% 55%;
+    --accent: 270 50% 25%;
+    --accent-foreground: 210 40% 96%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 210 40% 96%;
+    --border: 224 30% 16%;
+    --input: 224 30% 14%;
+    --ring: 217 91% 60%;
+
+    /* Gem palette — dark mode (more vivid) */
+    --gem-sapphire: 217 91% 60%;
+    --gem-ruby: 350 89% 60%;
+    --gem-emerald: 152 76% 48%;
+    --gem-amethyst: 270 67% 65%;
+    --gem-gold: 43 96% 58%;
+    --gem-diamond: 200 30% 85%;
   }
 }
 
@@ -74,21 +90,99 @@
   h4 { @apply text-lg font-semibold; }
 }
 
-/* ── Utility Layer ──────────────────────────────────────────────────── */
+/* ── Gem / Gemstone Utilities ───────────────────────────────────────── */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  .text-balance { text-wrap: balance; }
 
-  /* Responsive container padding helper */
   .page-container {
     @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
   }
 
-  /* Focus ring using design token */
-  .focus-ring {
-    @apply outline-none ring-2 ring-offset-2;
-    ring-color: hsl(var(--ring));
-    ring-offset-color: hsl(var(--background));
+  /* Gem glow effects */
+  .gem-glow-sapphire {
+    box-shadow: 0 0 32px 4px hsl(217 91% 60% / 0.35), 0 0 80px 8px hsl(217 91% 60% / 0.12);
+  }
+  .gem-glow-ruby {
+    box-shadow: 0 0 32px 4px hsl(350 89% 60% / 0.35), 0 0 80px 8px hsl(350 89% 60% / 0.12);
+  }
+  .gem-glow-amethyst {
+    box-shadow: 0 0 32px 4px hsl(270 67% 65% / 0.35), 0 0 80px 8px hsl(270 67% 65% / 0.12);
+  }
+  .gem-glow-emerald {
+    box-shadow: 0 0 32px 4px hsl(152 76% 48% / 0.35), 0 0 80px 8px hsl(152 76% 48% / 0.12);
+  }
+
+  /* Glassmorphism card */
+  .glass-card {
+    background: linear-gradient(
+      135deg,
+      hsl(224 35% 12% / 0.85) 0%,
+      hsl(224 35% 10% / 0.92) 100%
+    );
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid hsl(217 91% 60% / 0.15);
+  }
+
+  /* Gem gradient button */
+  .btn-gem {
+    background: linear-gradient(135deg, hsl(230 80% 45%) 0%, hsl(217 91% 60%) 50%, hsl(200 85% 65%) 100%);
+    background-size: 200% 200%;
+    transition: background-position 0.4s ease, box-shadow 0.3s ease, transform 0.15s ease;
+  }
+  .btn-gem:hover {
+    background-position: right center;
+    box-shadow: 0 8px 30px hsl(217 91% 60% / 0.5);
+    transform: translateY(-1px);
+  }
+  .btn-gem:active { transform: translateY(0); }
+
+  /* Animated gem orb background shapes */
+  @keyframes gem-float {
+    0%, 100% { transform: translateY(0) rotate(0deg) scale(1); }
+    33%       { transform: translateY(-18px) rotate(4deg) scale(1.04); }
+    66%       { transform: translateY(10px) rotate(-3deg) scale(0.97); }
+  }
+  @keyframes gem-pulse {
+    0%, 100% { opacity: 0.18; }
+    50%       { opacity: 0.32; }
+  }
+  @keyframes shimmer {
+    0%   { background-position: -200% center; }
+    100% { background-position: 200% center; }
+  }
+
+  .gem-float { animation: gem-float 8s ease-in-out infinite; }
+  .gem-float-slow { animation: gem-float 12s ease-in-out infinite reverse; }
+  .gem-pulse { animation: gem-pulse 4s ease-in-out infinite; }
+
+  /* Shimmer text */
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(43 96% 70%) 0%,
+      hsl(43 96% 90%) 30%,
+      hsl(43 96% 70%) 60%,
+      hsl(43 96% 55%) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+  }
+
+  /* Input gem style */
+  .input-gem {
+    background: hsl(224 40% 8% / 0.8);
+    border: 1px solid hsl(224 30% 20%);
+    color: hsl(210 40% 96%);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .input-gem::placeholder { color: hsl(215 20% 40%); }
+  .input-gem:focus {
+    outline: none;
+    border-color: hsl(217 91% 60% / 0.7);
+    box-shadow: 0 0 0 3px hsl(217 91% 60% / 0.15), 0 0 12px hsl(217 91% 60% / 0.2);
   }
 }
