@@ -17,11 +17,17 @@ export function beforeRequestInterceptor(method: Method): void {
   // Ensure httpOnly cookies are forwarded automatically by the browser
   (method.config as Record<string, unknown>)['credentials'] = 'include';
 
-  // For internal Next.js BFF API routes (/api/...), target relative path on local origin
+  // For internal Next.js BFF API routes (/api/...), target full absolute URL on local app origin
+  // so Alova's fetch adapter recognizes it as an absolute URL and does NOT prepend external baseURL.
   if (method.url.includes('/api/')) {
     const apiIndex = method.url.indexOf('/api/');
     if (apiIndex !== -1) {
-      method.url = method.url.substring(apiIndex);
+      const apiPath = method.url.substring(apiIndex);
+      const origin =
+        typeof window !== 'undefined' && window.location.origin
+          ? window.location.origin
+          : process.env.URL || 'http://localhost:3000';
+      method.url = `${origin}${apiPath}`;
     }
   }
 
