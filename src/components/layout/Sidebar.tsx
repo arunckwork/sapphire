@@ -20,32 +20,32 @@ const NAV_ITEMS: NavItem[] = [
   },
   {
     label: 'Collection',
-    href: '/dashboard/collection',
+    href: '/collection',
     icon: <GemIcon />,
   },
   {
     label: 'Registration',
-    href: '/dashboard/registration',
+    href: '/registration',
     icon: <ClipboardIcon />,
   },
   {
     label: 'Sorting',
-    href: '/dashboard/sorting',
+    href: '/sorting',
     icon: <SortingIcon />,
   },
   {
     label: 'Packing',
-    href: '/dashboard/packing',
+    href: '/packing',
     icon: <PackingIcon />,
   },
   {
     label: 'Relotting',
-    href: '/dashboard/relotting',
+    href: '/relotting',
     icon: <RelottingIcon />,
   },
   {
     label: 'Trade & Export',
-    href: '/dashboard/trade',
+    href: '/trade',
     icon: <TradeIcon />,
   },
 ];
@@ -81,8 +81,8 @@ export function Sidebar() {
       {/* ── Sidebar Container ─────────────────────────────────────────── */}
       <aside
         className={`fixed inset-y-0 left-0 z-40 flex flex-col border-r border-border/40 bg-background/95 backdrop-blur-xl transition-all duration-300 ${sidebarOpen
-            ? 'translate-x-0 w-56 shadow-xl md:shadow-none'
-            : '-translate-x-full md:translate-x-0 md:w-16'
+          ? 'translate-x-0 w-56 shadow-xl md:shadow-none'
+          : '-translate-x-full md:translate-x-0 md:w-16'
           }`}
       >
         {/* ── Brand / Header ────────────────────────────────────────────── */}
@@ -115,8 +115,8 @@ export function Sidebar() {
                 onClick={handleNavClick}
                 title={!sidebarOpen ? item.label : undefined}
                 className={`group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-all duration-150 ${isActive
-                    ? 'border border-amber-500/30 bg-amber-500/10 text-amber-400 font-semibold shadow-xs'
-                    : 'text-muted-foreground hover:bg-muted/50 hover:text-slate-200'
+                  ? 'border border-amber-500/30 bg-amber-500/10 text-amber-400 font-semibold shadow-xs'
+                  : 'text-muted-foreground hover:bg-muted/50 hover:text-slate-200'
                   } ${!sidebarOpen ? 'md:justify-center md:px-0' : ''}`}
               >
                 <span
