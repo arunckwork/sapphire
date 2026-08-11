@@ -9,25 +9,19 @@
  * at the point of actual use with a clear message.
  */
 
-function getEnv(key: string): string {
-  const value = process.env[key];
-  if (!value) {
-    const msg = `[Sapphire] Missing required environment variable: "${key}". Check your .env.local file against .env.example.`;
-    // In production, throw hard so misconfigured deploys fail fast at startup
-    if (process.env.NODE_ENV === 'production') {
-      throw new Error(msg);
-    }
-    // In development, warn and return empty string so the dev server doesn't crash
-    console.warn(msg);
-    return '';
-  }
-  return value;
-}
-
 export const ENV = {
   /** Backend API base URL — used by Alova client */
   get apiBaseUrl() {
-    return getEnv('NEXT_PUBLIC_API_BASE_URL');
+    const url = process.env.NEXT_PUBLIC_API_BASE_URL;
+    if (!url) {
+      if (typeof window !== 'undefined') {
+        console.warn(
+          '[Sapphire] NEXT_PUBLIC_API_BASE_URL is not defined. Ensure it is set in Netlify environment variables at build time.'
+        );
+      }
+      return '';
+    }
+    return url;
   },
 
   /** Display name of the application */
