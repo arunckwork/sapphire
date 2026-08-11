@@ -17,6 +17,14 @@ export function beforeRequestInterceptor(method: Method): void {
   // Ensure httpOnly cookies are forwarded automatically by the browser
   (method.config as Record<string, unknown>)['credentials'] = 'include';
 
+  // For internal Next.js BFF API routes (/api/...), target relative path on local origin
+  if (method.url.includes('/api/')) {
+    const apiIndex = method.url.indexOf('/api/');
+    if (apiIndex !== -1) {
+      method.url = method.url.substring(apiIndex);
+    }
+  }
+
   // Only set Content-Type if not already set and not a FormData request
   if (!method.config.headers['Content-Type'] && !(method.config.data instanceof FormData)) {
     method.config.headers['Content-Type'] = 'application/json';
