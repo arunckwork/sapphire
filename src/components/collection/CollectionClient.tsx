@@ -29,42 +29,42 @@ export function CollectionClient() {
       title: 'Total Collection',
       count: totalStones,
       unit: 'stones',
-      textColor: 'text-amber-400',
+      textColor: 'text-amber-600 dark:text-amber-400',
       borderColor: 'border-amber-500/20 hover:border-amber-500/35',
     },
     {
       title: 'Total Carat Weight',
       count: parseFloat(totalCarats),
       unit: 'ct',
-      textColor: 'text-sky-400',
+      textColor: 'text-sky-600 dark:text-sky-400',
       borderColor: 'border-sky-500/20 hover:border-sky-500/35',
     },
     {
       title: 'Natural Gemstones',
       count: naturalCount,
       unit: 'records',
-      textColor: 'text-emerald-400',
+      textColor: 'text-emerald-600 dark:text-emerald-400',
       borderColor: 'border-emerald-500/20 hover:border-emerald-500/35',
     },
     {
       title: 'Certified Gemstones',
       count: certifiedCount,
       unit: 'certified',
-      textColor: 'text-purple-400',
+      textColor: 'text-purple-600 dark:text-purple-400',
       borderColor: 'border-purple-500/20 hover:border-purple-500/35',
     },
     {
       title: 'Unheated / Natural',
       count: unheatedCount,
       unit: 'entries',
-      textColor: 'text-orange-400',
+      textColor: 'text-orange-600 dark:text-orange-400',
       borderColor: 'border-orange-500/20 hover:border-orange-500/35',
     },
     {
       title: 'Madagascar Origin',
       count: madagascarOriginCount,
       unit: 'sourced',
-      textColor: 'text-rose-400',
+      textColor: 'text-rose-600 dark:text-rose-400',
       borderColor: 'border-rose-500/20 hover:border-rose-500/35',
     },
   ];
@@ -122,7 +122,7 @@ export function CollectionClient() {
       {/* ── Page Header ────────────────────────────────────────────── */}
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-200 md:text-2xl">
+          <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-200 md:text-2xl">
             Gemstone Collection
           </h1>
           <p className="text-xs font-normal text-muted-foreground">

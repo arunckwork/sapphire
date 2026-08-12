@@ -115,7 +115,7 @@ export function GemstoneGrid({
   return (
     <div className="space-y-4">
       {/* ── Toolbar: Header Filter Controls & Add Button ───────────────── */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between rounded-xl border border-border/60 bg-card/40 p-4 backdrop-blur-md">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between rounded-xl border border-border bg-card/90 p-4 backdrop-blur-md shadow-xs text-card-foreground">
         {/* Left Side: Search & Filter Selects */}
         <div className="flex flex-wrap items-center gap-2.5 flex-1">
           {/* Search Box */}
@@ -125,7 +125,7 @@ export function GemstoneGrid({
               value={filters.search}
               onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
               placeholder="Search serial, type, origin, cert..."
-              className="w-full rounded-lg border border-border/60 bg-slate-950/60 pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder:text-muted-foreground focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+              className="w-full rounded-lg border border-border bg-background pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:ring-1 focus:ring-amber-500/50"
             />
             <div className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground">
               <SearchIcon />
@@ -133,7 +133,7 @@ export function GemstoneGrid({
             {filters.search && (
               <button
                 onClick={() => setFilters((f) => ({ ...f, search: '' }))}
-                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-slate-200 text-xs"
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground text-xs"
               >
                 ✕
               </button>
@@ -144,11 +144,11 @@ export function GemstoneGrid({
           <select
             value={filters.type}
             onChange={(e) => setFilters((f) => ({ ...f, type: e.target.value }))}
-            className="rounded-lg border border-border/60 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-200 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
           >
-            <option value="ALL">All Types</option>
+            <option value="ALL" className="bg-card text-card-foreground">All Types</option>
             {GEMSTONE_TYPES.map((t) => (
-              <option key={t} value={t} className="bg-slate-900">
+              <option key={t} value={t} className="bg-card text-card-foreground">
                 {t}
               </option>
             ))}
@@ -158,11 +158,11 @@ export function GemstoneGrid({
           <select
             value={filters.origin}
             onChange={(e) => setFilters((f) => ({ ...f, origin: e.target.value }))}
-            className="rounded-lg border border-border/60 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-200 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50 max-w-[170px] truncate"
+            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 max-w-[170px] truncate cursor-pointer"
           >
-            <option value="ALL">All Origins</option>
+            <option value="ALL" className="bg-card text-card-foreground">All Origins</option>
             {ORIGIN_OPTIONS.map((o) => (
-              <option key={o} value={o} className="bg-slate-900">
+              <option key={o} value={o} className="bg-card text-card-foreground">
                 {o}
               </option>
             ))}
@@ -172,18 +172,18 @@ export function GemstoneGrid({
           <select
             value={filters.nature}
             onChange={(e) => setFilters((f) => ({ ...f, nature: e.target.value }))}
-            className="rounded-lg border border-border/60 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-200 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
           >
-            <option value="ALL">All Natures</option>
-            <option value="Natural" className="bg-slate-900">Natural</option>
-            <option value="Synthetic" className="bg-slate-900">Synthetic</option>
+            <option value="ALL" className="bg-card text-card-foreground">All Natures</option>
+            <option value="Natural" className="bg-card text-card-foreground">Natural</option>
+            <option value="Synthetic" className="bg-card text-card-foreground">Synthetic</option>
           </select>
 
           {/* Reset Filters */}
           {hasActiveFilters && (
             <button
               onClick={resetFilters}
-              className="rounded-lg border border-rose-500/30 bg-rose-500/10 px-2.5 py-1.5 text-xs font-medium text-rose-300 hover:bg-rose-500/20 transition-colors"
+              className="rounded-lg border border-rose-500/40 bg-rose-500/10 px-2.5 py-1.5 text-xs font-semibold text-rose-600 dark:text-rose-300 hover:bg-rose-500/20 transition-colors"
             >
               Clear Filters
             </button>
@@ -193,7 +193,7 @@ export function GemstoneGrid({
         {/* Right Side: Add New Gemstone Button */}
         <button
           onClick={onAddNew}
-          className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-xs font-semibold text-slate-950 shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 transition-all duration-200 shrink-0"
+          className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-xs font-bold text-slate-950 shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 transition-all duration-200 shrink-0"
         >
           <PlusIcon />
           <span>Add new Gem stone</span>
@@ -201,15 +201,18 @@ export function GemstoneGrid({
       </div>
 
       {/* ── Data Grid Table ───────────────────────────────────────────── */}
-      <div className="overflow-hidden rounded-xl border border-border/60 bg-card/40 backdrop-blur-md shadow-xs">
+      <div className="overflow-hidden rounded-xl border border-border bg-card/90 backdrop-blur-md shadow-xs">
         <div className="overflow-x-auto">
-          <table className="w-full text-left text-xs text-slate-200">
+          <table className="w-full text-left text-xs text-foreground">
             {/* Table Header */}
-            <thead className="border-b border-border/60 bg-slate-900/70 text-[11px] font-semibold text-muted-foreground uppercase tracking-wider">
+            <thead
+              style={{ backgroundColor: 'hsl(var(--table-header-bg))', color: 'hsl(var(--table-header-fg))' }}
+              className="border-b border-border text-[11px] font-bold uppercase tracking-wider"
+            >
               <tr>
                 <th
                   onClick={() => handleSort('serialNo')}
-                  className="px-4 py-3.5 cursor-pointer hover:text-amber-400 transition-colors select-none"
+                  className="px-4 py-3.5 cursor-pointer hover:text-amber-600 dark:hover:text-amber-400 transition-colors select-none"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Serial & Variety</span>
@@ -218,7 +221,7 @@ export function GemstoneGrid({
                 </th>
                 <th
                   onClick={() => handleSort('type')}
-                  className="px-4 py-3.5 cursor-pointer hover:text-amber-400 transition-colors select-none"
+                  className="px-4 py-3.5 cursor-pointer hover:text-amber-600 dark:hover:text-amber-400 transition-colors select-none"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Type & Nature</span>
@@ -227,7 +230,7 @@ export function GemstoneGrid({
                 </th>
                 <th
                   onClick={() => handleSort('weight')}
-                  className="px-4 py-3.5 cursor-pointer hover:text-amber-400 transition-colors select-none"
+                  className="px-4 py-3.5 cursor-pointer hover:text-amber-600 dark:hover:text-amber-400 transition-colors select-none"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Weight & Qty</span>
@@ -239,7 +242,7 @@ export function GemstoneGrid({
                 </th>
                 <th
                   onClick={() => handleSort('origin')}
-                  className="px-4 py-3.5 cursor-pointer hover:text-amber-400 transition-colors select-none"
+                  className="px-4 py-3.5 cursor-pointer hover:text-amber-600 dark:hover:text-amber-400 transition-colors select-none"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Origin & Treatment</span>
@@ -257,13 +260,13 @@ export function GemstoneGrid({
             </thead>
 
             {/* Table Body */}
-            <tbody className="divide-y divide-border/30">
+            <tbody className="divide-y divide-border/60">
               {processedRecords.length === 0 ? (
                 <tr>
                   <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <EmptyIcon />
-                      <span className="font-medium text-sm text-slate-300">No gemstones found</span>
+                      <span className="font-semibold text-sm text-foreground">No gemstones found</span>
                       <span className="text-xs text-muted-foreground">
                         {hasActiveFilters
                           ? 'Try adjusting your search query or filter options.'
@@ -272,7 +275,7 @@ export function GemstoneGrid({
                       {hasActiveFilters && (
                         <button
                           onClick={resetFilters}
-                          className="mt-2 rounded-lg border border-border/60 bg-slate-800 px-3 py-1.5 text-xs text-slate-200 hover:bg-slate-700"
+                          className="mt-2 rounded-lg border border-border bg-secondary px-3 py-1.5 text-xs font-semibold text-secondary-foreground hover:bg-secondary/80"
                         >
                           Clear Filters
                         </button>
@@ -284,15 +287,15 @@ export function GemstoneGrid({
                 processedRecords.map((item) => (
                   <tr
                     key={item.id}
-                    className="group hover:bg-slate-800/40 transition-colors duration-150"
+                    className="group hover:bg-muted/50 transition-colors duration-150"
                   >
                     {/* Serial & Variety */}
                     <td className="px-4 py-3.5">
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-mono font-medium text-amber-400 tracking-tight">
+                        <span className="font-mono font-bold text-amber-600 dark:text-amber-400 tracking-tight">
                           {item.serialNo}
                         </span>
-                        <span className="text-slate-300 text-[11px] font-normal">
+                        <span className="text-muted-foreground text-[11px] font-normal">
                           {item.variety}
                         </span>
                       </div>
@@ -301,12 +304,12 @@ export function GemstoneGrid({
                     {/* Type & Nature */}
                     <td className="px-4 py-3.5">
                       <div className="flex flex-col gap-1 items-start">
-                        <span className="font-medium text-slate-200">{item.type}</span>
+                        <span className="font-semibold text-foreground">{item.type}</span>
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-medium border ${
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
                             item.nature === 'Natural'
-                              ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30'
-                              : 'bg-purple-500/10 text-purple-400 border-purple-500/30'
+                              ? 'bg-emerald-500/10 text-emerald-700 dark:text-emerald-400 border-emerald-500/30'
+                              : 'bg-purple-500/10 text-purple-700 dark:text-purple-400 border-purple-500/30'
                           }`}
                         >
                           {item.nature}
@@ -317,7 +320,7 @@ export function GemstoneGrid({
                     {/* Weight & Qty */}
                     <td className="px-4 py-3.5">
                       <div className="flex flex-col gap-0.5">
-                        <span className="font-semibold text-slate-100">
+                        <span className="font-bold text-foreground">
                           {item.weight} {item.weightUnit}
                         </span>
                         <span className="text-[11px] text-muted-foreground">
@@ -329,7 +332,7 @@ export function GemstoneGrid({
                     {/* Shape & Color */}
                     <td className="px-4 py-3.5">
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-slate-200 font-medium">{item.shape || '—'}</span>
+                        <span className="text-foreground font-medium">{item.shape || '—'}</span>
                         <span className="text-[11px] text-muted-foreground">{item.color || '—'}</span>
                       </div>
                     </td>
@@ -337,7 +340,7 @@ export function GemstoneGrid({
                     {/* Origin & Treatment */}
                     <td className="px-4 py-3.5">
                       <div className="flex flex-col gap-0.5">
-                        <span className="text-slate-200 font-medium">{item.origin || '—'}</span>
+                        <span className="text-foreground font-medium">{item.origin || '—'}</span>
                         <span className="text-[11px] text-muted-foreground">{item.treatment || '—'}</span>
                       </div>
                     </td>
@@ -347,7 +350,7 @@ export function GemstoneGrid({
                       <div className="flex flex-col gap-0.5">
                         {item.certificationNo ? (
                           <>
-                            <span className="font-mono text-[11px] text-sky-400">
+                            <span className="font-mono text-[11px] text-sky-600 dark:text-sky-400 font-semibold">
                               {item.certificationNo}
                             </span>
                             <span className="text-[10px] text-muted-foreground">
@@ -366,14 +369,14 @@ export function GemstoneGrid({
                         <button
                           onClick={() => onEdit(item)}
                           title="Edit record"
-                          className="rounded-md p-1.5 text-slate-400 hover:bg-slate-800 hover:text-amber-400 transition-colors"
+                          className="rounded-md p-1.5 text-muted-foreground hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
                         >
                           <EditIcon />
                         </button>
                         <button
                           onClick={() => setDeletingId(item.id)}
                           title="Delete record"
-                          className="rounded-md p-1.5 text-slate-400 hover:bg-rose-500/10 hover:text-rose-400 transition-colors"
+                          className="rounded-md p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
                         >
                           <TrashIcon />
                         </button>
@@ -387,10 +390,13 @@ export function GemstoneGrid({
         </div>
 
         {/* Table Footer info */}
-        <div className="border-t border-border/40 px-4 py-2.5 bg-slate-900/50 flex items-center justify-between text-[11px] text-muted-foreground">
+        <div
+          style={{ backgroundColor: 'hsl(var(--table-footer-bg))', color: 'hsl(var(--table-footer-fg))' }}
+          className="border-t border-border px-4 py-2.5 flex items-center justify-between text-[11px] font-semibold"
+        >
           <span>
-            Showing <strong className="text-slate-200">{processedRecords.length}</strong> of{' '}
-            <strong className="text-slate-200">{records.length}</strong> entries
+            Showing <strong className="text-foreground">{processedRecords.length}</strong> of{' '}
+            <strong className="text-foreground">{records.length}</strong> entries
           </span>
           {hasActiveFilters && <span>Filtered by active criteria</span>}
         </div>
@@ -399,20 +405,20 @@ export function GemstoneGrid({
       {/* ── Delete Confirmation Dialog ─────────────────────────────────── */}
       {deletingId && recordToDelete && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="w-full max-w-md rounded-xl border border-border/60 bg-slate-900 p-5 shadow-2xl space-y-4">
-            <div className="flex items-center gap-3 text-rose-400">
+          <div className="w-full max-w-md rounded-xl border border-border bg-card p-5 shadow-2xl space-y-4 text-card-foreground">
+            <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-rose-500/10 border border-rose-500/30">
                 <TrashIcon />
               </div>
               <div>
-                <h3 className="text-sm font-semibold text-slate-100">Delete Gemstone Record?</h3>
+                <h3 className="text-sm font-bold text-foreground">Delete Gemstone Record?</h3>
                 <p className="text-xs text-muted-foreground mt-0.5">
-                  Are you sure you want to delete <strong className="text-slate-200">{recordToDelete.serialNo}</strong>?
+                  Are you sure you want to delete <strong className="text-foreground">{recordToDelete.serialNo}</strong>?
                 </p>
               </div>
             </div>
 
-            <div className="rounded-lg bg-slate-950/60 p-3 text-xs text-slate-300 space-y-1">
+            <div className="rounded-lg bg-muted/60 p-3 text-xs text-foreground space-y-1">
               <div><strong>Type:</strong> {recordToDelete.type} ({recordToDelete.variety})</div>
               <div><strong>Weight:</strong> {recordToDelete.weight} {recordToDelete.weightUnit}</div>
               <div><strong>Origin:</strong> {recordToDelete.origin}</div>
@@ -421,7 +427,7 @@ export function GemstoneGrid({
             <div className="flex items-center justify-end gap-2 pt-2">
               <button
                 onClick={() => setDeletingId(null)}
-                className="rounded-lg border border-border/60 px-4 py-1.5 text-xs text-slate-300 hover:bg-slate-800"
+                className="rounded-lg border border-border px-4 py-1.5 text-xs font-semibold text-muted-foreground hover:bg-accent hover:text-foreground"
               >
                 Cancel
               </button>
@@ -430,7 +436,7 @@ export function GemstoneGrid({
                   onDelete(deletingId);
                   setDeletingId(null);
                 }}
-                className="rounded-lg bg-rose-600 px-4 py-1.5 text-xs font-semibold text-white hover:bg-rose-500 shadow-sm"
+                className="rounded-lg bg-rose-600 px-4 py-1.5 text-xs font-bold text-white hover:bg-rose-500 shadow-sm"
               >
                 Confirm Delete
               </button>
@@ -446,10 +452,10 @@ export function GemstoneGrid({
 
 function SortIndicator({ field, currentSort }: { field: SortField; currentSort: SortConfig }) {
   if (currentSort.field !== field) {
-    return <span className="text-slate-600 text-[10px]">↕</span>;
+    return <span className="text-muted-foreground text-[10px]">↕</span>;
   }
   return (
-    <span className="text-amber-400 text-[10px]">
+    <span className="text-amber-600 dark:text-amber-400 text-[10px]">
       {currentSort.order === 'asc' ? '↑' : '↓'}
     </span>
   );
@@ -493,7 +499,7 @@ function TrashIcon() {
 
 function EmptyIcon() {
   return (
-    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground/60">
+    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground">
       <polygon points="12 2 22 8.5 12 22 2 8.5 12 2" />
       <line x1="2" y1="8.5" x2="22" y2="8.5" />
     </svg>

@@ -1,26 +1,29 @@
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 /* ── Design Tokens ─────────────────────────────────────────────────── */
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* Refined Light Mode — Soft pearl slate background with rich high-contrast typography */
+    --background: 215 28% 97%;
+    --foreground: 222.2 84% 9.8%;
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 222.2 84% 9.8%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 222.2 84% 9.8%;
     --primary: 221.2 83.2% 53.3%;
     --primary-foreground: 210 40% 98%;
-    --secondary: 210 40% 96.1%;
+    --secondary: 215 25% 93.5%;
     --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
-    --accent: 210 40% 96.1%;
+    --muted: 215 25% 93.5%;
+    --muted-foreground: 215.4 20% 40%;
+    --accent: 215 25% 93.5%;
     --accent-foreground: 222.2 47.4% 11.2%;
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
+    --border: 214.3 28% 88%;
+    --input: 214.3 28% 88%;
     --ring: 221.2 83.2% 53.3%;
     --radius: 0.5rem;
 
@@ -29,8 +32,14 @@
     --gem-ruby: 350 89% 48%;
     --gem-emerald: 152 76% 36%;
     --gem-amethyst: 270 67% 52%;
-    --gem-gold: 43 96% 52%;
-    --gem-diamond: 200 20% 92%;
+    --gem-gold: 43 96% 45%;
+    --gem-diamond: 200 20% 88%;
+
+    /* Grid & Surface tokens — light mode */
+    --table-header-bg: 215 25% 90%;
+    --table-header-fg: 222.2 47% 20%;
+    --table-footer-bg: 215 25% 93%;
+    --table-footer-fg: 215.4 20% 35%;
   }
 
   .dark {
@@ -61,6 +70,12 @@
     --gem-amethyst: 270 67% 65%;
     --gem-gold: 43 96% 58%;
     --gem-diamond: 200 30% 85%;
+
+    /* Grid & Surface tokens — dark mode */
+    --table-header-bg: 224 35% 13%;
+    --table-header-fg: 215 15% 85%;
+    --table-footer-bg: 224 35% 11%;
+    --table-footer-fg: 215 15% 65%;
   }
 }
 
@@ -112,8 +127,20 @@
     box-shadow: 0 0 32px 4px hsl(152 76% 48% / 0.35), 0 0 80px 8px hsl(152 76% 48% / 0.12);
   }
 
-  /* Glassmorphism card */
+  /* Theme-aware Glassmorphism card */
   .glass-card {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.95) 0%,
+      rgba(248, 250, 252, 0.9) 100%
+    );
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(226, 232, 240, 0.9);
+    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  }
+
+  .dark .glass-card {
     background: linear-gradient(
       135deg,
       hsl(224 35% 12% / 0.85) 0%,
@@ -122,6 +149,7 @@
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
     border: 1px solid hsl(217 91% 60% / 0.15);
+    box-shadow: none;
   }
 
   /* Gem gradient button */
@@ -160,6 +188,21 @@
   .text-shimmer {
     background: linear-gradient(
       90deg,
+      hsl(43 96% 45%) 0%,
+      hsl(43 96% 65%) 30%,
+      hsl(43 96% 45%) 60%,
+      hsl(43 96% 35%) 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+  }
+
+  .dark .text-shimmer {
+    background: linear-gradient(
+      90deg,
       hsl(43 96% 70%) 0%,
       hsl(43 96% 90%) 30%,
       hsl(43 96% 70%) 60%,
@@ -169,19 +212,29 @@
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
-    animation: shimmer 3s linear infinite;
   }
 
   /* Input gem style */
   .input-gem {
+    background: hsl(0 0% 100%);
+    border: 1px solid hsl(214.3 28% 86%);
+    color: hsl(222.2 84% 9.8%);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+  .input-gem::placeholder { color: hsl(215.4 16.3% 55%); }
+  .input-gem:focus {
+    outline: none;
+    border-color: hsl(221.2 83.2% 53.3%);
+    box-shadow: 0 0 0 3px hsl(221.2 83.2% 53.3% / 0.15);
+  }
+
+  .dark .input-gem {
     background: hsl(224 40% 8% / 0.8);
     border: 1px solid hsl(224 30% 20%);
     color: hsl(215 15% 85%);
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  .input-gem::placeholder { color: hsl(215 15% 42%); }
-  .input-gem:focus {
-    outline: none;
+  .dark .input-gem::placeholder { color: hsl(215 15% 42%); }
+  .dark .input-gem:focus {
     border-color: hsl(217 91% 60% / 0.7);
     box-shadow: 0 0 0 3px hsl(217 91% 60% / 0.15), 0 0 12px hsl(217 91% 60% / 0.2);
   }

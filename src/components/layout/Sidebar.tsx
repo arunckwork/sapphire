@@ -96,7 +96,7 @@ export function Sidebar() {
             </div>
             {sidebarOpen && (
               <div className="flex flex-col whitespace-nowrap transition-opacity duration-200">
-                <span className="text-sm font-semibold tracking-tight text-slate-200">Sapphire</span>
+                <span className="text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-200">Sapphire</span>
                 <span className="text-[10px] text-muted-foreground">GemTrace</span>
               </div>
             )}
@@ -115,12 +115,12 @@ export function Sidebar() {
                 onClick={handleNavClick}
                 title={!sidebarOpen ? item.label : undefined}
                 className={`group flex items-center gap-2.5 rounded-lg px-2.5 py-2 text-xs font-medium transition-all duration-150 ${isActive
-                  ? 'border border-amber-500/30 bg-amber-500/10 text-amber-400 font-semibold shadow-xs'
-                  : 'text-muted-foreground hover:bg-muted/50 hover:text-slate-200'
+                  ? 'border border-amber-500/40 bg-amber-500/15 text-amber-700 dark:text-amber-400 font-semibold shadow-xs'
+                  : 'text-muted-foreground hover:bg-muted/70 hover:text-slate-900 dark:hover:text-slate-200'
                   } ${!sidebarOpen ? 'md:justify-center md:px-0' : ''}`}
               >
                 <span
-                  className={`shrink-0 transition-colors ${isActive ? 'text-amber-400' : 'text-muted-foreground group-hover:text-slate-200'
+                  className={`shrink-0 transition-colors ${isActive ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground group-hover:text-slate-900 dark:group-hover:text-slate-200'
                     }`}
                 >
                   {item.icon}
@@ -148,7 +148,7 @@ export function Sidebar() {
             </div>
             {sidebarOpen && (
               <div className="flex flex-1 flex-col overflow-hidden text-left">
-                <span className="truncate text-[11px] font-medium text-slate-200">{userName}</span>
+                <span className="truncate text-[11px] font-medium text-slate-900 dark:text-slate-200">{userName}</span>
                 <span className="truncate text-[10px] text-muted-foreground">{userRole}</span>
               </div>
             )}

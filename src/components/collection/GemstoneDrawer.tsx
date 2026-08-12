@@ -129,21 +129,21 @@ export function GemstoneDrawer({
       />
 
       {/* ── Drawer Offcanvas Panel (Right side) ──────────────────────── */}
-      <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-slate-900 border-l border-border/60 text-slate-100 shadow-2xl transition-transform duration-300 animate-in slide-in-from-right">
+      <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 shadow-2xl transition-transform duration-300 animate-in slide-in-from-right">
         {/* Drawer Header */}
-        <div className="flex items-center justify-between border-b border-border/40 px-6 py-4 bg-slate-900/80 backdrop-blur-md">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
           <div>
-            <h2 className="text-lg font-semibold text-slate-100">
+            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
               {editingRecord ? 'Edit Gemstone Record' : 'Add New Gemstone Collection'}
             </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
               Enter physical and laboratory details for the gemstone entry
             </p>
           </div>
           <button
             onClick={onClose}
             type="button"
-            className="rounded-lg p-2 text-muted-foreground hover:bg-slate-800 hover:text-slate-200 transition-colors"
+            className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
           >
             <CloseIcon />
           </button>
@@ -153,8 +153,8 @@ export function GemstoneDrawer({
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
           {/* Validation Alert Header if errors */}
           {Object.keys(errors).length > 0 && (
-            <div className="rounded-lg border border-rose-500/30 bg-rose-500/10 p-3 text-xs text-rose-300 space-y-1">
-              <span className="font-semibold block">Please fix mandatory fields:</span>
+            <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-xs text-rose-600 dark:text-rose-300 space-y-1">
+              <span className="font-bold block">Please fix mandatory fields:</span>
               <ul className="list-disc list-inside space-y-0.5">
                 {Object.values(errors).map((err, i) => (
                   <li key={i}>{err}</li>
@@ -165,26 +165,26 @@ export function GemstoneDrawer({
 
           {/* SECTION 1: Core Gemstone Information */}
           <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-400/90 border-b border-border/30 pb-1.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5">
               Gemstone Information
             </h3>
 
             {/* Serial No. (Mandatory) */}
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
-                Gemstone Serial No. <span className="text-rose-400">*</span>
+              <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                Gemstone Serial No. <span className="text-rose-500">*</span>
               </label>
               <input
                 type="text"
                 value={formData.serialNo}
                 onChange={(e) => handleChange('serialNo', e.target.value)}
                 placeholder="e.g. GT-MAD-2026-001"
-                className={`w-full rounded-lg border bg-slate-950/70 px-3.5 py-2 text-xs font-mono text-slate-100 placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50 ${
-                  errors.serialNo ? 'border-rose-500/60' : 'border-border/60'
+                className={`w-full rounded-lg border bg-white dark:bg-slate-950 px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 ${
+                  errors.serialNo ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
                 }`}
               />
               {errors.serialNo && (
-                <span className="text-[11px] text-rose-400 mt-1 block">{errors.serialNo}</span>
+                <span className="text-[11px] text-rose-500 mt-1 block">{errors.serialNo}</span>
               )}
             </div>
 
@@ -192,31 +192,31 @@ export function GemstoneDrawer({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Gemstone Type (Mandatory) */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Gemstone Type <span className="text-rose-400">*</span>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                  Gemstone Type <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={formData.type}
                   onChange={(e) => handleChange('type', e.target.value)}
-                  className={`w-full rounded-lg border bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50 ${
-                    errors.type ? 'border-rose-500/60' : 'border-border/60'
+                  className={`w-full rounded-lg border bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer ${
+                    errors.type ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
                   }`}
                 >
                   {GEMSTONE_TYPES.map((t) => (
-                    <option key={t} value={t} className="bg-slate-900 text-slate-100">
+                    <option key={t} value={t} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       {t}
                     </option>
                   ))}
                 </select>
                 {errors.type && (
-                  <span className="text-[11px] text-rose-400 mt-1 block">{errors.type}</span>
+                  <span className="text-[11px] text-rose-500 mt-1 block">{errors.type}</span>
                 )}
               </div>
 
               {/* Variety (Dropdown / Text) */}
               <div>
                 <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-medium text-slate-300">Variety</label>
+                  <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200">Variety</label>
                   <button
                     type="button"
                     onClick={() => {
@@ -227,7 +227,7 @@ export function GemstoneDrawer({
                         handleChange('variety', GEMSTONE_VARIETIES[0]);
                       }
                     }}
-                    className="text-[10px] text-amber-400 hover:underline"
+                    className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold hover:underline"
                   >
                     {isCustomVariety ? 'Select from list' : 'Custom Text'}
                   </button>
@@ -238,16 +238,16 @@ export function GemstoneDrawer({
                     value={formData.variety}
                     onChange={(e) => handleChange('variety', e.target.value)}
                     placeholder="Enter custom variety..."
-                    className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50"
                   />
                 ) : (
                   <select
                     value={formData.variety}
                     onChange={(e) => handleChange('variety', e.target.value)}
-                    className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
                   >
                     {GEMSTONE_VARIETIES.map((v) => (
-                      <option key={v} value={v} className="bg-slate-900 text-slate-100">
+                      <option key={v} value={v} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                         {v}
                       </option>
                     ))}
@@ -258,35 +258,35 @@ export function GemstoneDrawer({
 
             {/* Natural / Synthetic Radio */}
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
                 Natural / Synthetic
               </label>
-              <div className="flex items-center gap-4 rounded-lg border border-border/40 bg-slate-950/40 p-2.5">
-                <label className="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">
+              <div className="flex items-center gap-4 rounded-lg border border-slate-300 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-950/60 p-2.5">
+                <label className="flex items-center gap-2 text-xs text-slate-900 dark:text-slate-100 font-medium cursor-pointer">
                   <input
                     type="radio"
                     name="nature"
                     value="Natural"
                     checked={formData.nature === 'Natural'}
                     onChange={() => handleChange('nature', 'Natural')}
-                    className="accent-amber-400 h-4 w-4"
+                    className="accent-amber-500 h-4 w-4"
                   />
                   <span className="inline-flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+                    <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
                     Natural
                   </span>
                 </label>
-                <label className="flex items-center gap-2 text-xs text-slate-200 cursor-pointer">
+                <label className="flex items-center gap-2 text-xs text-slate-900 dark:text-slate-100 font-medium cursor-pointer">
                   <input
                     type="radio"
                     name="nature"
                     value="Synthetic"
                     checked={formData.nature === 'Synthetic'}
                     onChange={() => handleChange('nature', 'Synthetic')}
-                    className="accent-amber-400 h-4 w-4"
+                    className="accent-amber-500 h-4 w-4"
                   />
                   <span className="inline-flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-purple-400"></span>
+                    <span className="h-2 w-2 rounded-full bg-purple-500"></span>
                     Synthetic
                   </span>
                 </label>
@@ -296,14 +296,14 @@ export function GemstoneDrawer({
             {/* Treatment & Origin */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Treatment</label>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Treatment</label>
                 <select
                   value={formData.treatment}
                   onChange={(e) => handleChange('treatment', e.target.value)}
-                  className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
                 >
                   {TREATMENT_OPTIONS.map((t) => (
-                    <option key={t} value={t} className="bg-slate-900 text-slate-100">
+                    <option key={t} value={t} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       {t}
                     </option>
                   ))}
@@ -311,14 +311,14 @@ export function GemstoneDrawer({
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Origin</label>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Origin</label>
                 <select
                   value={formData.origin}
                   onChange={(e) => handleChange('origin', e.target.value)}
-                  className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
                 >
                   {ORIGIN_OPTIONS.map((o) => (
-                    <option key={o} value={o} className="bg-slate-900 text-slate-100">
+                    <option key={o} value={o} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       {o}
                     </option>
                   ))}
@@ -329,15 +329,15 @@ export function GemstoneDrawer({
 
           {/* SECTION 2: Quantity & Weight */}
           <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-400/90 border-b border-border/30 pb-1.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5">
               Quantity & Weight
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {/* Quantity (Mandatory) */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Quantity <span className="text-rose-400">*</span>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                  Quantity <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -345,19 +345,19 @@ export function GemstoneDrawer({
                   step="1"
                   value={formData.quantity}
                   onChange={(e) => handleChange('quantity', parseInt(e.target.value, 10) || 0)}
-                  className={`w-full rounded-lg border bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50 ${
-                    errors.quantity ? 'border-rose-500/60' : 'border-border/60'
+                  className={`w-full rounded-lg border bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 ${
+                    errors.quantity ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
                   }`}
                 />
                 {errors.quantity && (
-                  <span className="text-[11px] text-rose-400 mt-1 block">{errors.quantity}</span>
+                  <span className="text-[11px] text-rose-500 mt-1 block">{errors.quantity}</span>
                 )}
               </div>
 
               {/* Weight (Mandatory) */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Weight (Decimal) <span className="text-rose-400">*</span>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                  Weight (Decimal) <span className="text-rose-500">*</span>
                 </label>
                 <input
                   type="number"
@@ -365,35 +365,35 @@ export function GemstoneDrawer({
                   step="0.01"
                   value={formData.weight}
                   onChange={(e) => handleChange('weight', parseFloat(e.target.value) || 0)}
-                  className={`w-full rounded-lg border bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50 ${
-                    errors.weight ? 'border-rose-500/60' : 'border-border/60'
+                  className={`w-full rounded-lg border bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 ${
+                    errors.weight ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
                   }`}
                 />
                 {errors.weight && (
-                  <span className="text-[11px] text-rose-400 mt-1 block">{errors.weight}</span>
+                  <span className="text-[11px] text-rose-500 mt-1 block">{errors.weight}</span>
                 )}
               </div>
 
               {/* Weight Unit (Mandatory) */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
-                  Weight Unit <span className="text-rose-400">*</span>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                  Weight Unit <span className="text-rose-500">*</span>
                 </label>
                 <select
                   value={formData.weightUnit}
                   onChange={(e) => handleChange('weightUnit', e.target.value)}
-                  className={`w-full rounded-lg border bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50 ${
-                    errors.weightUnit ? 'border-rose-500/60' : 'border-border/60'
+                  className={`w-full rounded-lg border bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer ${
+                    errors.weightUnit ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
                   }`}
                 >
                   {WEIGHT_UNITS.map((u) => (
-                    <option key={u} value={u} className="bg-slate-900 text-slate-100">
+                    <option key={u} value={u} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       {u}
                     </option>
                   ))}
                 </select>
                 {errors.weightUnit && (
-                  <span className="text-[11px] text-rose-400 mt-1 block">{errors.weightUnit}</span>
+                  <span className="text-[11px] text-rose-500 mt-1 block">{errors.weightUnit}</span>
                 )}
               </div>
             </div>
@@ -401,21 +401,21 @@ export function GemstoneDrawer({
 
           {/* SECTION 3: Cut, Shape & Grading */}
           <div className="space-y-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-400/90 border-b border-border/30 pb-1.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5">
               Cut, Shape & Appearance
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Shape */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Shape</label>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Shape</label>
                 <select
                   value={formData.shape}
                   onChange={(e) => handleChange('shape', e.target.value)}
-                  className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
                 >
                   {SHAPE_OPTIONS.map((s) => (
-                    <option key={s} value={s} className="bg-slate-900 text-slate-100">
+                    <option key={s} value={s} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       {s}
                     </option>
                   ))}
@@ -424,14 +424,14 @@ export function GemstoneDrawer({
 
               {/* Cut */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Cut</label>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Cut</label>
                 <select
                   value={formData.cut}
                   onChange={(e) => handleChange('cut', e.target.value)}
-                  className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
                 >
                   {CUT_OPTIONS.map((c) => (
-                    <option key={c} value={c} className="bg-slate-900 text-slate-100">
+                    <option key={c} value={c} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       {c}
                     </option>
                   ))}
@@ -440,14 +440,14 @@ export function GemstoneDrawer({
 
               {/* Color */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Color</label>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Color</label>
                 <select
                   value={formData.color}
                   onChange={(e) => handleChange('color', e.target.value)}
-                  className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
                 >
                   {COLOR_OPTIONS.map((co) => (
-                    <option key={co} value={co} className="bg-slate-900 text-slate-100">
+                    <option key={co} value={co} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       {co}
                     </option>
                   ))}
@@ -456,14 +456,14 @@ export function GemstoneDrawer({
 
               {/* Clarity */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">Clarity</label>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Clarity</label>
                 <select
                   value={formData.clarity}
                   onChange={(e) => handleChange('clarity', e.target.value)}
-                  className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
                 >
                   {CLARITY_OPTIONS.map((cl) => (
-                    <option key={cl} value={cl} className="bg-slate-900 text-slate-100">
+                    <option key={cl} value={cl} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       {cl}
                     </option>
                   ))}
@@ -473,7 +473,7 @@ export function GemstoneDrawer({
 
             {/* Dimensions */}
             <div>
-              <label className="block text-xs font-medium text-slate-300 mb-1">
+              <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                 Dimensions (Length x Width x Depth)
               </label>
               <input
@@ -481,21 +481,21 @@ export function GemstoneDrawer({
                 value={formData.dimensions}
                 onChange={(e) => handleChange('dimensions', e.target.value)}
                 placeholder="e.g. 8.5 x 6.2 x 4.1 mm"
-                className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3.5 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50"
               />
             </div>
           </div>
 
           {/* SECTION 4: Certification */}
           <div className="space-y-4 pb-4">
-            <h3 className="text-xs font-semibold uppercase tracking-wider text-amber-400/90 border-b border-border/30 pb-1.5">
+            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5">
               Certification & Lab
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Certification No. */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                   Certification No.
                 </label>
                 <input
@@ -503,22 +503,22 @@ export function GemstoneDrawer({
                   value={formData.certificationNo}
                   onChange={(e) => handleChange('certificationNo', e.target.value)}
                   placeholder="e.g. GIA-2481903"
-                  className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3.5 py-2 text-xs text-slate-100 placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50 font-mono"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 font-mono"
                 />
               </div>
 
               {/* Certification Laboratory */}
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1">
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                   Certification Laboratory
                 </label>
                 <select
                   value={formData.certificationLab}
                   onChange={(e) => handleChange('certificationLab', e.target.value)}
-                  className="w-full rounded-lg border border-border/60 bg-slate-950/70 px-3 py-2 text-xs text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-400/50"
+                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
                 >
                   {CERTIFICATION_LABS.map((lab) => (
-                    <option key={lab} value={lab} className="bg-slate-900 text-slate-100">
+                    <option key={lab} value={lab} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
                       {lab}
                     </option>
                   ))}
@@ -529,18 +529,18 @@ export function GemstoneDrawer({
         </form>
 
         {/* Drawer Footer Actions */}
-        <div className="flex items-center justify-end gap-3 border-t border-border/40 px-6 py-4 bg-slate-900/90 backdrop-blur-md">
+        <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-border/60 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-800 transition-colors"
+            className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSubmit}
-            className="rounded-lg bg-amber-500 px-5 py-2 text-xs font-semibold text-slate-950 hover:bg-amber-400 transition-colors shadow-md shadow-amber-500/20"
+            className="rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2 text-xs font-bold text-slate-950 hover:from-amber-400 hover:to-amber-500 transition-colors shadow-md shadow-amber-500/20"
           >
             {editingRecord ? 'Update Gemstone' : 'Save Gemstone'}
           </button>
