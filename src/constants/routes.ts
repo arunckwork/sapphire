@@ -6,6 +6,7 @@ export const ROUTES = {
 
   // Features / Modules
   COLLECTION: '/collection',
+  USERS: '/users',
   PROFILE: '/profile',
   SETTINGS: '/settings',
 

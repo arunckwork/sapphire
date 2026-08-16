@@ -11,7 +11,7 @@ export function useRole() {
   return {
     role,
     isAdmin: role === ROLES.ADMIN,
-    isModerator: role === ROLES.MODERATOR,
+    isManager: role === ROLES.MANAGER,
     hasRole: (requiredRole: Role) => role === requiredRole,
   };
 }

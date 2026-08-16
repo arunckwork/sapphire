@@ -6,7 +6,10 @@ export const ENDPOINTS = {
     ME: '/api/auth/me',
   },
   USERS: {
-    LIST: '/users',
-    BY_ID: (id: string) => `/users/${id}`,
+    LIST: '/api/users',
+    REGISTER: '/api/users/register',
+    BY_ID: (id: string) => `/api/users/${id}`,
+    SUSPEND: (id: string) => `/api/users/${id}/suspend`,
+    ACTIVATE: (id: string) => `/api/users/${id}/activate`,
   },
 } as const;
