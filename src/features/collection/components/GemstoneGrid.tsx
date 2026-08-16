@@ -1,13 +1,13 @@
 'use client';
 
 import React, { useState, useMemo } from 'react';
-import {
+import type {
   GemstoneRecord,
   SortConfig,
   SortField,
   GemstoneFilterState,
-} from '@/types/gemstone.types';
-import { GEMSTONE_TYPES, ORIGIN_OPTIONS } from '@/constants/gemstone.constants';
+} from '../types/gemstone.types';
+import { GEMSTONE_TYPES, ORIGIN_OPTIONS } from '../constants/gemstone.constants';
 
 interface GemstoneGridProps {
   records: GemstoneRecord[];
@@ -447,8 +447,6 @@ export function GemstoneGrid({
     </div>
   );
 }
-
-/* ── Helper Icon Components ─────────────────────────────────────────── */
 
 function SortIndicator({ field, currentSort }: { field: SortField; currentSort: SortConfig }) {
   if (currentSort.field !== field) {

@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useUIStore, useAuthStore } from '@/store';
-import { useAuth } from '@/hooks/useAuth';
+import { useUIStore } from '@/store';
+import { useAuthStore, useAuth } from '@/features/auth';
 import { ROUTES } from '@/constants/routes';
 
 interface NavItem {
@@ -14,39 +14,19 @@ interface NavItem {
 
 const NAV_ITEMS: NavItem[] = [
   {
-    label: 'Dashboard',
-    href: ROUTES.DASHBOARD,
-    icon: <DashboardIcon />,
-  },
-  {
     label: 'Collection',
-    href: '/collection',
+    href: ROUTES.COLLECTION,
     icon: <GemIcon />,
   },
   {
-    label: 'Registration',
-    href: '/registration',
-    icon: <ClipboardIcon />,
+    label: 'Profile',
+    href: ROUTES.PROFILE,
+    icon: <UserIcon />,
   },
   {
-    label: 'Sorting',
-    href: '/sorting',
-    icon: <SortingIcon />,
-  },
-  {
-    label: 'Packing',
-    href: '/packing',
-    icon: <PackingIcon />,
-  },
-  {
-    label: 'Relotting',
-    href: '/relotting',
-    icon: <RelottingIcon />,
-  },
-  {
-    label: 'Trade & Export',
-    href: '/trade',
-    icon: <TradeIcon />,
+    label: 'Settings',
+    href: ROUTES.SETTINGS,
+    icon: <SettingsIcon />,
   },
 ];
 
@@ -59,7 +39,7 @@ export function Sidebar() {
 
   const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'G';
   const userName = user?.name ?? 'GemTrace Admin';
-  const userRole = user?.role ? (user.role.charAt(0).toUpperCase() + user.role.slice(1)) : 'Admin';
+  const userRole = user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Admin';
 
   const handleNavClick = () => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -87,7 +67,7 @@ export function Sidebar() {
       >
         {/* ── Brand / Header ────────────────────────────────────────────── */}
         <div className="flex h-14 items-center px-3.5">
-          <Link href={ROUTES.DASHBOARD} onClick={handleNavClick} className="flex items-center gap-2.5 overflow-hidden">
+          <Link href={ROUTES.COLLECTION} onClick={handleNavClick} className="flex items-center gap-2.5 overflow-hidden">
             <div
               className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-white shadow"
               style={{ background: 'linear-gradient(135deg, hsl(200 85% 50%), hsl(217 91% 60%))' }}
@@ -96,8 +76,8 @@ export function Sidebar() {
             </div>
             {sidebarOpen && (
               <div className="flex flex-col whitespace-nowrap transition-opacity duration-200">
-                <span className="text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-200">Sapphire</span>
-                <span className="text-[10px] text-muted-foreground">GemTrace</span>
+                <span className="text-sm font-semibold tracking-tight text-slate-900 dark:text-slate-200">Trove</span>
+                <span className="text-[10px] text-muted-foreground">GemTrace System</span>
               </div>
             )}
           </Link>
@@ -106,7 +86,7 @@ export function Sidebar() {
         {/* ── Navigation Links ──────────────────────────────────────────── */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-2.5 py-3">
           {NAV_ITEMS.map((item) => {
-            const isActive = pathname === item.href || (item.href !== ROUTES.DASHBOARD && pathname.startsWith(item.href));
+            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
 
             return (
               <Link
@@ -120,7 +100,9 @@ export function Sidebar() {
                   } ${!sidebarOpen ? 'md:justify-center md:px-0' : ''}`}
               >
                 <span
-                  className={`shrink-0 transition-colors ${isActive ? 'text-amber-600 dark:text-amber-400' : 'text-muted-foreground group-hover:text-slate-900 dark:group-hover:text-slate-200'
+                  className={`shrink-0 transition-colors ${isActive
+                    ? 'text-amber-600 dark:text-amber-400'
+                    : 'text-muted-foreground group-hover:text-slate-900 dark:group-hover:text-slate-200'
                     }`}
                 >
                   {item.icon}
@@ -135,9 +117,11 @@ export function Sidebar() {
 
         {/* ── Footer: User Profile & Logout ─────────────────────────────── */}
         <div className="border-t border-border/40 p-2.5 space-y-1.5">
-          {/* User Card */}
-          <div
-            className={`flex items-center gap-2.5 rounded-lg bg-muted/40 p-2 transition-all ${!sidebarOpen ? 'md:justify-center md:p-1.5' : ''
+          {/* User Card Link to Profile */}
+          <Link
+            href={ROUTES.PROFILE}
+            onClick={handleNavClick}
+            className={`flex items-center gap-2.5 rounded-lg bg-muted/40 p-2 transition-all hover:bg-muted/70 ${!sidebarOpen ? 'md:justify-center md:p-1.5' : ''
               }`}
           >
             <div
@@ -152,7 +136,7 @@ export function Sidebar() {
                 <span className="truncate text-[10px] text-muted-foreground">{userRole}</span>
               </div>
             )}
-          </div>
+          </Link>
 
           {/* Logout Button */}
           <button
@@ -170,18 +154,7 @@ export function Sidebar() {
   );
 }
 
-/* ── SVG Icons (Compact 16x16) ──────────────────────────────────────── */
-
-function DashboardIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="7" height="7" rx="1" />
-      <rect x="14" y="3" width="7" height="7" rx="1" />
-      <rect x="14" y="14" width="7" height="7" rx="1" />
-      <rect x="3" y="14" width="7" height="7" rx="1" />
-    </svg>
-  );
-}
+/* ── SVG Icons ──────────────────────────────────────────────────────── */
 
 function GemIcon({ size = 16 }: { size?: number }) {
   return (
@@ -192,58 +165,20 @@ function GemIcon({ size = 16 }: { size?: number }) {
   );
 }
 
-function ClipboardIcon() {
+function UserIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
-      <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
-      <path d="M12 11h4" />
-      <path d="M12 16h4" />
-      <path d="M8 11h.01" />
-      <path d="M8 16h.01" />
+      <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+      <circle cx="12" cy="7" r="4" />
     </svg>
   );
 }
 
-function SortingIcon() {
+function SettingsIcon() {
   return (
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="8" height="8" rx="1" />
-      <rect x="13" y="3" width="8" height="8" rx="1" />
-      <path d="M4 7h6" />
-      <path d="M14 7h4" />
-      <path d="M4 17h16" />
-    </svg>
-  );
-}
-
-function PackingIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z" />
-      <path d="m3.3 7 8.7 5 8.7-5" />
-      <path d="M12 22V12" />
-    </svg>
-  );
-}
-
-function RelottingIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-      <path d="M3 3v5h5" />
-      <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-      <path d="M16 16h5v5" />
-    </svg>
-  );
-}
-
-function TradeIcon() {
-  return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z" />
-      <path d="M3 6h18" />
-      <path d="M16 10a4 4 0 0 1-8 0" />
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
     </svg>
   );
 }

@@ -4,10 +4,13 @@ export const ROUTES = {
   REGISTER: '/register',
   FORGOT_PASSWORD: '/forgot-password',
 
-  // App
-  DASHBOARD: '/dashboard',
+  // Features / Modules
+  COLLECTION: '/collection',
   PROFILE: '/profile',
   SETTINGS: '/settings',
+
+  // Alias for backward compatibility
+  DASHBOARD: '/collection',
 } as const;
 
 export type AppRoute = (typeof ROUTES)[keyof typeof ROUTES];

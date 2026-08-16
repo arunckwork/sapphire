@@ -2,8 +2,8 @@
 
 import React, { useState } from 'react';
 import { toast } from 'sonner';
-import { GemstoneFormData, GemstoneRecord } from '@/types/gemstone.types';
-import { INITIAL_DUMMY_GEMSTONES } from '@/constants/gemstone.constants';
+import type { GemstoneFormData, GemstoneRecord } from '../types/gemstone.types';
+import { INITIAL_DUMMY_GEMSTONES } from '../constants/gemstone.constants';
 import { GemstoneGrid } from './GemstoneGrid';
 import { GemstoneDrawer } from './GemstoneDrawer';
 
@@ -69,22 +69,18 @@ export function CollectionClient() {
     },
   ];
 
-  // Open Drawer for Add
   const handleAddNew = () => {
     setEditingRecord(null);
     setIsDrawerOpen(true);
   };
 
-  // Open Drawer for Edit
   const handleEdit = (record: GemstoneRecord) => {
     setEditingRecord(record);
     setIsDrawerOpen(true);
   };
 
-  // Handle Form Submission (Add or Edit)
   const handleSubmitForm = (formData: GemstoneFormData) => {
     if (editingRecord) {
-      // Edit existing record
       setRecords((prev) =>
         prev.map((rec) =>
           rec.id === editingRecord.id
@@ -94,7 +90,6 @@ export function CollectionClient() {
       );
       toast.success(`Gemstone ${formData.serialNo} updated successfully!`);
     } else {
-      // Add new record
       const newRecord: GemstoneRecord = {
         ...formData,
         id: `gem-${Date.now()}`,
@@ -108,7 +103,6 @@ export function CollectionClient() {
     setEditingRecord(null);
   };
 
-  // Delete record
   const handleDelete = (id: string) => {
     const target = records.find((r) => r.id === id);
     setRecords((prev) => prev.filter((r) => r.id !== id));

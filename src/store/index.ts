@@ -1,2 +1,2 @@
-export { useAuthStore } from './auth.store';
+export { useAuthStore } from '@/features/auth';
 export { useUIStore } from './ui.store';

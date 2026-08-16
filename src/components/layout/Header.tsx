@@ -2,7 +2,8 @@
 
 import { useTheme } from 'next-themes';
 import { useEffect, useState } from 'react';
-import { useUIStore, useAuthStore } from '@/store';
+import { useUIStore } from '@/store';
+import { useAuthStore } from '@/features/auth';
 
 export function Header() {
   const toggleSidebar = useUIStore((s) => s.toggleSidebar);

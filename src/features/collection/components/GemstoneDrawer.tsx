@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState } from 'react';
-import { GemstoneFormData, GemstoneRecord } from '@/types/gemstone.types';
+import type { GemstoneFormData, GemstoneRecord } from '../types/gemstone.types';
 import {
   GEMSTONE_TYPES,
   GEMSTONE_VARIETIES,
@@ -13,7 +13,7 @@ import {
   COLOR_OPTIONS,
   CLARITY_OPTIONS,
   CERTIFICATION_LABS,
-} from '@/constants/gemstone.constants';
+} from '../constants/gemstone.constants';
 
 interface GemstoneDrawerProps {
   isOpen: boolean;

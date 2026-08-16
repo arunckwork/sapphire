@@ -1,24 +1,21 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
+import { ROUTES } from '@/constants/routes';
 
 /**
  * Route definitions for access control.
  * All role/permission checks beyond session presence are enforced inside
  * Server Components and Server Actions — NOT here.
  */
-const PROTECTED_ROUTES = ['/dashboard', '/profile', '/settings'];
-const AUTH_ROUTES = ['/login', '/register', '/forgot-password'];
+const PROTECTED_ROUTES = [ROUTES.COLLECTION, ROUTES.PROFILE, ROUTES.SETTINGS, '/dashboard'];
+const AUTH_ROUTES = [ROUTES.LOGIN, ROUTES.REGISTER, ROUTES.FORGOT_PASSWORD];
 
 /**
- * proxy.ts — Next.js 16 request interceptor (replaces deprecated middleware.ts)
+ * proxy.ts — Next.js request interceptor
  *
  * Performs optimistic session checks:
  * - Unauthenticated users visiting protected routes → redirect to /login
- * - Authenticated users visiting auth routes → redirect to /dashboard
- *
- * This is a lightweight gatekeeper only. The access_token cookie is checked
- * for presence — cryptographic verification happens on the backend or in
- * Server Components via the /auth/me endpoint.
+ * - Authenticated users visiting auth routes → redirect to /collection
  */
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -29,7 +26,7 @@ export function proxy(request: NextRequest) {
 
   // Unauthenticated → protected route
   if (isProtected && !accessToken) {
-    const loginUrl = new URL('/login', request.url);
+    const loginUrl = new URL(ROUTES.LOGIN, request.url);
     // Preserve the intended destination for post-login redirect
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
@@ -37,7 +34,7 @@ export function proxy(request: NextRequest) {
 
   // Authenticated → auth-only route (already logged in)
   if (isAuthRoute && accessToken) {
-    return NextResponse.redirect(new URL('/dashboard', request.url));
+    return NextResponse.redirect(new URL(ROUTES.COLLECTION, request.url));
   }
 
   return NextResponse.next();

@@ -5,7 +5,7 @@ import { ROUTES } from '@/constants/routes';
 export const metadata: Metadata = {
   title: {
     default: 'Sign In',
-    template: '%s | Sapphire',
+    template: '%s | Trove System',
   },
 };
 
@@ -67,7 +67,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           >
             <GemIcon />
           </div>
-          <span className="text-xl font-black tracking-tight text-white">Sapphire</span>
+          <span className="text-xl font-black tracking-tight text-white">Trove</span>
         </Link>
 
         {/* Tagline block */}
@@ -83,7 +83,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
               <span className="text-shimmer">rare precision.</span>
             </h1>
             <p className="max-w-sm text-base leading-relaxed" style={{ color: 'hsl(215 20% 60%)' }}>
-              Sapphire brings enterprise-grade tools to your team — refined, secure, and built to last.
+              Trove brings enterprise-grade tools to your team — refined, secure, and built to last.
             </p>
           </div>
 
@@ -113,7 +113,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
         {/* Footer quote */}
         <p className="text-xs" style={{ color: 'hsl(215 20% 35%)' }}>
-          &copy; {new Date().getFullYear()} Sapphire. All rights reserved.
+          &copy; {new Date().getFullYear()} Trove. All rights reserved.
         </p>
       </div>
 
@@ -127,7 +127,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
           >
             <GemIcon size={16} />
           </div>
-          <span className="text-lg font-black tracking-tight text-white">Sapphire</span>
+          <span className="text-lg font-black tracking-tight text-white">Trove</span>
         </div>
 
         {/* Glass card */}
