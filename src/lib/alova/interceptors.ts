@@ -81,7 +81,7 @@ export const respondedInterceptor = {
         if (!refreshed) {
           // Clear Zustand auth store and redirect to login
           // Dynamic import avoids circular dependency
-          const { useAuthStore } = await import('@/store');
+          const { useAuthStore } = await import('@/features/auth');
           useAuthStore.getState().clearAuth();
           if (typeof window !== 'undefined') {
             window.location.href = '/login';
