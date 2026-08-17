@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    const backendRes = await fetch(`${BACKEND_URL}/api/v1/users/register`, {
+    const backendRes = await fetch(`${BACKEND_URL}/api/v1/users/register/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -31,14 +31,21 @@ export async function POST(request: NextRequest) {
       body: JSON.stringify(body),
     });
 
-    const data = await backendRes.json();
+    // Guard against non-JSON responses (e.g. HTML gateway error pages).
+    // Reading as text first prevents a SyntaxError crash before we can check
+    // backendRes.ok, which would otherwise mask the real HTTP status code.
+    const contentType = backendRes.headers.get('content-type') ?? '';
+    const rawText = await backendRes.text();
+    const isJson = contentType.includes('application/json');
+    const data = isJson ? JSON.parse(rawText) : { message: rawText || backendRes.statusText };
 
     if (!backendRes.ok) {
       return NextResponse.json(data, { status: backendRes.status });
     }
 
     return NextResponse.json(data, { status: 201 });
-  } catch {
+  } catch (err) {
+    console.error('[register] unexpected error:', err);
     return NextResponse.json({ message: 'Failed to register user' }, { status: 500 });
   }
 }
