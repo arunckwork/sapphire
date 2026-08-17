@@ -1,535 +1,482 @@
 'use client';
 
-import React, { useState } from 'react';
-import type { GemstoneFormData, GemstoneRecord } from '../types/gemstone.types';
+import React, { useState, useEffect } from 'react';
+import type {
+  CollectionFormData,
+  CollectionRecord,
+  CollectionType,
+  SingleStoneFormData,
+  BulkStonesFormData,
+  JewelleryFormData,
+  IndustrialStonesFormData,
+  SellerRef,
+} from '../types/gemstone.types';
 import {
-  GEMSTONE_TYPES,
-  GEMSTONE_VARIETIES,
-  TREATMENT_OPTIONS,
-  ORIGIN_OPTIONS,
-  WEIGHT_UNITS,
-  SHAPE_OPTIONS,
-  CUT_OPTIONS,
-  COLOR_OPTIONS,
-  CLARITY_OPTIONS,
+  COLLECTION_TYPE_OPTIONS,
   CERTIFICATION_LABS,
 } from '../constants/gemstone.constants';
+import { SingleStoneForm } from './SingleStoneForm';
+import { BulkStonesForm } from './BulkStonesForm';
+import { JewelleryForm } from './JewelleryForm';
+import { IndustrialStonesForm } from './IndustrialStonesForm';
+import { ImageUploadField } from '@/components/shared/forms/ImageUploadField';
+
+/* ── Default form states per collection type ──────────────────────────────── */
+
+const BASE_DEFAULTS = {
+  seller_id: '',
+  certification_no: '',
+  certification_lab: '',
+  asking_price: 0,
+  images: [] as File[],
+};
+
+const SINGLE_DEFAULTS: SingleStoneFormData = {
+  ...BASE_DEFAULTS,
+  collection_type: 'single_stone',
+  gemstone_type: '',
+  variety: '',
+  treatment: '',
+  origin: '',
+  weight: 0,
+  weight_unit: 'ct',
+  shape: '',
+  cut: '',
+  color: '',
+  clarity: '',
+  dimensions: '',
+};
+
+const BULK_DEFAULTS: BulkStonesFormData = {
+  ...BASE_DEFAULTS,
+  collection_type: 'bulk_stones',
+  stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }],
+  description: '',
+};
+
+const JEWELLERY_DEFAULTS: JewelleryFormData = {
+  ...BASE_DEFAULTS,
+  collection_type: 'jewellery',
+  weight: 0,
+  weight_unit: 'g',
+  description: '',
+};
+
+const INDUSTRIAL_DEFAULTS: IndustrialStonesFormData = {
+  ...BASE_DEFAULTS,
+  collection_type: 'industrial_stones',
+  stone_type: '',
+  variety: '',
+  weight: 0,
+  weight_unit: 'ct',
+  description: '',
+};
+
+function defaultsForType(type: CollectionType): CollectionFormData {
+  switch (type) {
+    case 'single_stone':      return { ...SINGLE_DEFAULTS };
+    case 'bulk_stones':       return { ...BULK_DEFAULTS, stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }] };
+    case 'jewellery':         return { ...JEWELLERY_DEFAULTS };
+    case 'industrial_stones': return { ...INDUSTRIAL_DEFAULTS };
+  }
+}
+
+function recordToFormData(record: CollectionRecord): CollectionFormData {
+  const base = {
+    seller_id: record.seller_id,
+    certification_no: record.certification_no,
+    certification_lab: record.certification_lab,
+    asking_price: record.asking_price,
+    images: [] as File[],
+  };
+  switch (record.collection_type) {
+    case 'single_stone':
+      return { ...base, collection_type: 'single_stone', gemstone_type: record.gemstone_type, variety: record.variety, treatment: record.treatment, origin: record.origin, weight: record.weight, weight_unit: record.weight_unit, shape: record.shape, cut: record.cut, color: record.color, clarity: record.clarity, dimensions: record.dimensions };
+    case 'bulk_stones':
+      return { ...base, collection_type: 'bulk_stones', stones: record.stones, description: record.description };
+    case 'jewellery':
+      return { ...base, collection_type: 'jewellery', weight: record.weight, weight_unit: record.weight_unit, description: record.description };
+    case 'industrial_stones':
+      return { ...base, collection_type: 'industrial_stones', stone_type: record.stone_type, variety: record.variety, weight: record.weight, weight_unit: record.weight_unit, description: record.description };
+  }
+}
+
+/* ── Props ────────────────────────────────────────────────────────────────── */
 
 interface GemstoneDrawerProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (formData: GemstoneFormData) => void;
-  editingRecord?: GemstoneRecord | null;
+  onSubmit: (formData: CollectionFormData) => void;
+  editingRecord?: CollectionRecord | null;
+  sellers: SellerRef[];
+  isSellersLoading?: boolean;
 }
 
-const DEFAULT_FORM_DATA: GemstoneFormData = {
-  serialNo: '',
-  type: 'Sapphire',
-  variety: 'Blue Sapphire',
-  nature: 'Natural',
-  treatment: 'None / Unheated',
-  origin: 'Madagascar (Ilakaka)',
-  quantity: 1,
-  weight: 1.0,
-  weightUnit: 'ct',
-  shape: 'Cushion',
-  cut: 'Excellent',
-  color: 'Royal Blue',
-  clarity: 'VVS1 (Very Very Slightly Included 1)',
-  dimensions: '',
-  certificationNo: '',
-  certificationLab: 'GIA (Gemological Institute of America)',
-};
+/* ── Component ────────────────────────────────────────────────────────────── */
 
 export function GemstoneDrawer({
   isOpen,
   onClose,
   onSubmit,
   editingRecord,
+  sellers,
+  isSellersLoading,
 }: GemstoneDrawerProps) {
-  const getInitialData = (): GemstoneFormData => {
-    if (editingRecord) {
-      const rest = { ...editingRecord };
-      delete (rest as Partial<GemstoneRecord>).id;
-      delete (rest as Partial<GemstoneRecord>).createdAt;
-      return rest;
-    }
-    return {
-      ...DEFAULT_FORM_DATA,
-      serialNo: `GT-MAD-${new Date().getFullYear()}-${Math.floor(100 + Math.random() * 900)}`,
-    };
-  };
-
-  const [formData, setFormData] = useState<GemstoneFormData>(getInitialData);
-  const [isCustomVariety, setIsCustomVariety] = useState<boolean>(() => {
-    if (editingRecord) {
-      return !(GEMSTONE_VARIETIES as readonly string[]).includes(editingRecord.variety);
-    }
-    return false;
-  });
+  const [formData, setFormData] = useState<CollectionFormData>(() =>
+    editingRecord ? recordToFormData(editingRecord) : { ...SINGLE_DEFAULTS }
+  );
   const [errors, setErrors] = useState<Record<string, string>>({});
+
+  /* Reset when drawer opens for a new record or different editing record */
+  useEffect(() => {
+    if (isOpen) {
+      setFormData(editingRecord ? recordToFormData(editingRecord) : { ...SINGLE_DEFAULTS });
+      setErrors({});
+    }
+  }, [isOpen, editingRecord]);
 
   if (!isOpen) return null;
 
-  const handleChange = (
-    field: keyof GemstoneFormData,
-    value: string | number
-  ) => {
+  /* ── Collection type change — wipe type-specific fields ──────────── */
+  const handleTypeChange = (type: CollectionType) => {
     setFormData((prev) => ({
-      ...prev,
-      [field]: value,
+      ...defaultsForType(type),
+      seller_id: prev.seller_id,
+      certification_no: prev.certification_no,
+      certification_lab: prev.certification_lab,
+      asking_price: prev.asking_price,
+      images: prev.images,
     }));
-    // Clear field error on change
-    if (errors[field]) {
-      setErrors((prev) => {
-        const next = { ...prev };
-        delete next[field];
-        return next;
-      });
-    }
+    setErrors({});
   };
 
+  /* ── Generic field updater for base fields ────────────────────────── */
+  const setBase = (field: string, value: unknown) => {
+    setFormData((prev) => ({ ...prev, [field]: value }));
+    setErrors((prev) => { const n = { ...prev }; delete n[field]; return n; });
+  };
+
+  /* ── Seller search / filter ───────────────────────────────────────── */
+  const [sellerQuery, setSellerQuery] = useState('');
+  const [sellerOpen, setSellerOpen] = useState(false);
+
+  const filteredSellers = sellerQuery.trim()
+    ? sellers.filter(
+        (s) =>
+          `${s.first_name} ${s.last_name ?? ''}`.toLowerCase().includes(sellerQuery.toLowerCase()) ||
+          s.email.toLowerCase().includes(sellerQuery.toLowerCase())
+      )
+    : sellers;
+
+  const selectedSeller = sellers.find((s) => s.id === formData.seller_id);
+
+  /* ── Validation ─────────────────────────────────────────────────────── */
   const validate = (): boolean => {
-    const newErrors: Record<string, string> = {};
+    const errs: Record<string, string> = {};
 
-    if (!formData.serialNo.trim()) {
-      newErrors.serialNo = 'Gemstone Serial No. is required';
+    if (!formData.seller_id) errs.seller_id = 'Seller is required';
+    if (!formData.asking_price || formData.asking_price <= 0) errs.asking_price = 'Asking price must be > 0';
+
+    if (formData.collection_type === 'single_stone') {
+      if (!formData.gemstone_type) errs.gemstone_type = 'Gemstone Type is required';
+      if (!formData.weight || formData.weight <= 0) errs.weight = 'Weight must be > 0';
+      if (!formData.weight_unit) errs.weight_unit = 'Weight Unit is required';
     }
-    if (!formData.type.trim()) {
-      newErrors.type = 'Gemstone Type is required';
+    if (formData.collection_type === 'bulk_stones') {
+      if (!formData.stones.length) errs.stones = 'At least one stone row is required';
+      formData.stones.forEach((row, i) => {
+        if (!row.gemstone_type) errs[`stones.${i}.gemstone_type`] = 'Required';
+        if (!row.quantity || row.quantity < 1) errs[`stones.${i}.quantity`] = 'Min 1';
+      });
     }
-    if (!formData.weightUnit.trim()) {
-      newErrors.weightUnit = 'Weight Unit is required';
+    if (formData.collection_type === 'jewellery') {
+      if (!formData.weight || formData.weight <= 0) errs.weight = 'Total weight must be > 0';
+      if (!formData.weight_unit) errs.weight_unit = 'Weight Unit is required';
     }
-    if (formData.quantity === undefined || formData.quantity === null || isNaN(formData.quantity) || formData.quantity < 1) {
-      newErrors.quantity = 'Quantity must be at least 1';
-    }
-    if (formData.weight === undefined || formData.weight === null || isNaN(formData.weight) || formData.weight <= 0) {
-      newErrors.weight = 'Weight must be greater than 0';
+    if (formData.collection_type === 'industrial_stones') {
+      if (!formData.stone_type) errs.stone_type = 'Stone Type is required';
+      if (!formData.weight || formData.weight <= 0) errs.weight = 'Weight must be > 0';
+      if (!formData.weight_unit) errs.weight_unit = 'Weight Unit is required';
     }
 
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    setErrors(errs);
+    return Object.keys(errs).length === 0;
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (validate()) {
-      onSubmit(formData);
-    }
+    if (validate()) onSubmit(formData);
   };
+
+  /* ── Shared styles ─────────────────────────────────────────────────── */
+  const inputBase =
+    'w-full rounded-lg border bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors';
+  const sectionHead =
+    'text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5';
 
   return (
     <>
-      {/* ── Backdrop ────────────────────────────────────────────────── */}
+      {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs transition-opacity"
+        className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs"
         onClick={onClose}
         aria-hidden="true"
       />
 
-      {/* ── Drawer Offcanvas Panel (Right side) ──────────────────────── */}
-      <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 shadow-2xl transition-transform duration-300 animate-in slide-in-from-right">
-        {/* Drawer Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
+      {/* Drawer Panel */}
+      <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 shadow-2xl animate-in slide-in-from-right duration-300">
+
+        {/* Header */}
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shrink-0">
           <div>
             <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
-              {editingRecord ? 'Edit Gemstone Record' : 'Add New Gemstone Collection'}
+              {editingRecord ? 'Edit Collection' : 'Add New Collection'}
             </h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
-              Enter physical and laboratory details for the gemstone entry
+            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+              {editingRecord
+                ? `Editing: ${editingRecord.serial_no}`
+                : 'Fill in seller and collection details'}
             </p>
           </div>
           <button
-            onClick={onClose}
             type="button"
+            onClick={onClose}
             className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-900 dark:hover:text-slate-100 transition-colors"
           >
             <CloseIcon />
           </button>
         </div>
 
-        {/* Drawer Form Body (Scrollable) */}
+        {/* Scrollable Form */}
         <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-5 space-y-6">
-          {/* Validation Alert Header if errors */}
+
+          {/* Validation summary */}
           {Object.keys(errors).length > 0 && (
             <div className="rounded-lg border border-rose-500/40 bg-rose-500/10 p-3 text-xs text-rose-600 dark:text-rose-300 space-y-1">
-              <span className="font-bold block">Please fix mandatory fields:</span>
+              <span className="font-bold block">Please fix the following:</span>
               <ul className="list-disc list-inside space-y-0.5">
-                {Object.values(errors).map((err, i) => (
-                  <li key={i}>{err}</li>
-                ))}
+                {Object.values(errors).map((err, i) => <li key={i}>{err}</li>)}
               </ul>
             </div>
           )}
 
-          {/* SECTION 1: Core Gemstone Information */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5">
-              Gemstone Information
-            </h3>
+          {/* ── SECTION: Seller ─────────────────────────────────────── */}
+          <div className="space-y-3">
+            <h3 className={sectionHead}>Seller Information</h3>
 
-            {/* Serial No. (Mandatory) */}
-            <div>
+            <div className="relative">
               <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                Gemstone Serial No. <span className="text-rose-500">*</span>
+                Seller <span className="text-rose-500">*</span>
               </label>
-              <input
-                type="text"
-                value={formData.serialNo}
-                onChange={(e) => handleChange('serialNo', e.target.value)}
-                placeholder="e.g. GT-MAD-2026-001"
-                className={`w-full rounded-lg border bg-white dark:bg-slate-950 px-3.5 py-2 text-xs font-mono text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 ${
-                  errors.serialNo ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
-                }`}
-              />
-              {errors.serialNo && (
-                <span className="text-[11px] text-rose-500 mt-1 block">{errors.serialNo}</span>
+
+              {/* Trigger button */}
+              <button
+                id="seller-autocomplete"
+                type="button"
+                onClick={() => { setSellerOpen((p) => !p); setSellerQuery(''); }}
+                className={`${inputBase} flex items-center justify-between ${errors.seller_id ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'} cursor-pointer`}
+              >
+                {selectedSeller ? (
+                  <span className="text-slate-900 dark:text-slate-100">
+                    {selectedSeller.first_name} {selectedSeller.last_name ?? ''}{' '}
+                    <span className="text-slate-400 text-[11px]">— {selectedSeller.email}</span>
+                  </span>
+                ) : (
+                  <span className="text-slate-400 dark:text-slate-500">
+                    {isSellersLoading ? 'Loading sellers…' : 'Search seller by name or email…'}
+                  </span>
+                )}
+                <ChevronIcon open={sellerOpen} />
+              </button>
+
+              {sellerOpen && (
+                <div className="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl overflow-hidden">
+                  <div className="px-2 py-1.5 border-b border-slate-100 dark:border-slate-800">
+                    <input
+                      autoFocus
+                      type="text"
+                      value={sellerQuery}
+                      onChange={(e) => setSellerQuery(e.target.value)}
+                      placeholder="Search by name or email…"
+                      className="w-full rounded-md border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-950 px-2.5 py-1.5 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-amber-500/40"
+                    />
+                  </div>
+                  <ul className="max-h-48 overflow-y-auto py-1">
+                    {filteredSellers.length === 0 ? (
+                      <li className="px-3 py-2 text-xs text-slate-400 italic">No sellers found</li>
+                    ) : (
+                      filteredSellers.map((s) => (
+                        <li
+                          key={s.id}
+                          onClick={() => {
+                            setBase('seller_id', s.id);
+                            setSellerOpen(false);
+                            setSellerQuery('');
+                          }}
+                          className={`px-3 py-2 text-xs cursor-pointer transition-colors ${
+                            formData.seller_id === s.id
+                              ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
+                              : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          <span className="font-medium">{s.first_name} {s.last_name ?? ''}</span>
+                          <span className="ml-2 text-slate-400 text-[11px]">{s.email}</span>
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                </div>
+              )}
+              {errors.seller_id && (
+                <span className="mt-1 block text-[11px] text-rose-500">{errors.seller_id}</span>
               )}
             </div>
+          </div>
 
-            {/* Type & Variety Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Gemstone Type (Mandatory) */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                  Gemstone Type <span className="text-rose-500">*</span>
-                </label>
-                <select
-                  value={formData.type}
-                  onChange={(e) => handleChange('type', e.target.value)}
-                  className={`w-full rounded-lg border bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer ${
-                    errors.type ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
+          {/* ── SECTION: Collection Type ─────────────────────────────── */}
+          <div className="space-y-3">
+            <h3 className={sectionHead}>Collection Type</h3>
+            <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+              {COLLECTION_TYPE_OPTIONS.map((opt) => (
+                <label
+                  key={opt.value}
+                  className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 p-3 text-center text-xs font-semibold transition-all ${
+                    formData.collection_type === opt.value
+                      ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-amber-400/50 hover:bg-slate-50 dark:hover:bg-slate-800'
                   }`}
                 >
-                  {GEMSTONE_TYPES.map((t) => (
-                    <option key={t} value={t} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                      {t}
-                    </option>
-                  ))}
-                </select>
-                {errors.type && (
-                  <span className="text-[11px] text-rose-500 mt-1 block">{errors.type}</span>
-                )}
-              </div>
-
-              {/* Variety (Dropdown / Text) */}
-              <div>
-                <div className="flex items-center justify-between mb-1">
-                  <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200">Variety</label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setIsCustomVariety(!isCustomVariety);
-                      if (!isCustomVariety) {
-                        handleChange('variety', '');
-                      } else {
-                        handleChange('variety', GEMSTONE_VARIETIES[0]);
-                      }
-                    }}
-                    className="text-[10px] text-amber-600 dark:text-amber-400 font-semibold hover:underline"
-                  >
-                    {isCustomVariety ? 'Select from list' : 'Custom Text'}
-                  </button>
-                </div>
-                {isCustomVariety ? (
-                  <input
-                    type="text"
-                    value={formData.variety}
-                    onChange={(e) => handleChange('variety', e.target.value)}
-                    placeholder="Enter custom variety..."
-                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50"
-                  />
-                ) : (
-                  <select
-                    value={formData.variety}
-                    onChange={(e) => handleChange('variety', e.target.value)}
-                    className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
-                  >
-                    {GEMSTONE_VARIETIES.map((v) => (
-                      <option key={v} value={v} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                        {v}
-                      </option>
-                    ))}
-                  </select>
-                )}
-              </div>
-            </div>
-
-            {/* Natural / Synthetic Radio */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-                Natural / Synthetic
-              </label>
-              <div className="flex items-center gap-4 rounded-lg border border-slate-300 dark:border-slate-800 bg-slate-100/60 dark:bg-slate-950/60 p-2.5">
-                <label className="flex items-center gap-2 text-xs text-slate-900 dark:text-slate-100 font-medium cursor-pointer">
                   <input
                     type="radio"
-                    name="nature"
-                    value="Natural"
-                    checked={formData.nature === 'Natural'}
-                    onChange={() => handleChange('nature', 'Natural')}
-                    className="accent-amber-500 h-4 w-4"
+                    name="collection_type"
+                    value={opt.value}
+                    checked={formData.collection_type === opt.value}
+                    onChange={() => handleTypeChange(opt.value)}
+                    className="sr-only"
                   />
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
-                    Natural
-                  </span>
+                  <CollectionTypeIcon type={opt.value} />
+                  {opt.label}
                 </label>
-                <label className="flex items-center gap-2 text-xs text-slate-900 dark:text-slate-100 font-medium cursor-pointer">
-                  <input
-                    type="radio"
-                    name="nature"
-                    value="Synthetic"
-                    checked={formData.nature === 'Synthetic'}
-                    onChange={() => handleChange('nature', 'Synthetic')}
-                    className="accent-amber-500 h-4 w-4"
-                  />
-                  <span className="inline-flex items-center gap-1.5">
-                    <span className="h-2 w-2 rounded-full bg-purple-500"></span>
-                    Synthetic
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            {/* Treatment & Origin */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Treatment</label>
-                <select
-                  value={formData.treatment}
-                  onChange={(e) => handleChange('treatment', e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
-                >
-                  {TREATMENT_OPTIONS.map((t) => (
-                    <option key={t} value={t} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                      {t}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Origin</label>
-                <select
-                  value={formData.origin}
-                  onChange={(e) => handleChange('origin', e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
-                >
-                  {ORIGIN_OPTIONS.map((o) => (
-                    <option key={o} value={o} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                      {o}
-                    </option>
-                  ))}
-                </select>
-              </div>
+              ))}
             </div>
           </div>
 
-          {/* SECTION 2: Quantity & Weight */}
+          {/* ── SECTION: Dynamic type-specific form ─────────────────── */}
+          {formData.collection_type === 'single_stone' && (
+            <SingleStoneForm
+              data={formData as SingleStoneFormData}
+              errors={errors}
+              onChange={(field, value) =>
+                setFormData((prev) => ({ ...prev, [field]: value }))
+              }
+            />
+          )}
+          {formData.collection_type === 'bulk_stones' && (
+            <BulkStonesForm
+              data={formData as BulkStonesFormData}
+              errors={errors}
+              onChange={(field, value) =>
+                setFormData((prev) => ({ ...prev, [field]: value }))
+              }
+            />
+          )}
+          {formData.collection_type === 'jewellery' && (
+            <JewelleryForm
+              data={formData as JewelleryFormData}
+              errors={errors}
+              onChange={(field, value) =>
+                setFormData((prev) => ({ ...prev, [field]: value }))
+              }
+            />
+          )}
+          {formData.collection_type === 'industrial_stones' && (
+            <IndustrialStonesForm
+              data={formData as IndustrialStonesFormData}
+              errors={errors}
+              onChange={(field, value) =>
+                setFormData((prev) => ({ ...prev, [field]: value }))
+              }
+            />
+          )}
+
+          {/* ── SECTION: Certification & Lab (all types) ─────────────── */}
           <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5">
-              Quantity & Weight
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-              {/* Quantity (Mandatory) */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                  Quantity <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  min="1"
-                  step="1"
-                  value={formData.quantity}
-                  onChange={(e) => handleChange('quantity', parseInt(e.target.value, 10) || 0)}
-                  className={`w-full rounded-lg border bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 ${
-                    errors.quantity ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
-                  }`}
-                />
-                {errors.quantity && (
-                  <span className="text-[11px] text-rose-500 mt-1 block">{errors.quantity}</span>
-                )}
-              </div>
-
-              {/* Weight (Mandatory) */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                  Weight (Decimal) <span className="text-rose-500">*</span>
-                </label>
-                <input
-                  type="number"
-                  min="0.01"
-                  step="0.01"
-                  value={formData.weight}
-                  onChange={(e) => handleChange('weight', parseFloat(e.target.value) || 0)}
-                  className={`w-full rounded-lg border bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 ${
-                    errors.weight ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
-                  }`}
-                />
-                {errors.weight && (
-                  <span className="text-[11px] text-rose-500 mt-1 block">{errors.weight}</span>
-                )}
-              </div>
-
-              {/* Weight Unit (Mandatory) */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                  Weight Unit <span className="text-rose-500">*</span>
-                </label>
-                <select
-                  value={formData.weightUnit}
-                  onChange={(e) => handleChange('weightUnit', e.target.value)}
-                  className={`w-full rounded-lg border bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer ${
-                    errors.weightUnit ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
-                  }`}
-                >
-                  {WEIGHT_UNITS.map((u) => (
-                    <option key={u} value={u} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                      {u}
-                    </option>
-                  ))}
-                </select>
-                {errors.weightUnit && (
-                  <span className="text-[11px] text-rose-500 mt-1 block">{errors.weightUnit}</span>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* SECTION 3: Cut, Shape & Grading */}
-          <div className="space-y-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5">
-              Cut, Shape & Appearance
-            </h3>
-
+            <h3 className={sectionHead}>Certification & Lab</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Shape */}
               <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Shape</label>
-                <select
-                  value={formData.shape}
-                  onChange={(e) => handleChange('shape', e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
-                >
-                  {SHAPE_OPTIONS.map((s) => (
-                    <option key={s} value={s} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                      {s}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Cut */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Cut</label>
-                <select
-                  value={formData.cut}
-                  onChange={(e) => handleChange('cut', e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
-                >
-                  {CUT_OPTIONS.map((c) => (
-                    <option key={c} value={c} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Color */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Color</label>
-                <select
-                  value={formData.color}
-                  onChange={(e) => handleChange('color', e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
-                >
-                  {COLOR_OPTIONS.map((co) => (
-                    <option key={co} value={co} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                      {co}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Clarity */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">Clarity</label>
-                <select
-                  value={formData.clarity}
-                  onChange={(e) => handleChange('clarity', e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
-                >
-                  {CLARITY_OPTIONS.map((cl) => (
-                    <option key={cl} value={cl} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                      {cl}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            </div>
-
-            {/* Dimensions */}
-            <div>
-              <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                Dimensions (Length x Width x Depth)
-              </label>
-              <input
-                type="text"
-                value={formData.dimensions}
-                onChange={(e) => handleChange('dimensions', e.target.value)}
-                placeholder="e.g. 8.5 x 6.2 x 4.1 mm"
-                className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50"
-              />
-            </div>
-          </div>
-
-          {/* SECTION 4: Certification */}
-          <div className="space-y-4 pb-4">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5">
-              Certification & Lab
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Certification No. */}
-              <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                <label htmlFor="certification_no" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                   Certification No.
                 </label>
                 <input
+                  id="certification_no"
                   type="text"
-                  value={formData.certificationNo}
-                  onChange={(e) => handleChange('certificationNo', e.target.value)}
+                  value={formData.certification_no}
+                  onChange={(e) => setBase('certification_no', e.target.value)}
                   placeholder="e.g. GIA-2481903"
-                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 font-mono"
+                  className={`${inputBase} border-slate-300 dark:border-slate-700 font-mono`}
                 />
               </div>
 
-              {/* Certification Laboratory */}
               <div>
-                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                <label htmlFor="certification_lab" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                   Certification Laboratory
                 </label>
                 <select
-                  value={formData.certificationLab}
-                  onChange={(e) => handleChange('certificationLab', e.target.value)}
-                  className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3 py-2 text-xs text-slate-900 dark:text-slate-100 focus:outline-hidden focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
+                  id="certification_lab"
+                  value={formData.certification_lab}
+                  onChange={(e) => setBase('certification_lab', e.target.value)}
+                  className={`${inputBase} border-slate-300 dark:border-slate-700 cursor-pointer`}
                 >
+                  <option value="">Select lab…</option>
                   {CERTIFICATION_LABS.map((lab) => (
-                    <option key={lab} value={lab} className="bg-white dark:bg-slate-900 text-slate-900 dark:text-slate-100">
-                      {lab}
-                    </option>
+                    <option key={lab.value} value={lab.value}>{lab.label}</option>
                   ))}
                 </select>
               </div>
+            </div>
+          </div>
+
+          {/* ── SECTION: Images (all types) ──────────────────────────── */}
+          <div className="space-y-3">
+            <h3 className={sectionHead}>Images</h3>
+            <p className="text-[11px] text-slate-400 dark:text-slate-500 -mt-1">
+              Images are uploaded separately after saving the collection record.
+            </p>
+            <ImageUploadField
+              files={formData.images}
+              onChange={(files) => setBase('images', files)}
+            />
+          </div>
+
+          {/* ── SECTION: Asking Price (all types) ────────────────────── */}
+          <div className="space-y-3 pb-4">
+            <h3 className={sectionHead}>Pricing</h3>
+            <div>
+              <label htmlFor="asking_price" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                Asking Price <span className="text-rose-500">*</span>
+              </label>
+              <div className="relative">
+                <span className="absolute inset-y-0 left-3 flex items-center text-xs text-slate-400 pointer-events-none">$</span>
+                <input
+                  id="asking_price"
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={formData.asking_price || ''}
+                  onChange={(e) => setBase('asking_price', parseFloat(e.target.value) || 0)}
+                  placeholder="0.00"
+                  className={`${inputBase} pl-7 ${errors.asking_price ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'}`}
+                />
+              </div>
+              {errors.asking_price && (
+                <span className="mt-1 block text-[11px] text-rose-500">{errors.asking_price}</span>
+              )}
             </div>
           </div>
         </form>
 
-        {/* Drawer Footer Actions */}
-        <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md">
+        {/* Footer */}
+        <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shrink-0">
           <button
             type="button"
             onClick={onClose}
@@ -542,13 +489,15 @@ export function GemstoneDrawer({
             onClick={handleSubmit}
             className="rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2 text-xs font-bold text-slate-950 hover:from-amber-400 hover:to-amber-500 transition-colors shadow-md shadow-amber-500/20"
           >
-            {editingRecord ? 'Update Gemstone' : 'Save Gemstone'}
+            {editingRecord ? 'Update Collection' : 'Save Collection'}
           </button>
         </div>
       </div>
     </>
   );
 }
+
+/* ── Icon helpers ─────────────────────────────────────────────────────────── */
 
 function CloseIcon() {
   return (
@@ -557,4 +506,43 @@ function CloseIcon() {
       <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   );
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg className={`h-3.5 w-3.5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  );
+}
+
+function CollectionTypeIcon({ type }: { type: CollectionType }) {
+  switch (type) {
+    case 'single_stone':
+      return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="12 2 22 8.5 12 22 2 8.5 12 2" />
+        </svg>
+      );
+    case 'bulk_stones':
+      return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <polygon points="8 2 16 2 20 8 12 22 4 8 8 2" />
+          <line x1="4" y1="8" x2="20" y2="8" />
+        </svg>
+      );
+    case 'jewellery':
+      return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M12 22s8-4.5 8-11.8A8 8 0 0 0 4 10.2C4 17.5 12 22 12 22z" />
+        </svg>
+      );
+    case 'industrial_stones':
+      return (
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+          <rect x="2" y="7" width="20" height="14" rx="2" />
+          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+        </svg>
+      );
+  }
 }

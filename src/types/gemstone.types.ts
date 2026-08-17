@@ -1,9 +1,8 @@
 export type {
-  GemNature,
-  GemstoneRecord,
-  GemstoneFormData,
+  CollectionRecord,
+  CollectionFormData,
   SortField,
   SortOrder,
   SortConfig,
-  GemstoneFilterState,
+  CollectionFilterState,
 } from '@/features/collection';

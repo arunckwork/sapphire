@@ -14,6 +14,8 @@ export * from './forms/Select';
 export * from './forms/Textarea';
 export * from './forms/Checkbox';
 export * from './forms/SearchInput';
+export * from './forms/AutocompleteField';
+export * from './forms/ImageUploadField';
 
 // Feedback & Overlays
 export * from './feedback/Modal';

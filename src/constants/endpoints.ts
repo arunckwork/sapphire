@@ -12,4 +12,9 @@ export const ENDPOINTS = {
     SUSPEND: (id: string) => `/api/users/${id}/suspend`,
     ACTIVATE: (id: string) => `/api/users/${id}/activate`,
   },
+  COLLECTIONS: {
+    LIST: '/api/collections',
+    BY_ID: (id: string) => `/api/collections/${id}`,
+  },
+  SELLERS: '/api/users/sellers',
 } as const;

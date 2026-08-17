@@ -39,7 +39,7 @@ export function SettingsForm() {
             <Select
               value={formData.defaultOrigin}
               onChange={(e) => setFormData((prev) => ({ ...prev, defaultOrigin: e.target.value }))}
-              options={ORIGIN_OPTIONS.map((o) => ({ label: o, value: o }))}
+              options={ORIGIN_OPTIONS.map((o) => ({ label: o.label, value: o.value }))}
             />
           </FormField>
 
@@ -47,7 +47,7 @@ export function SettingsForm() {
             <Select
               value={formData.defaultWeightUnit}
               onChange={(e) => setFormData((prev) => ({ ...prev, defaultWeightUnit: e.target.value as any }))}
-              options={WEIGHT_UNITS.map((u) => ({ label: u.toUpperCase(), value: u }))}
+              options={WEIGHT_UNITS.map((u) => ({ label: u.label, value: u.value }))}
             />
           </FormField>
         </Card>
