@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { SettingsForm } from '@/features/settings';
 
 export const metadata: Metadata = {
-  title: 'Settings | GemTrace',
+  title: 'Settings | Trove',
   description: 'Application and account preferences',
 };
 

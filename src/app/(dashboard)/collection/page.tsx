@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { CollectionClient } from '@/features/collection';
 
 export const metadata: Metadata = {
-  title: 'Collection | GemTrace Madagascar',
+  title: 'Collection | Trove',
   description: 'Gemstone collection inventory and grading registry',
 };
 

@@ -26,7 +26,7 @@ export const ENV = {
 
   /** Display name of the application */
   get appName() {
-    return process.env.NEXT_PUBLIC_APP_NAME ?? 'Sapphire';
+    return process.env.NEXT_PUBLIC_APP_NAME ?? 'Trove';
   },
 
   /** Current environment identifier */

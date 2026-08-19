@@ -5,10 +5,10 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: {
-    default: 'Sapphire',
-    template: '%s | Sapphire',
+    default: 'Trove',
+    template: '%s | Trove',
   },
-  description: 'Sapphire application — a modern, secure web platform.',
+  description: 'Trove — a modern, secure web platform.',
 };
 
 /**
