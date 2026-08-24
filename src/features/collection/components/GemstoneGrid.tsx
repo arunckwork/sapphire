@@ -128,17 +128,15 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
         let valA: string | number = '';
         let valB: string | number = '';
         if (field === 'asking_price') {
-          valA = a.asking_price ?? 0;
-          valB = b.asking_price ?? 0;
+          valA = Number(a.asking_price) || 0;
+          valB = Number(b.asking_price) || 0;
         } else if (field === 'created_at') {
-          valA = a.created_at ?? '';
-          valB = b.created_at ?? '';
+          valA = (a.created_at ?? '').toLowerCase();
+          valB = (b.created_at ?? '').toLowerCase();
         } else {
-          valA = a.collection_type ?? '';
-          valB = b.collection_type ?? '';
+          valA = (a.collection_type ?? '').toLowerCase();
+          valB = (b.collection_type ?? '').toLowerCase();
         }
-        if (typeof valA === 'string') valA = valA.toLowerCase();
-        if (typeof valB === 'string') valB = valB.toLowerCase();
         if (valA < valB) return order === 'asc' ? -1 : 1;
         if (valA > valB) return order === 'asc' ? 1 : -1;
         return 0;
@@ -325,8 +323,8 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
                     {/* Asking Price */}
                     <td className="px-4 py-3.5">
                       <span className="font-bold text-foreground">
-                        {item.asking_price
-                          ? `$${item.asking_price.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        {item.asking_price != null && !isNaN(Number(item.asking_price))
+                          ? `$${Number(item.asking_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                           : '—'}
                       </span>
                     </td>

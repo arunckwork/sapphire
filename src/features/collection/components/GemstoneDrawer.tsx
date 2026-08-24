@@ -45,6 +45,7 @@ const SINGLE_DEFAULTS: SingleStoneFormData = {
   color: '',
   clarity: '',
   dimensions: '',
+  seller: { id: '', first_name: '', last_name: '', email: '', role: 'user' }, // placeholder; submitted as seller_id
 };
 
 const BULK_DEFAULTS: BulkStonesFormData = {
@@ -52,6 +53,7 @@ const BULK_DEFAULTS: BulkStonesFormData = {
   collection_type: 'bulk_stones',
   stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }],
   description: '',
+  seller: { id: '', first_name: '', last_name: '', email: '', role: 'user' }, // placeholder; submitted as seller_id
 };
 
 const JEWELLERY_DEFAULTS: JewelleryFormData = {
@@ -60,6 +62,7 @@ const JEWELLERY_DEFAULTS: JewelleryFormData = {
   weight: 0,
   weight_unit: 'g',
   description: '',
+  seller: { id: '', first_name: '', last_name: '', email: '', role: 'user' }, // placeholder; submitted as seller_id
 };
 
 const INDUSTRIAL_DEFAULTS: IndustrialStonesFormData = {
@@ -70,13 +73,14 @@ const INDUSTRIAL_DEFAULTS: IndustrialStonesFormData = {
   weight: 0,
   weight_unit: 'ct',
   description: '',
+  seller: { id: '', first_name: '', last_name: '', email: '', role: 'user' }, // placeholder; submitted as seller_id
 };
 
 function defaultsForType(type: CollectionType): CollectionFormData {
   switch (type) {
-    case 'single_stone':      return { ...SINGLE_DEFAULTS };
-    case 'bulk_stones':       return { ...BULK_DEFAULTS, stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }] };
-    case 'jewellery':         return { ...JEWELLERY_DEFAULTS };
+    case 'single_stone': return { ...SINGLE_DEFAULTS };
+    case 'bulk_stones': return { ...BULK_DEFAULTS, stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }] };
+    case 'jewellery': return { ...JEWELLERY_DEFAULTS };
     case 'industrial_stones': return { ...INDUSTRIAL_DEFAULTS };
   }
 }
@@ -91,13 +95,13 @@ function recordToFormData(record: CollectionRecord): CollectionFormData {
   };
   switch (record.collection_type) {
     case 'single_stone':
-      return { ...base, collection_type: 'single_stone', gemstone_type: record.gemstone_type, variety: record.variety, treatment: record.treatment, origin: record.origin, weight: record.weight, weight_unit: record.weight_unit, shape: record.shape, cut: record.cut, color: record.color, clarity: record.clarity, dimensions: record.dimensions };
+      return { ...base, collection_type: 'single_stone', gemstone_type: record.gemstone_type, variety: record.variety, treatment: record.treatment, origin: record.origin, weight: record.weight, weight_unit: record.weight_unit, shape: record.shape, cut: record.cut, color: record.color, clarity: record.clarity, dimensions: record.dimensions, seller: record.seller };
     case 'bulk_stones':
-      return { ...base, collection_type: 'bulk_stones', stones: record.stones, description: record.description };
+      return { ...base, collection_type: 'bulk_stones', stones: record.stones, description: record.description, seller: record.seller };
     case 'jewellery':
-      return { ...base, collection_type: 'jewellery', weight: record.weight, weight_unit: record.weight_unit, description: record.description };
+      return { ...base, collection_type: 'jewellery', weight: record.weight, weight_unit: record.weight_unit, description: record.description, seller: record.seller };
     case 'industrial_stones':
-      return { ...base, collection_type: 'industrial_stones', stone_type: record.stone_type, variety: record.variety, weight: record.weight, weight_unit: record.weight_unit, description: record.description };
+      return { ...base, collection_type: 'industrial_stones', stone_type: record.stone_type, variety: record.variety, weight: record.weight, weight_unit: record.weight_unit, description: record.description, seller: record.seller };
   }
 }
 
@@ -130,7 +134,7 @@ export function GemstoneDrawer({
   /* Reset when drawer opens for a new record or different editing record */
   useEffect(() => {
     if (isOpen) {
-      setFormData(editingRecord ? recordToFormData(editingRecord) : { ...SINGLE_DEFAULTS });
+      setFormData(editingRecord ? recordToFormData({ ...editingRecord, seller_id: editingRecord.seller.id }) : { ...SINGLE_DEFAULTS });
       setErrors({});
     }
   }, [isOpen, editingRecord]);
@@ -162,13 +166,13 @@ export function GemstoneDrawer({
 
   const filteredSellers = sellerQuery.trim()
     ? sellers.filter(
-        (s) =>
-          `${s.first_name} ${s.last_name ?? ''}`.toLowerCase().includes(sellerQuery.toLowerCase()) ||
-          s.email.toLowerCase().includes(sellerQuery.toLowerCase())
-      )
+      (s) =>
+        `${s.first_name} ${s.last_name ?? ''}`.toLowerCase().includes(sellerQuery.toLowerCase()) ||
+        s.email.toLowerCase().includes(sellerQuery.toLowerCase())
+    )
     : sellers;
 
-  const selectedSeller = sellers.find((s) => s.id === formData.seller_id);
+  const selectedSeller = sellers.find((s) => s.id === formData.seller.id) || null;
 
   /* ── Validation ─────────────────────────────────────────────────────── */
   const validate = (): boolean => {
@@ -313,11 +317,10 @@ export function GemstoneDrawer({
                             setSellerOpen(false);
                             setSellerQuery('');
                           }}
-                          className={`px-3 py-2 text-xs cursor-pointer transition-colors ${
-                            formData.seller_id === s.id
+                          className={`px-3 py-2 text-xs cursor-pointer transition-colors ${formData.seller_id === s.id
                               ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
                               : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
-                          }`}
+                            }`}
                         >
                           <span className="font-medium">{s.first_name} {s.last_name ?? ''}</span>
                           <span className="ml-2 text-slate-400 text-[11px]">{s.email}</span>
@@ -340,11 +343,10 @@ export function GemstoneDrawer({
               {COLLECTION_TYPE_OPTIONS.map((opt) => (
                 <label
                   key={opt.value}
-                  className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 p-3 text-center text-xs font-semibold transition-all ${
-                    formData.collection_type === opt.value
+                  className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 p-3 text-center text-xs font-semibold transition-all ${formData.collection_type === opt.value
                       ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
                       : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-amber-400/50 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"

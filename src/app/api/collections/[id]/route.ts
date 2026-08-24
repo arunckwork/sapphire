@@ -12,7 +12,7 @@ async function proxyRequest(
   if (!token) return NextResponse.json({ message: 'Unauthenticated' }, { status: 401 });
   if (!BACKEND_URL) return NextResponse.json({ message: 'Backend not configured' }, { status: 503 });
 
-  const res = await fetch(`${BACKEND_URL}/api/v1/collections/${id}/`, {
+  const res = await fetch(`${BACKEND_URL}/api/v1/collections/${id}`, {
     method,
     headers: {
       'Content-Type': 'application/json',

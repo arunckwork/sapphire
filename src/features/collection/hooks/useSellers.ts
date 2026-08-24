@@ -19,7 +19,7 @@ export function useSellers() {
     setError(null);
 
     sellerService.getSellers().send()
-      .then((res) => { if (!cancelled) setSellers(res); })
+      .then((res) => { if (!cancelled) setSellers(res.data as SellerRef[]); })
       .catch((err: unknown) => { if (!cancelled) setError(err); })
       .finally(() => { if (!cancelled) setIsLoading(false); });
 

@@ -10,7 +10,7 @@ const DEFAULT_PARAMS: CollectionsQueryParams = {
   sort_by: 'created_at',
   sort_order: 'desc',
   page: 1,
-  limit: 10,
+  limit: 100,
 };
 
 export function useCollections() {

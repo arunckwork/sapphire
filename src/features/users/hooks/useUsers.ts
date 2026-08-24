@@ -9,7 +9,7 @@ const DEFAULT_PARAMS: UsersQueryParams = {
   sort_by: 'createdAt',
   sort_order: 'desc',
   page: 1,
-  limit: 10,
+  limit: 100,
 };
 
 export function useUsers() {

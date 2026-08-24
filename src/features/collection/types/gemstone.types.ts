@@ -13,6 +13,9 @@ export interface SellerRef {
   email: string;
   role: Role;
 }
+export interface SellerResponseRef {
+ data: SellerRef[];
+}
 
 /* ── Bulk stone row ───────────────────────────────────────────────────────── */
 
@@ -109,12 +112,14 @@ export interface SingleStoneFormData extends CollectionFormBase {
   color: string;               // value from COLOR_OPTIONS constant
   clarity: string;             // value from CLARITY_OPTIONS constant
   dimensions: string;
+  seller: SellerRef;             // selected seller object (for display in drawer); submitted as seller_id
 }
 
 export interface BulkStonesFormData extends CollectionFormBase {
   collection_type: 'bulk_stones';
   stones: BulkStoneRow[];      // each row carries its own weight_unit
   description: string;
+  seller: SellerRef;             // selected seller object (for display in drawer); submitted as seller_id
 }
 
 export interface JewelleryFormData extends CollectionFormBase {
@@ -122,6 +127,7 @@ export interface JewelleryFormData extends CollectionFormBase {
   weight: number;
   weight_unit: string;
   description: string;
+  seller: SellerRef;             // selected seller object (for display in drawer); submitted as seller_id
 }
 
 export interface IndustrialStonesFormData extends CollectionFormBase {
@@ -131,6 +137,7 @@ export interface IndustrialStonesFormData extends CollectionFormBase {
   weight: number;
   weight_unit: string;         // value from WEIGHT_UNITS constant
   description: string;
+  seller: SellerRef;             // selected seller object (for display in drawer); submitted as seller_id
 }
 
 export type CollectionFormData =

@@ -194,7 +194,7 @@ export function UsersTable({
           <tbody>
             {isLoading
               ? Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-              : users.length === 0
+              : users?.length === 0
               ? (
                 <tr>
                   <td colSpan={6} className="py-16 text-center">
@@ -205,7 +205,7 @@ export function UsersTable({
                   </td>
                 </tr>
               )
-              : users.map((user) => (
+              : users && users.map((user) => (
                 <tr
                   key={user.id}
                   className="border-b border-border/30 transition-colors hover:bg-muted/30"
@@ -289,7 +289,7 @@ export function UsersTable({
       </div>
 
       {/* ── Pagination ─────────────────────────────────────────────── */}
-      {!isLoading && users.length > 0 && (
+      {!isLoading && users && users.length > 0 && (
         <div className="flex items-center justify-between border-t border-border/40 px-4 py-3">
           <p className="text-[11px] text-muted-foreground">
             Showing <span className="font-medium text-foreground">{start}–{end}</span> of{' '}

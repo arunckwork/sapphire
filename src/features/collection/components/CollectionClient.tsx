@@ -1,153 +1,84 @@
 'use client';
 
 import React, { useState } from 'react';
-import { toast } from 'sonner';
 import type { CollectionFormData, CollectionRecord } from '../types/gemstone.types';
 import { GemstoneGrid } from './GemstoneGrid';
 import { GemstoneDrawer } from './GemstoneDrawer';
-import type { SellerRef } from '../types/gemstone.types';
-
-/* ── Dummy sellers (replaced when useSellers hook is wired) ─────────────── */
-const DUMMY_SELLERS: SellerRef[] = [
-  { id: 'seller-1', first_name: 'Arun',  last_name: 'Ck',      email: 'arun@example.com',   role: 'user' },
-  { id: 'seller-2', first_name: 'Priya', last_name: 'Nair',    email: 'priya@example.com',  role: 'user' },
-  { id: 'seller-3', first_name: 'Rahul', last_name: 'Sharma',  email: 'rahul@example.com',  role: 'user' },
-];
-
-/* ── Dummy collections (replaced when useCollections hook is wired) ──────── */
-const DUMMY_RECORDS: CollectionRecord[] = [
-  {
-    id: 'col-001',
-    serial_no: 'COL-SNG-2026-001',
-    collection_type: 'single_stone',
-    seller_id: 'seller-1',
-    seller: DUMMY_SELLERS[0],
-    gemstone_type: 'sapphire',
-    variety: 'blue sapphire',
-    treatment: 'none / unheated',
-    origin: 'sri lanka (ratnapura)',
-    weight: 4.85,
-    weight_unit: 'ct',
-    shape: 'cushion',
-    cut: 'excellent',
-    color: 'royal blue',
-    clarity: 'vvs1 (very very slightly included 1)',
-    dimensions: '9.4 x 7.8 x 5.2 mm',
-    certification_no: 'GIA-24819031',
-    certification_lab: 'gia (gemological institute of america)',
-    asking_price: 4500,
-    image_urls: [],
-    created_at: '2026-08-01T10:30:00Z',
-    updated_at: '2026-08-01T10:30:00Z',
-  },
-  {
-    id: 'col-002',
-    serial_no: 'COL-BLK-2026-002',
-    collection_type: 'bulk_stones',
-    seller_id: 'seller-2',
-    seller: DUMMY_SELLERS[1],
-    stones: [
-      { gemstone_type: 'ruby', variety: 'pigeon blood ruby', quantity: 5, weight: 12.5, weight_unit: 'ct' },
-      { gemstone_type: 'sapphire', variety: 'pink sapphire', quantity: 3, weight: 6.2, weight_unit: 'ct' },
-    ],
-    description: 'Mixed lot of premium rubies and sapphires from Mogok.',
-    certification_no: '',
-    certification_lab: '',
-    asking_price: 18000,
-    image_urls: [],
-    created_at: '2026-08-05T09:00:00Z',
-    updated_at: '2026-08-05T09:00:00Z',
-  },
-  {
-    id: 'col-003',
-    serial_no: 'COL-JWL-2026-003',
-    collection_type: 'jewellery',
-    seller_id: 'seller-3',
-    seller: DUMMY_SELLERS[2],
-    description: '18K gold sapphire pendant with two side diamonds, handcrafted.',
-    weight: 8.5,
-    weight_unit: 'g',
-    certification_no: 'GRS-2025-0948',
-    certification_lab: 'grs (gemresearch swisslab)',
-    asking_price: 7200,
-    image_urls: [],
-    created_at: '2026-08-10T14:00:00Z',
-    updated_at: '2026-08-10T14:00:00Z',
-  },
-  {
-    id: 'col-004',
-    serial_no: 'COL-IND-2026-004',
-    collection_type: 'industrial_stones',
-    seller_id: 'seller-1',
-    seller: DUMMY_SELLERS[0],
-    stone_type: 'abrasive corundum',
-    variety: 'star ruby',
-    weight: 250,
-    weight_unit: 'g',
-    description: 'Grade A abrasive corundum, mesh 80, for industrial polishing.',
-    certification_no: '',
-    certification_lab: '',
-    asking_price: 320,
-    image_urls: [],
-    created_at: '2026-08-12T11:00:00Z',
-    updated_at: '2026-08-12T11:00:00Z',
-  },
-];
-
-/* ── Component ─────────────────────────────────────────────────────────── */
+import { useCollections } from '../hooks/useCollections';
+import { useCollectionMutations } from '../hooks/useCollectionMutations';
+import { useSellers } from '../hooks/useSellers';
 
 export function CollectionClient() {
-  const [records, setRecords] = useState<CollectionRecord[]>(DUMMY_RECORDS);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<CollectionRecord | null>(null);
 
+  const {
+    collections,
+    total,
+    isLoading: isCollectionsLoading,
+    refetch,
+  } = useCollections();
+
+  const {
+    sellers,
+    isLoading: isSellersLoading,
+  } = useSellers();
+
+  const {
+    addCollection,
+    editCollection,
+    deleteCollection,
+  } = useCollectionMutations(refetch);
+
   /* ── Metrics ─────────────────────────────────────────────────────── */
-  const totalCollections = records.length;
-  const totalAskingValue = records.reduce((acc, r) => acc + (r.asking_price || 0), 0);
-  const singleStoneCount = records.filter((r) => r.collection_type === 'single_stone').length;
-  const bulkCount = records.filter((r) => r.collection_type === 'bulk_stones').length;
-  const jewelleryCount = records.filter((r) => r.collection_type === 'jewellery').length;
-  const industrialCount = records.filter((r) => r.collection_type === 'industrial_stones').length;
+  const totalCollections = total || collections.length;
+  const totalAskingValue = collections.reduce((acc, r) => acc + (Number(r.asking_price) || 0), 0);
+  const singleStoneCount = collections.filter((r) => r.collection_type === 'single_stone').length;
+  const bulkCount = collections.filter((r) => r.collection_type === 'bulk_stones').length;
+  const jewelleryCount = collections.filter((r) => r.collection_type === 'jewellery').length;
+  const industrialCount = collections.filter((r) => r.collection_type === 'industrial_stones').length;
 
   const METRICS = [
     {
       title: 'Total Collections',
-      value: totalCollections,
+      value: isCollectionsLoading ? '—' : totalCollections,
       unit: 'entries',
       textColor: 'text-amber-600 dark:text-amber-400',
       borderColor: 'border-amber-500/20 hover:border-amber-500/35',
     },
     {
       title: 'Total Asking Value',
-      value: `$${totalAskingValue.toLocaleString()}`,
+      value: isCollectionsLoading
+        ? '—'
+        : `$${totalAskingValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
       unit: 'combined',
       textColor: 'text-emerald-600 dark:text-emerald-400',
       borderColor: 'border-emerald-500/20 hover:border-emerald-500/35',
     },
     {
       title: 'Single Stones',
-      value: singleStoneCount,
+      value: isCollectionsLoading ? '—' : singleStoneCount,
       unit: 'items',
       textColor: 'text-sky-600 dark:text-sky-400',
       borderColor: 'border-sky-500/20 hover:border-sky-500/35',
     },
     {
       title: 'Bulk Lots',
-      value: bulkCount,
+      value: isCollectionsLoading ? '—' : bulkCount,
       unit: 'lots',
       textColor: 'text-violet-600 dark:text-violet-400',
       borderColor: 'border-violet-500/20 hover:border-violet-500/35',
     },
     {
       title: 'Jewellery',
-      value: jewelleryCount,
+      value: isCollectionsLoading ? '—' : jewelleryCount,
       unit: 'pieces',
       textColor: 'text-purple-600 dark:text-purple-400',
       borderColor: 'border-purple-500/20 hover:border-purple-500/35',
     },
     {
       title: 'Industrial',
-      value: industrialCount,
+      value: isCollectionsLoading ? '—' : industrialCount,
       unit: 'entries',
       textColor: 'text-slate-600 dark:text-slate-400',
       borderColor: 'border-slate-500/20 hover:border-slate-500/35',
@@ -156,39 +87,40 @@ export function CollectionClient() {
 
   /* ── Handlers ────────────────────────────────────────────────────── */
 
-  const handleAddNew = () => { setEditingRecord(null); setIsDrawerOpen(true); };
-  const handleEdit = (record: CollectionRecord) => { setEditingRecord(record); setIsDrawerOpen(true); };
+  const handleAddNew = () => {
+    setEditingRecord(null);
+    setIsDrawerOpen(true);
+  };
 
-  const handleSubmitForm = (formData: CollectionFormData) => {
-    if (editingRecord) {
-      setRecords((prev) =>
-        prev.map((rec) =>
-          rec.id === editingRecord.id
-            ? { ...rec, ...formData, updated_at: new Date().toISOString() } as CollectionRecord
-            : rec
-        )
-      );
-      toast.success('Collection updated successfully.');
-    } else {
-      const newRecord = {
-        ...formData,
-        id: `col-${Date.now()}`,
-        serial_no: '',        // will be populated by backend
-        seller: DUMMY_SELLERS.find((s) => s.id === formData.seller_id) ?? DUMMY_SELLERS[0],
-        image_urls: [],
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      } as unknown as CollectionRecord;
-      setRecords((prev) => [newRecord, ...prev]);
-      toast.success('New collection added successfully.');
-    }
+  const handleEdit = (record: CollectionRecord) => {
+    setEditingRecord(record);
+    setIsDrawerOpen(true);
+  };
+
+  const handleClose = () => {
     setIsDrawerOpen(false);
     setEditingRecord(null);
   };
 
-  const handleDelete = (id: string) => {
-    setRecords((prev) => prev.filter((r) => r.id !== id));
-    toast.info('Collection removed.');
+  const handleSubmitForm = async (formData: CollectionFormData) => {
+    if (editingRecord) {
+      const ok = await editCollection(editingRecord.id, formData);
+      if (ok) {
+        handleClose();
+      }
+    } else {
+      const ok = await addCollection(formData);
+      if (ok) {
+        handleClose();
+      }
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const record = collections.find((r) => r.id === id);
+    if (record) {
+      await deleteCollection(record);
+    }
   };
 
   return (
@@ -227,7 +159,7 @@ export function CollectionClient() {
 
       {/* ── Grid ─────────────────────────────────────────────────────── */}
       <GemstoneGrid
-        records={records}
+        records={collections}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onAddNew={handleAddNew}
@@ -237,11 +169,11 @@ export function CollectionClient() {
       <GemstoneDrawer
         key={editingRecord ? editingRecord.id : isDrawerOpen ? 'open' : 'closed'}
         isOpen={isDrawerOpen}
-        onClose={() => { setIsDrawerOpen(false); setEditingRecord(null); }}
+        onClose={handleClose}
         onSubmit={handleSubmitForm}
         editingRecord={editingRecord}
-        sellers={DUMMY_SELLERS}
-        isSellersLoading={false}
+        sellers={sellers}
+        isSellersLoading={isSellersLoading}
       />
     </div>
   );
