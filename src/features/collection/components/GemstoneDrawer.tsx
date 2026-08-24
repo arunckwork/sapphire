@@ -172,7 +172,7 @@ export function GemstoneDrawer({
     )
     : sellers;
 
-  const selectedSeller = sellers.find((s) => s.id === formData.seller.id) || null;
+  const selectedSeller = sellers.find((s) => s.id === formData.seller_id) || null;
 
   /* ── Validation ─────────────────────────────────────────────────────── */
   const validate = (): boolean => {
@@ -318,8 +318,8 @@ export function GemstoneDrawer({
                             setSellerQuery('');
                           }}
                           className={`px-3 py-2 text-xs cursor-pointer transition-colors ${formData.seller_id === s.id
-                              ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
-                              : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
+                            : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                             }`}
                         >
                           <span className="font-medium">{s.first_name} {s.last_name ?? ''}</span>
@@ -344,8 +344,8 @@ export function GemstoneDrawer({
                 <label
                   key={opt.value}
                   className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 p-3 text-center text-xs font-semibold transition-all ${formData.collection_type === opt.value
-                      ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
-                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-amber-400/50 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
+                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-amber-400/50 hover:bg-slate-50 dark:hover:bg-slate-800'
                     }`}
                 >
                   <input
@@ -439,7 +439,7 @@ export function GemstoneDrawer({
           </div>
 
           {/* ── SECTION: Images (all types) ──────────────────────────── */}
-          <div className="space-y-3">
+          {editingRecord && <div className="space-y-3">
             <h3 className={sectionHead}>Images</h3>
             <p className="text-[11px] text-slate-400 dark:text-slate-500 -mt-1">
               Images are uploaded separately after saving the collection record.
@@ -448,7 +448,7 @@ export function GemstoneDrawer({
               files={formData.images}
               onChange={(files) => setBase('images', files)}
             />
-          </div>
+          </div>}
 
           {/* ── SECTION: Asking Price (all types) ────────────────────── */}
           <div className="space-y-3 pb-4">
