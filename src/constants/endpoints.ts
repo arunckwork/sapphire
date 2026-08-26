@@ -15,6 +15,7 @@ export const ENDPOINTS = {
   COLLECTIONS: {
     LIST: '/api/collections',
     BY_ID: (id: string) => `/api/collections/${id}`,
+    REVIEW: (id: string) => `/api/collections/${id}/review`,
   },
   SELLERS: '/api/users?role=user', // BFF route for fetching users with role=user (for seller autocomplete)
 } as const;

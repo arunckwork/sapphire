@@ -29,6 +29,7 @@ const BASE_DEFAULTS = {
   certification_lab: '',
   asking_price: 0,
   images: [] as File[],
+  removed_image_urls: [] as string[],
 };
 
 const SINGLE_DEFAULTS: SingleStoneFormData = {
@@ -45,7 +46,6 @@ const SINGLE_DEFAULTS: SingleStoneFormData = {
   color: '',
   clarity: '',
   dimensions: '',
-  seller: { id: '', first_name: '', last_name: '', email: '', role: 'user' }, // placeholder; submitted as seller_id
 };
 
 const BULK_DEFAULTS: BulkStonesFormData = {
@@ -53,7 +53,6 @@ const BULK_DEFAULTS: BulkStonesFormData = {
   collection_type: 'bulk_stones',
   stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }],
   description: '',
-  seller: { id: '', first_name: '', last_name: '', email: '', role: 'user' }, // placeholder; submitted as seller_id
 };
 
 const JEWELLERY_DEFAULTS: JewelleryFormData = {
@@ -62,7 +61,6 @@ const JEWELLERY_DEFAULTS: JewelleryFormData = {
   weight: 0,
   weight_unit: 'g',
   description: '',
-  seller: { id: '', first_name: '', last_name: '', email: '', role: 'user' }, // placeholder; submitted as seller_id
 };
 
 const INDUSTRIAL_DEFAULTS: IndustrialStonesFormData = {
@@ -73,35 +71,35 @@ const INDUSTRIAL_DEFAULTS: IndustrialStonesFormData = {
   weight: 0,
   weight_unit: 'ct',
   description: '',
-  seller: { id: '', first_name: '', last_name: '', email: '', role: 'user' }, // placeholder; submitted as seller_id
 };
 
 function defaultsForType(type: CollectionType): CollectionFormData {
   switch (type) {
-    case 'single_stone': return { ...SINGLE_DEFAULTS };
-    case 'bulk_stones': return { ...BULK_DEFAULTS, stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }] };
-    case 'jewellery': return { ...JEWELLERY_DEFAULTS };
+    case 'single_stone':      return { ...SINGLE_DEFAULTS };
+    case 'bulk_stones':       return { ...BULK_DEFAULTS, stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }] };
+    case 'jewellery':         return { ...JEWELLERY_DEFAULTS };
     case 'industrial_stones': return { ...INDUSTRIAL_DEFAULTS };
   }
 }
 
 function recordToFormData(record: CollectionRecord): CollectionFormData {
   const base = {
-    seller_id: record.seller_id,
-    certification_no: record.certification_no,
-    certification_lab: record.certification_lab,
-    asking_price: record.asking_price,
-    images: [] as File[],
+    seller_id:          record.seller_id || record.seller?.id || '',
+    certification_no:   record.certification_no,
+    certification_lab:  record.certification_lab,
+    asking_price:       Number(record.asking_price),
+    images:             [] as File[],
+    removed_image_urls: [] as string[],
   };
   switch (record.collection_type) {
     case 'single_stone':
-      return { ...base, collection_type: 'single_stone', gemstone_type: record.gemstone_type, variety: record.variety, treatment: record.treatment, origin: record.origin, weight: record.weight, weight_unit: record.weight_unit, shape: record.shape, cut: record.cut, color: record.color, clarity: record.clarity, dimensions: record.dimensions, seller: record.seller };
+      return { ...base, collection_type: 'single_stone', gemstone_type: record.gemstone_type, variety: record.variety, treatment: record.treatment, origin: record.origin, weight: record.weight, weight_unit: record.weight_unit, shape: record.shape, cut: record.cut, color: record.color, clarity: record.clarity, dimensions: record.dimensions };
     case 'bulk_stones':
-      return { ...base, collection_type: 'bulk_stones', stones: record.stones, description: record.description, seller: record.seller };
+      return { ...base, collection_type: 'bulk_stones', stones: record.stones, description: record.description };
     case 'jewellery':
-      return { ...base, collection_type: 'jewellery', weight: record.weight, weight_unit: record.weight_unit, description: record.description, seller: record.seller };
+      return { ...base, collection_type: 'jewellery', weight: record.weight, weight_unit: record.weight_unit, description: record.description };
     case 'industrial_stones':
-      return { ...base, collection_type: 'industrial_stones', stone_type: record.stone_type, variety: record.variety, weight: record.weight, weight_unit: record.weight_unit, description: record.description, seller: record.seller };
+      return { ...base, collection_type: 'industrial_stones', stone_type: record.stone_type, variety: record.variety, weight: record.weight, weight_unit: record.weight_unit, description: record.description };
   }
 }
 
@@ -114,6 +112,7 @@ interface GemstoneDrawerProps {
   editingRecord?: CollectionRecord | null;
   sellers: SellerRef[];
   isSellersLoading?: boolean;
+  isSubmitting?: boolean;
 }
 
 /* ── Component ────────────────────────────────────────────────────────────── */
@@ -125,16 +124,23 @@ export function GemstoneDrawer({
   editingRecord,
   sellers,
   isSellersLoading,
+  isSubmitting,
 }: GemstoneDrawerProps) {
   const [formData, setFormData] = useState<CollectionFormData>(() =>
     editingRecord ? recordToFormData(editingRecord) : { ...SINGLE_DEFAULTS }
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
 
-  /* Reset when drawer opens for a new record or different editing record */
+  // Tracks existing image URLs from the record; user can remove individual ones
+  const [existingImageUrls, setExistingImageUrls] = useState<string[]>(
+    editingRecord?.image_urls ?? []
+  );
+
+  /* Reset when drawer opens for a new record or a different editing record */
   useEffect(() => {
     if (isOpen) {
-      setFormData(editingRecord ? recordToFormData({ ...editingRecord, seller_id: editingRecord.seller.id }) : { ...SINGLE_DEFAULTS });
+      setFormData(editingRecord ? recordToFormData(editingRecord) : { ...SINGLE_DEFAULTS });
+      setExistingImageUrls(editingRecord?.image_urls ?? []);
       setErrors({});
     }
   }, [isOpen, editingRecord]);
@@ -143,13 +149,15 @@ export function GemstoneDrawer({
 
   /* ── Collection type change — wipe type-specific fields ──────────── */
   const handleTypeChange = (type: CollectionType) => {
+    if (editingRecord) return; // type is immutable on edit
     setFormData((prev) => ({
       ...defaultsForType(type),
-      seller_id: prev.seller_id,
-      certification_no: prev.certification_no,
-      certification_lab: prev.certification_lab,
-      asking_price: prev.asking_price,
-      images: prev.images,
+      seller_id:          prev.seller_id,
+      certification_no:   prev.certification_no,
+      certification_lab:  prev.certification_lab,
+      asking_price:       prev.asking_price,
+      images:             prev.images,
+      removed_image_urls: prev.removed_image_urls,
     }));
     setErrors({});
   };
@@ -160,16 +168,25 @@ export function GemstoneDrawer({
     setErrors((prev) => { const n = { ...prev }; delete n[field]; return n; });
   };
 
+  /* ── Remove an existing (already-uploaded) image URL ─────────────── */
+  const handleRemoveExistingImage = (url: string) => {
+    setExistingImageUrls((prev) => prev.filter((u) => u !== url));
+    setFormData((prev) => ({
+      ...prev,
+      removed_image_urls: [...prev.removed_image_urls, url],
+    }));
+  };
+
   /* ── Seller search / filter ───────────────────────────────────────── */
   const [sellerQuery, setSellerQuery] = useState('');
   const [sellerOpen, setSellerOpen] = useState(false);
 
   const filteredSellers = sellerQuery.trim()
     ? sellers.filter(
-      (s) =>
-        `${s.first_name} ${s.last_name ?? ''}`.toLowerCase().includes(sellerQuery.toLowerCase()) ||
-        s.email.toLowerCase().includes(sellerQuery.toLowerCase())
-    )
+        (s) =>
+          `${s.first_name} ${s.last_name ?? ''}`.toLowerCase().includes(sellerQuery.toLowerCase()) ||
+          s.email.toLowerCase().includes(sellerQuery.toLowerCase())
+      )
     : sellers;
 
   const selectedSeller = sellers.find((s) => s.id === formData.seller_id) || null;
@@ -178,29 +195,29 @@ export function GemstoneDrawer({
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
 
-    if (!formData.seller_id) errs.seller_id = 'Seller is required';
-    if (!formData.asking_price || formData.asking_price <= 0) errs.asking_price = 'Asking price must be > 0';
+    if (!formData.seller_id)                                   errs.seller_id    = 'Seller is required';
+    if (!formData.asking_price || formData.asking_price <= 0)  errs.asking_price = 'Asking price must be > 0';
 
     if (formData.collection_type === 'single_stone') {
-      if (!formData.gemstone_type) errs.gemstone_type = 'Gemstone Type is required';
-      if (!formData.weight || formData.weight <= 0) errs.weight = 'Weight must be > 0';
-      if (!formData.weight_unit) errs.weight_unit = 'Weight Unit is required';
+      if (!formData.gemstone_type)                             errs.gemstone_type = 'Gemstone Type is required';
+      if (!formData.weight || formData.weight <= 0)            errs.weight        = 'Weight must be > 0';
+      if (!formData.weight_unit)                               errs.weight_unit   = 'Weight Unit is required';
     }
     if (formData.collection_type === 'bulk_stones') {
-      if (!formData.stones.length) errs.stones = 'At least one stone row is required';
+      if (!formData.stones.length)                             errs.stones        = 'At least one stone row is required';
       formData.stones.forEach((row, i) => {
         if (!row.gemstone_type) errs[`stones.${i}.gemstone_type`] = 'Required';
         if (!row.quantity || row.quantity < 1) errs[`stones.${i}.quantity`] = 'Min 1';
       });
     }
     if (formData.collection_type === 'jewellery') {
-      if (!formData.weight || formData.weight <= 0) errs.weight = 'Total weight must be > 0';
-      if (!formData.weight_unit) errs.weight_unit = 'Weight Unit is required';
+      if (!formData.weight || formData.weight <= 0)            errs.weight        = 'Total weight must be > 0';
+      if (!formData.weight_unit)                               errs.weight_unit   = 'Weight Unit is required';
     }
     if (formData.collection_type === 'industrial_stones') {
-      if (!formData.stone_type) errs.stone_type = 'Stone Type is required';
-      if (!formData.weight || formData.weight <= 0) errs.weight = 'Weight must be > 0';
-      if (!formData.weight_unit) errs.weight_unit = 'Weight Unit is required';
+      if (!formData.stone_type)                                errs.stone_type    = 'Stone Type is required';
+      if (!formData.weight || formData.weight <= 0)            errs.weight        = 'Weight must be > 0';
+      if (!formData.weight_unit)                               errs.weight_unit   = 'Weight Unit is required';
     }
 
     setErrors(errs);
@@ -317,10 +334,11 @@ export function GemstoneDrawer({
                             setSellerOpen(false);
                             setSellerQuery('');
                           }}
-                          className={`px-3 py-2 text-xs cursor-pointer transition-colors ${formData.seller_id === s.id
-                            ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
-                            : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
-                            }`}
+                          className={`px-3 py-2 text-xs cursor-pointer transition-colors ${
+                            formData.seller_id === s.id
+                              ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
+                              : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          }`}
                         >
                           <span className="font-medium">{s.first_name} {s.last_name ?? ''}</span>
                           <span className="ml-2 text-slate-400 text-[11px]">{s.email}</span>
@@ -343,10 +361,13 @@ export function GemstoneDrawer({
               {COLLECTION_TYPE_OPTIONS.map((opt) => (
                 <label
                   key={opt.value}
-                  className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 p-3 text-center text-xs font-semibold transition-all ${formData.collection_type === opt.value
-                    ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
-                    : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-amber-400/50 hover:bg-slate-50 dark:hover:bg-slate-800'
-                    }`}
+                  className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 p-3 text-center text-xs font-semibold transition-all ${
+                    editingRecord ? 'opacity-50 cursor-not-allowed' : ''
+                  } ${
+                    formData.collection_type === opt.value
+                      ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
+                      : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-amber-400/50 hover:bg-slate-50 dark:hover:bg-slate-800'
+                  }`}
                 >
                   <input
                     type="radio"
@@ -354,6 +375,7 @@ export function GemstoneDrawer({
                     value={opt.value}
                     checked={formData.collection_type === opt.value}
                     onChange={() => handleTypeChange(opt.value)}
+                    disabled={!!editingRecord}
                     className="sr-only"
                   />
                   <CollectionTypeIcon type={opt.value} />
@@ -361,6 +383,11 @@ export function GemstoneDrawer({
                 </label>
               ))}
             </div>
+            {editingRecord && (
+              <p className="text-[11px] text-slate-400 dark:text-slate-500">
+                Collection type cannot be changed after creation.
+              </p>
+            )}
           </div>
 
           {/* ── SECTION: Dynamic type-specific form ─────────────────── */}
@@ -438,17 +465,48 @@ export function GemstoneDrawer({
             </div>
           </div>
 
-          {/* ── SECTION: Images (all types) ──────────────────────────── */}
-          {editingRecord && <div className="space-y-3">
+          {/* ── SECTION: Images ──────────────────────────────────────── */}
+          <div className="space-y-3">
             <h3 className={sectionHead}>Images</h3>
-            <p className="text-[11px] text-slate-400 dark:text-slate-500 -mt-1">
-              Images are uploaded separately after saving the collection record.
-            </p>
+
+            {/* Existing image thumbnails (edit mode only) */}
+            {existingImageUrls.length > 0 && (
+              <div className="space-y-1.5">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium">
+                  Existing images — click ✕ to remove
+                </p>
+                <div className="grid grid-cols-4 gap-2 sm:grid-cols-5">
+                  {existingImageUrls.map((url) => (
+                    <div key={url} className="group relative aspect-square">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={url}
+                        alt="Collection image"
+                        className="h-full w-full rounded-lg object-cover border border-slate-200 dark:border-slate-700"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => handleRemoveExistingImage(url)}
+                        className="absolute -right-1.5 -top-1.5 flex h-5 w-5 items-center justify-center rounded-full bg-rose-600 text-white shadow-md opacity-0 group-hover:opacity-100 transition-opacity"
+                        title="Remove image"
+                      >
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round">
+                          <path d="M18 6L6 18M6 6l12 12" />
+                        </svg>
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* New image upload field */}
             <ImageUploadField
               files={formData.images}
               onChange={(files) => setBase('images', files)}
+              label={existingImageUrls.length > 0 ? 'Add more images' : 'Images'}
             />
-          </div>}
+          </div>
 
           {/* ── SECTION: Asking Price (all types) ────────────────────── */}
           <div className="space-y-3 pb-4">
@@ -482,15 +540,18 @@ export function GemstoneDrawer({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+            disabled={isSubmitting}
+            className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={handleSubmit}
-            className="rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2 text-xs font-bold text-slate-950 hover:from-amber-400 hover:to-amber-500 transition-colors shadow-md shadow-amber-500/20"
+            disabled={isSubmitting}
+            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2 text-xs font-bold text-slate-950 hover:from-amber-400 hover:to-amber-500 transition-colors shadow-md shadow-amber-500/20 disabled:opacity-60 disabled:cursor-not-allowed"
           >
+            {isSubmitting && <SpinnerIcon />}
             {editingRecord ? 'Update Collection' : 'Save Collection'}
           </button>
         </div>
@@ -504,8 +565,7 @@ export function GemstoneDrawer({
 function CloseIcon() {
   return (
     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
+      <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   );
 }
@@ -514,6 +574,15 @@ function ChevronIcon({ open }: { open: boolean }) {
   return (
     <svg className={`h-3.5 w-3.5 text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
       <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+    </svg>
+  );
+}
+
+function SpinnerIcon() {
+  return (
+    <svg className="animate-spin h-3.5 w-3.5" fill="none" viewBox="0 0 24 24">
+      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
     </svg>
   );
 }
@@ -529,8 +598,7 @@ function CollectionTypeIcon({ type }: { type: CollectionType }) {
     case 'bulk_stones':
       return (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <polygon points="8 2 16 2 20 8 12 22 4 8 8 2" />
-          <line x1="4" y1="8" x2="20" y2="8" />
+          <polygon points="8 2 16 2 20 8 12 22 4 8 8 2" /><line x1="4" y1="8" x2="20" y2="8" />
         </svg>
       );
     case 'jewellery':
@@ -542,8 +610,7 @@ function CollectionTypeIcon({ type }: { type: CollectionType }) {
     case 'industrial_stones':
       return (
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <rect x="2" y="7" width="20" height="14" rx="2" />
-          <path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
+          <rect x="2" y="7" width="20" height="14" rx="2" /><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2" />
         </svg>
       );
   }

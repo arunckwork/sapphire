@@ -11,18 +11,21 @@ import type {
   JewelleryCollection,
   IndustrialStonesCollection,
 } from '../types/gemstone.types';
-import { COLLECTION_TYPE_OPTIONS } from '../constants/gemstone.constants';
+import { COLLECTION_TYPE_OPTIONS, COLLECTION_STATUS_OPTIONS } from '../constants/gemstone.constants';
 
 interface CollectionGridProps {
   records: CollectionRecord[];
   onEdit: (record: CollectionRecord) => void;
   onDelete: (id: string) => void;
   onAddNew: () => void;
+  onReview: (record: CollectionRecord) => void;
+  canManage: boolean; // admin or manager — can create, edit, delete, review
 }
 
 const DEFAULT_FILTERS: CollectionFilterState = {
   search: '',
   collection_type: 'ALL',
+  status: 'ALL',
 };
 
 const COLLECTION_TYPE_BADGE: Record<string, string> = {
@@ -87,7 +90,7 @@ function getDetailsDisplay(record: CollectionRecord): string {
 
 /* ── Component ─────────────────────────────────────────────────────────── */
 
-export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: CollectionGridProps) {
+export function GemstoneGrid({ records, onEdit, onDelete, onAddNew, onReview, canManage }: CollectionGridProps) {
   const [filters, setFilters] = useState<CollectionFilterState>(DEFAULT_FILTERS);
   const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'created_at', order: 'desc' });
   const [deletingId, setDeletingId] = useState<string | null>(null);
@@ -103,7 +106,7 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
   const resetFilters = () => setFilters(DEFAULT_FILTERS);
 
   const hasActiveFilters =
-    filters.search !== '' || filters.collection_type !== 'ALL';
+    filters.search !== '' || filters.collection_type !== 'ALL' || filters.status !== 'ALL';
 
   const processedRecords = useMemo(() => {
     return records
@@ -119,6 +122,9 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
           ) return false;
         }
         if (filters.collection_type !== 'ALL' && rec.collection_type !== filters.collection_type) {
+          return false;
+        }
+        if (filters.status !== 'ALL' && rec.status !== filters.status) {
           return false;
         }
         return true;
@@ -174,6 +180,17 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
             ))}
           </select>
 
+          {/* Status Filter */}
+          <select
+            value={filters.status}
+            onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
+            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
+          >
+            {COLLECTION_STATUS_OPTIONS.map((opt) => (
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            ))}
+          </select>
+
           {hasActiveFilters && (
             <button
               onClick={resetFilters}
@@ -184,13 +201,16 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
           )}
         </div>
 
-        <button
-          onClick={onAddNew}
-          className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-xs font-bold text-slate-950 shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 transition-all duration-200 shrink-0"
-        >
-          <PlusIcon />
-          <span>Add Collection</span>
-        </button>
+        {/* Add Collection — admin/manager only */}
+        {canManage && (
+          <button
+            onClick={onAddNew}
+            className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-xs font-bold text-slate-950 shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 transition-all duration-200 shrink-0"
+          >
+            <PlusIcon />
+            <span>Add Collection</span>
+          </button>
+        )}
       </div>
 
       {/* ── Table ────────────────────────────────────────────────────── */}
@@ -212,6 +232,8 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
                     <SortIndicator field="collection_type" currentSort={sortConfig} />
                   </div>
                 </th>
+                {/* Status */}
+                <th className="px-4 py-3.5 select-none">Status</th>
                 {/* Details summary */}
                 <th className="px-4 py-3.5 select-none">Details</th>
                 {/* Weight / Qty */}
@@ -245,7 +267,7 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
             <tbody className="divide-y divide-border/60">
               {processedRecords.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="px-4 py-12 text-center text-muted-foreground">
+                  <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
                       <EmptyIcon />
                       <span className="font-semibold text-sm text-foreground">No collections found</span>
@@ -286,6 +308,11 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
                           </span>
                         )}
                       </div>
+                    </td>
+
+                    {/* Status Badge */}
+                    <td className="px-4 py-3.5">
+                      <StatusBadge status={item.status} />
                     </td>
 
                     {/* Details */}
@@ -339,20 +366,46 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
                     {/* Actions */}
                     <td className="px-4 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5 opacity-90 group-hover:opacity-100">
-                        <button
-                          onClick={() => onEdit(item)}
-                          title="Edit"
-                          className="rounded-md p-1.5 text-muted-foreground hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
-                        >
-                          <EditIcon />
-                        </button>
-                        <button
-                          onClick={() => setDeletingId(item.id)}
-                          title="Delete"
-                          className="rounded-md p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-                        >
-                          <TrashIcon />
-                        </button>
+                        {/* Review button — manager/admin, only for 'review' status */}
+                        {canManage && item.status === 'review' && (
+                          <button
+                            onClick={() => onReview(item)}
+                            title="Review & Accept"
+                            className="rounded-md p-1.5 text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
+                          >
+                            <ReviewIcon />
+                          </button>
+                        )}
+                        {/* Edit — manager/admin, only for non-accepted records */}
+                        {canManage && item.status !== 'accepted' && (
+                          <button
+                            onClick={() => onEdit(item)}
+                            title="Edit"
+                            className="rounded-md p-1.5 text-muted-foreground hover:bg-amber-500/10 hover:text-amber-600 dark:hover:text-amber-400 transition-colors"
+                          >
+                            <EditIcon />
+                          </button>
+                        )}
+                        {/* View details (all users) */}
+                        {item.status === 'accepted' && (
+                          <button
+                            onClick={() => onReview(item)}
+                            title="View Details"
+                            className="rounded-md p-1.5 text-muted-foreground hover:bg-slate-500/10 hover:text-slate-600 dark:hover:text-slate-400 transition-colors"
+                          >
+                            <EyeIcon />
+                          </button>
+                        )}
+                        {/* Delete — manager/admin only */}
+                        {canManage && (
+                          <button
+                            onClick={() => setDeletingId(item.id)}
+                            title="Delete"
+                            className="rounded-md p-1.5 text-muted-foreground hover:bg-rose-500/10 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                          >
+                            <TrashIcon />
+                          </button>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -430,6 +483,25 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew }: Collection
   );
 }
 
+/* ── Status Badge ────────────────────────────────────────────────────────── */
+
+function StatusBadge({ status }: { status: string | undefined }) {
+  if (status === 'accepted') {
+    return (
+      <span className="inline-flex items-center gap-1 rounded-full border border-emerald-500/30 bg-emerald-100 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400">
+        <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        Accepted
+      </span>
+    );
+  }
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full border border-amber-500/30 bg-amber-50 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:bg-amber-900/20 dark:text-amber-400">
+      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 animate-pulse" />
+      In Review
+    </span>
+  );
+}
+
 /* ── Icons & helpers ──────────────────────────────────────────────────────── */
 
 function SortIndicator({ field, currentSort }: { field: SortField; currentSort: SortConfig }) {
@@ -454,6 +526,12 @@ function EditIcon() {
 }
 function TrashIcon() {
   return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6" /><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></svg>;
+}
+function ReviewIcon() {
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" /></svg>;
+}
+function EyeIcon() {
+  return <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" /><circle cx="12" cy="12" r="3" /></svg>;
 }
 function EmptyIcon() {
   return <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" className="text-muted-foreground"><polygon points="12 2 22 8.5 12 22 2 8.5 12 2" /><line x1="2" y1="8.5" x2="22" y2="8.5" /></svg>;

@@ -159,6 +159,18 @@ export const INDUSTRIAL_STONE_TYPES = [
   { label: 'Graphite',           value: 'graphite' },
 ] as const;
 
+export const PAYMENT_METHOD_OPTIONS = [
+  { label: 'Cash',           value: 'cash' },
+  { label: 'Mobile Money',   value: 'mobile_money' },
+  { label: 'Bank Transfer',  value: 'bank_transfer' },
+] as const;
+
+export const COLLECTION_STATUS_OPTIONS = [
+  { label: 'All Status',  value: 'ALL' },
+  { label: 'In Review',   value: 'review' },
+  { label: 'Accepted',    value: 'accepted' },
+] as const;
+
 /* ── TypeScript helpers ───────────────────────────────────────────────────── */
 
 /** Extract the union of value strings from a constant array */

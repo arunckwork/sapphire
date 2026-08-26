@@ -1,13 +1,86 @@
 import { alovaClient } from '@/lib/alova';
 import { ENDPOINTS } from '@/constants/endpoints';
-import type { CollectionFormData, CollectionsResponse, CollectionRecord, CollectionsQueryParams } from '../types/gemstone.types';
+import type {
+  CollectionFormData,
+  CollectionsResponse,
+  CollectionRecord,
+  CollectionsQueryParams,
+  ReviewFormData,
+} from '../types/gemstone.types';
+
+/**
+ * Builds a `FormData` payload from `CollectionFormData`.
+ *
+ * - Scalar fields are appended as strings.
+ * - `bulk_stones.stones` is JSON-encoded (backend parses it server-side).
+ * - Each newly-added `File` in `data.images` is appended as an `images` field.
+ * - Each URL in `data.removed_image_urls` is appended as `removed_image_urls` field.
+ */
+function toFormData(data: CollectionFormData): FormData {
+  const fd = new FormData();
+
+  // ── Common scalar fields ──────────────────────────────────────────────────
+  fd.append('collection_type',   data.collection_type);
+  fd.append('seller_id',         data.seller_id);
+  fd.append('certification_no',  data.certification_no ?? '');
+  fd.append('certification_lab', data.certification_lab ?? '');
+  fd.append('asking_price',      String(data.asking_price));
+
+  // ── Type-specific fields ──────────────────────────────────────────────────
+  if (data.collection_type === 'single_stone') {
+    fd.append('gemstone_type', data.gemstone_type ?? '');
+    fd.append('variety',       data.variety ?? '');
+    fd.append('treatment',     data.treatment ?? '');
+    fd.append('origin',        data.origin ?? '');
+    fd.append('weight',        String(data.weight));
+    fd.append('weight_unit',   data.weight_unit);
+    fd.append('shape',         data.shape ?? '');
+    fd.append('cut',           data.cut ?? '');
+    fd.append('color',         data.color ?? '');
+    fd.append('clarity',       data.clarity ?? '');
+    fd.append('dimensions',    data.dimensions ?? '');
+  }
+
+  if (data.collection_type === 'bulk_stones') {
+    // stones is a complex array; backend expects JSON string
+    fd.append('stones',      JSON.stringify(data.stones));
+    fd.append('description', data.description ?? '');
+  }
+
+  if (data.collection_type === 'jewellery') {
+    fd.append('weight',      String(data.weight));
+    fd.append('weight_unit', data.weight_unit);
+    fd.append('description', data.description ?? '');
+  }
+
+  if (data.collection_type === 'industrial_stones') {
+    fd.append('stone_type',  data.stone_type ?? '');
+    fd.append('variety',     data.variety ?? '');
+    fd.append('weight',      String(data.weight));
+    fd.append('weight_unit', data.weight_unit);
+    fd.append('description', data.description ?? '');
+  }
+
+  // ── Image files (new uploads) ─────────────────────────────────────────────
+  for (const file of data.images) {
+    fd.append('images', file);
+  }
+
+  // ── Removed image URLs (edit only) ────────────────────────────────────────
+  for (const url of data.removed_image_urls) {
+    fd.append('removed_image_urls', url);
+  }
+
+  return fd;
+}
 
 /**
  * Collections service.
  * All calls go through BFF proxy routes (/api/collections/*)
  * which forward the access_token cookie as Bearer token.
  *
- * NOTE: Image upload is handled separately via a dedicated upload flow.
+ * Create/Update use multipart/form-data (via native fetch) to support image uploads.
+ * GET/DELETE continue to use the Alova client.
  */
 export const collectionService = {
   /** Fetches paginated, filtered, sorted collections */
@@ -18,18 +91,67 @@ export const collectionService = {
       sort_by:         params.sort_by ?? 'created_at',
       sort_order:      params.sort_order ?? 'desc',
       page:            String(params.page ?? 1),
-      limit:           String(params.limit ?? 10),
+      limit:           String(params.limit ?? 100),
     }).toString();
     return alovaClient.Get<CollectionsResponse>(`${ENDPOINTS.COLLECTIONS.LIST}?${query}`, { cacheFor: 0 });
   },
 
-  /** Creates a new collection (JSON body; images uploaded separately) */
-  createCollection: (data: CollectionFormData) =>
-    alovaClient.Post<CollectionRecord>(ENDPOINTS.COLLECTIONS.LIST, data),
+  /** Fetches a single collection by ID */
+  getCollection: (id: string) =>
+    alovaClient.Get<CollectionRecord>(ENDPOINTS.COLLECTIONS.BY_ID(id), { cacheFor: 0 }),
 
-  /** Updates an existing collection */
-  updateCollection: (id: string, data: Partial<CollectionFormData>) =>
-    alovaClient.Put<CollectionRecord>(ENDPOINTS.COLLECTIONS.BY_ID(id), data),
+  /**
+   * Creates a new collection via multipart/form-data.
+   * Returns the created CollectionRecord.
+   */
+  createCollection: async (data: CollectionFormData): Promise<CollectionRecord> => {
+    const res = await fetch(ENDPOINTS.COLLECTIONS.LIST, {
+      method: 'POST',
+      credentials: 'include',
+      body: toFormData(data),
+      // Do NOT set Content-Type — browser will set it with the correct multipart boundary
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }));
+      throw Object.assign(new Error(err.message ?? 'Create failed'), { status: res.status });
+    }
+    return res.json() as Promise<CollectionRecord>;
+  },
+
+  /**
+   * Updates an existing collection via multipart/form-data.
+   * Returns the updated CollectionRecord.
+   */
+  updateCollection: async (id: string, data: CollectionFormData): Promise<CollectionRecord> => {
+    const res = await fetch(ENDPOINTS.COLLECTIONS.BY_ID(id), {
+      method: 'PUT',
+      credentials: 'include',
+      body: toFormData(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }));
+      throw Object.assign(new Error(err.message ?? 'Update failed'), { status: res.status });
+    }
+    return res.json() as Promise<CollectionRecord>;
+  },
+
+  /**
+   * Approves and accepts a collection, setting status to 'accepted'.
+   * Backend generates a barcode and sets finalized_price + payment_method.
+   */
+  reviewCollection: async (id: string, data: ReviewFormData): Promise<CollectionRecord> => {
+    const res = await fetch(ENDPOINTS.COLLECTIONS.REVIEW(id), {
+      method: 'PATCH',
+      credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({ message: res.statusText }));
+      throw Object.assign(new Error(err.message ?? 'Review failed'), { status: res.status });
+    }
+    return res.json() as Promise<CollectionRecord>;
+  },
 
   /** Deletes a collection */
   deleteCollection: (id: string) =>

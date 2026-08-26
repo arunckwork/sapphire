@@ -1,14 +1,20 @@
 'use client';
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import type { CollectionFormData, CollectionRecord } from '../types/gemstone.types';
 import { GemstoneGrid } from './GemstoneGrid';
 import { GemstoneDrawer } from './GemstoneDrawer';
 import { useCollections } from '../hooks/useCollections';
 import { useCollectionMutations } from '../hooks/useCollectionMutations';
 import { useSellers } from '../hooks/useSellers';
+import { useRole } from '@/features/auth/hooks/useRole';
 
 export function CollectionClient() {
+  const router = useRouter();
+  const { isAdmin, isManager } = useRole();
+  const canManage = isAdmin || isManager;
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<CollectionRecord | null>(null);
 
@@ -28,6 +34,8 @@ export function CollectionClient() {
     addCollection,
     editCollection,
     deleteCollection,
+    isAdding,
+    isEditing,
   } = useCollectionMutations(refetch);
 
   /* ── Metrics ─────────────────────────────────────────────────────── */
@@ -37,6 +45,8 @@ export function CollectionClient() {
   const bulkCount = collections.filter((r) => r.collection_type === 'bulk_stones').length;
   const jewelleryCount = collections.filter((r) => r.collection_type === 'jewellery').length;
   const industrialCount = collections.filter((r) => r.collection_type === 'industrial_stones').length;
+  const inReviewCount = collections.filter((r) => r.status === 'review').length;
+  const acceptedCount = collections.filter((r) => r.status === 'accepted').length;
 
   const METRICS = [
     {
@@ -54,6 +64,20 @@ export function CollectionClient() {
       unit: 'combined',
       textColor: 'text-emerald-600 dark:text-emerald-400',
       borderColor: 'border-emerald-500/20 hover:border-emerald-500/35',
+    },
+    {
+      title: 'In Review',
+      value: isCollectionsLoading ? '—' : inReviewCount,
+      unit: 'pending',
+      textColor: 'text-amber-500 dark:text-amber-300',
+      borderColor: 'border-amber-400/20 hover:border-amber-400/35',
+    },
+    {
+      title: 'Accepted',
+      value: isCollectionsLoading ? '—' : acceptedCount,
+      unit: 'approved',
+      textColor: 'text-teal-600 dark:text-teal-400',
+      borderColor: 'border-teal-500/20 hover:border-teal-500/35',
     },
     {
       title: 'Single Stones',
@@ -88,6 +112,7 @@ export function CollectionClient() {
   /* ── Handlers ────────────────────────────────────────────────────── */
 
   const handleAddNew = () => {
+    if (!canManage) return;
     setEditingRecord(null);
     setIsDrawerOpen(true);
   };
@@ -105,22 +130,20 @@ export function CollectionClient() {
   const handleSubmitForm = async (formData: CollectionFormData) => {
     if (editingRecord) {
       const ok = await editCollection(editingRecord.id, formData);
-      if (ok) {
-        handleClose();
-      }
+      if (ok) handleClose();
     } else {
       const ok = await addCollection(formData);
-      if (ok) {
-        handleClose();
-      }
+      if (ok) handleClose();
     }
   };
 
   const handleDelete = async (id: string) => {
     const record = collections.find((r) => r.id === id);
-    if (record) {
-      await deleteCollection(record);
-    }
+    if (record) await deleteCollection(record);
+  };
+
+  const handleReview = (record: CollectionRecord) => {
+    router.push(`/collection/${record.id}/review`);
   };
 
   return (
@@ -132,13 +155,13 @@ export function CollectionClient() {
             Gemstone Collection
           </h1>
           <p className="text-xs font-normal text-muted-foreground">
-            GemTrace Madagascar — Collection Inventory & Grading Registry
+            GemTrace Madagascar — Collection Inventory &amp; Grading Registry
           </p>
         </div>
       </div>
 
       {/* ── Metric Cards ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3 xl:grid-cols-6">
+      <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4 xl:grid-cols-8">
         {METRICS.map((metric) => (
           <div
             key={metric.title}
@@ -163,6 +186,8 @@ export function CollectionClient() {
         onEdit={handleEdit}
         onDelete={handleDelete}
         onAddNew={handleAddNew}
+        onReview={handleReview}
+        canManage={canManage}
       />
 
       {/* ── Drawer ───────────────────────────────────────────────────── */}
@@ -174,6 +199,7 @@ export function CollectionClient() {
         editingRecord={editingRecord}
         sellers={sellers}
         isSellersLoading={isSellersLoading}
+        isSubmitting={isAdding || isEditing}
       />
     </div>
   );

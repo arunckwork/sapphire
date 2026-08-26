@@ -4,7 +4,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 
 /**
  * GET  /api/collections  — List collections (proxied to backend)
- * POST /api/collections  — Create collection (JSON; images handled separately)
+ * POST /api/collections  — Create collection (multipart/form-data pass-through)
  */
 
 export async function GET(request: NextRequest) {
@@ -35,20 +35,25 @@ export async function POST(request: NextRequest) {
   if (!BACKEND_URL) return NextResponse.json({ message: 'Backend not configured' }, { status: 503 });
 
   try {
-    const body = await request.json();
-    const res = await fetch(`${BACKEND_URL}/api/v1/collections/`, {
+    // Pass-through the multipart/form-data body directly to the backend.
+    // Do NOT read as JSON — the client sends FormData with image files.
+    const formData = await request.formData();
+
+    const res = await fetch(`${BACKEND_URL}/api/v1/collections`, {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        // Do NOT set Content-Type — let fetch set multipart boundary automatically
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(body),
+      body: formData,
     });
+
     const contentType = res.headers.get('content-type') ?? '';
     const raw = await res.text();
     const data = contentType.includes('application/json')
       ? JSON.parse(raw)
       : { message: raw || res.statusText };
+
     if (!res.ok) return NextResponse.json(data, { status: res.status });
     return NextResponse.json(data, { status: 201 });
   } catch (err) {
