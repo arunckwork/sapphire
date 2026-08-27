@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toast } from 'sonner';
@@ -8,6 +8,7 @@ import { useCollectionDetail } from '../hooks/useCollectionDetail';
 import { useRole } from '@/features/auth/hooks/useRole';
 import { collectionService } from '../services/collection.service';
 import { PAYMENT_METHOD_OPTIONS } from '../constants/gemstone.constants';
+import { getMediaUrl } from '@/utils/media';
 import type {
   CollectionRecord,
   PaymentMethod,
@@ -111,6 +112,159 @@ function DetailRow({ label, value, span }: { label: string; value?: string | num
   );
 }
 
+/* ── Image Lightbox ─────────────────────────────────────────────────────── */
+
+interface LightboxProps {
+  urls: string[];
+  startIndex: number;
+  onClose: () => void;
+}
+
+function ImageLightbox({ urls, startIndex, onClose }: LightboxProps) {
+  const [index, setIndex]   = useState(startIndex);
+  const [zoom, setZoom]     = useState(1);
+  const [offset, setOffset] = useState({ x: 0, y: 0 });
+  const dragStart            = useRef<{ x: number; y: number } | null>(null);
+  const containerRef         = useRef<HTMLDivElement>(null);
+
+  const resetZoom = () => { setZoom(1); setOffset({ x: 0, y: 0 }); };
+
+  const prev = useCallback(() => { resetZoom(); setIndex((i) => (i - 1 + urls.length) % urls.length); }, [urls.length]);
+  const next = useCallback(() => { resetZoom(); setIndex((i) => (i + 1) % urls.length); }, [urls.length]);
+
+  /* keyboard */
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+      if (e.key === 'ArrowLeft')  prev();
+      if (e.key === 'ArrowRight') next();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose, prev, next]);
+
+  /* scroll-to-zoom */
+  const onWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    setZoom((z) => Math.min(5, Math.max(1, z - e.deltaY * 0.002)));
+    if (zoom <= 1) setOffset({ x: 0, y: 0 });
+  };
+
+  /* drag-to-pan (only when zoomed) */
+  const onMouseDown = (e: React.MouseEvent) => {
+    if (zoom <= 1) return;
+    dragStart.current = { x: e.clientX - offset.x, y: e.clientY - offset.y };
+  };
+  const onMouseMove = (e: React.MouseEvent) => {
+    if (!dragStart.current) return;
+    setOffset({ x: e.clientX - dragStart.current.x, y: e.clientY - dragStart.current.y });
+  };
+  const onMouseUp = () => { dragStart.current = null; };
+
+  /* click-to-zoom on image */
+  const onImgClick = () => {
+    if (zoom > 1) { resetZoom(); } else { setZoom(2.5); }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center"
+      style={{ background: 'rgba(0,0,0,0.92)', backdropFilter: 'blur(8px)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose(); }}
+    >
+      {/* Close */}
+      <button
+        onClick={onClose}
+        className="absolute right-4 top-4 z-10 flex h-9 w-9 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-colors hover:bg-white/20"
+        aria-label="Close lightbox"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><path d="M18 6L6 18M6 6l12 12" /></svg>
+      </button>
+
+      {/* Counter */}
+      <div className="absolute top-4 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-xs font-semibold text-white backdrop-blur-sm">
+        {index + 1} / {urls.length}
+      </div>
+
+      {/* Zoom hint */}
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 rounded-full bg-white/10 px-3 py-1 text-[11px] text-white/60 backdrop-blur-sm select-none">
+        {zoom > 1 ? `${Math.round(zoom * 100)}% — scroll or click to reset` : 'Click image or scroll to zoom'}
+      </div>
+
+      {/* Prev arrow */}
+      {urls.length > 1 && (
+        <button
+          onClick={prev}
+          className="absolute left-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-all hover:bg-white/25 hover:scale-110"
+          aria-label="Previous image"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6" /></svg>
+        </button>
+      )}
+
+      {/* Image area */}
+      <div
+        ref={containerRef}
+        className="relative flex h-full w-full items-center justify-center overflow-hidden"
+        onWheel={onWheel}
+        onMouseDown={onMouseDown}
+        onMouseMove={onMouseMove}
+        onMouseUp={onMouseUp}
+        onMouseLeave={onMouseUp}
+        style={{ cursor: zoom > 1 ? 'grab' : 'zoom-in' }}
+      >
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          key={urls[index]}
+          src={urls[index]}
+          alt={`Image ${index + 1}`}
+          onClick={onImgClick}
+          draggable={false}
+          style={{
+            transform: `scale(${zoom}) translate(${offset.x / zoom}px, ${offset.y / zoom}px)`,
+            transition: dragStart.current ? 'none' : 'transform 0.2s ease',
+            maxWidth: '88vw',
+            maxHeight: '82vh',
+            objectFit: 'contain',
+            borderRadius: '8px',
+            boxShadow: '0 25px 60px rgba(0,0,0,0.6)',
+            userSelect: 'none',
+          }}
+        />
+      </div>
+
+      {/* Next arrow */}
+      {urls.length > 1 && (
+        <button
+          onClick={next}
+          className="absolute right-3 top-1/2 -translate-y-1/2 flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-white backdrop-blur-sm transition-all hover:bg-white/25 hover:scale-110"
+          aria-label="Next image"
+        >
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6" /></svg>
+        </button>
+      )}
+
+      {/* Thumbnail strip */}
+      {urls.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 px-3 py-2 rounded-2xl bg-white/10 backdrop-blur-sm max-w-[90vw] overflow-x-auto">
+          {urls.map((u, i) => (
+            <button
+              key={u}
+              onClick={() => { resetZoom(); setIndex(i); }}
+              className={`shrink-0 h-10 w-10 rounded-md overflow-hidden border-2 transition-all ${
+                i === index ? 'border-amber-400 scale-110' : 'border-transparent opacity-60 hover:opacity-100'
+              }`}
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img src={u} alt="" className="h-full w-full object-cover" />
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 /* ── Main Component ──────────────────────────────────────────────────────── */
 
 interface CollectionReviewClientProps {
@@ -126,9 +280,14 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
 
   const [finalizedPrice, setFinalizedPrice] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('');
-  const [priceError, setPriceError] = useState('');
-  const [methodError, setMethodError] = useState('');
+  const [priceError, setPriceError]     = useState('');
+  const [methodError, setMethodError]   = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  /* lightbox */
+  const [lightbox, setLightbox] = useState<{ urls: string[]; index: number } | null>(null);
+  const openLightbox = (urls: string[], index: number) => setLightbox({ urls, index });
+  const closeLightbox = () => setLightbox(null);
 
   if (isLoading) {
     return (
@@ -192,6 +351,7 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
     }`;
 
   return (
+    <>
     <div className="space-y-6 max-w-4xl mx-auto">
 
       {/* ── Breadcrumb ─────────────────────────────────────────────────── */}
@@ -239,7 +399,7 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
               <div className="flex flex-col items-center gap-1.5 rounded-xl border border-border bg-white dark:bg-slate-950 px-4 py-3 shadow-sm">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={collection.barcode_url}
+                  src={getMediaUrl(collection.barcode_url)}
                   alt={`Barcode for ${collection.serial_no}`}
                   className="h-14 object-contain"
                 />
@@ -270,15 +430,27 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
               Images
             </h2>
             <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">
-              {collection.image_urls.map((url) => (
-                <div key={url} className="relative aspect-square">
+              {collection.image_urls.map((url, i) => (
+                <button
+                  key={url}
+                  type="button"
+                  onClick={() => openLightbox(collection.image_urls.map(getMediaUrl), i)}
+                  className="group relative aspect-square overflow-hidden rounded-lg border border-border focus:outline-none focus:ring-2 focus:ring-amber-500/60"
+                  title="Click to enlarge"
+                >
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
-                    src={url}
+                    src={getMediaUrl(url)}
                     alt="Collection image"
-                    className="h-full w-full rounded-lg object-cover border border-border"
+                    className="h-full w-full object-cover transition-transform duration-200 group-hover:scale-105"
                   />
-                </div>
+                  <span className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/30 transition-colors duration-200">
+                    <svg className="text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 drop-shadow" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                      <line x1="11" y1="8" x2="11" y2="14" /><line x1="8" y1="11" x2="14" y2="11" />
+                    </svg>
+                  </span>
+                </button>
               ))}
             </div>
           </div>
@@ -415,5 +587,15 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
         </div>
       )}
     </div>
+
+    {/* Lightbox portal */}
+    {lightbox && (
+      <ImageLightbox
+        urls={lightbox.urls}
+        startIndex={lightbox.index}
+        onClose={closeLightbox}
+      />
+    )}
+    </>
   );
 }

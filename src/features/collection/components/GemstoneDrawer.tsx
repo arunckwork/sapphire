@@ -20,6 +20,7 @@ import { BulkStonesForm } from './BulkStonesForm';
 import { JewelleryForm } from './JewelleryForm';
 import { IndustrialStonesForm } from './IndustrialStonesForm';
 import { ImageUploadField } from '@/components/shared/forms/ImageUploadField';
+import { getMediaUrl } from '@/utils/media';
 
 /* ── Default form states per collection type ──────────────────────────────── */
 
@@ -75,20 +76,20 @@ const INDUSTRIAL_DEFAULTS: IndustrialStonesFormData = {
 
 function defaultsForType(type: CollectionType): CollectionFormData {
   switch (type) {
-    case 'single_stone':      return { ...SINGLE_DEFAULTS };
-    case 'bulk_stones':       return { ...BULK_DEFAULTS, stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }] };
-    case 'jewellery':         return { ...JEWELLERY_DEFAULTS };
+    case 'single_stone': return { ...SINGLE_DEFAULTS };
+    case 'bulk_stones': return { ...BULK_DEFAULTS, stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }] };
+    case 'jewellery': return { ...JEWELLERY_DEFAULTS };
     case 'industrial_stones': return { ...INDUSTRIAL_DEFAULTS };
   }
 }
 
 function recordToFormData(record: CollectionRecord): CollectionFormData {
   const base = {
-    seller_id:          record.seller_id || record.seller?.id || '',
-    certification_no:   record.certification_no,
-    certification_lab:  record.certification_lab,
-    asking_price:       Number(record.asking_price),
-    images:             [] as File[],
+    seller_id: record.seller_id || record.seller?.id || '',
+    certification_no: record.certification_no,
+    certification_lab: record.certification_lab,
+    asking_price: Number(record.asking_price),
+    images: [] as File[],
     removed_image_urls: [] as string[],
   };
   switch (record.collection_type) {
@@ -152,11 +153,11 @@ export function GemstoneDrawer({
     if (editingRecord) return; // type is immutable on edit
     setFormData((prev) => ({
       ...defaultsForType(type),
-      seller_id:          prev.seller_id,
-      certification_no:   prev.certification_no,
-      certification_lab:  prev.certification_lab,
-      asking_price:       prev.asking_price,
-      images:             prev.images,
+      seller_id: prev.seller_id,
+      certification_no: prev.certification_no,
+      certification_lab: prev.certification_lab,
+      asking_price: prev.asking_price,
+      images: prev.images,
       removed_image_urls: prev.removed_image_urls,
     }));
     setErrors({});
@@ -183,10 +184,10 @@ export function GemstoneDrawer({
 
   const filteredSellers = sellerQuery.trim()
     ? sellers.filter(
-        (s) =>
-          `${s.first_name} ${s.last_name ?? ''}`.toLowerCase().includes(sellerQuery.toLowerCase()) ||
-          s.email.toLowerCase().includes(sellerQuery.toLowerCase())
-      )
+      (s) =>
+        `${s.first_name} ${s.last_name ?? ''}`.toLowerCase().includes(sellerQuery.toLowerCase()) ||
+        s.email.toLowerCase().includes(sellerQuery.toLowerCase())
+    )
     : sellers;
 
   const selectedSeller = sellers.find((s) => s.id === formData.seller_id) || null;
@@ -195,29 +196,29 @@ export function GemstoneDrawer({
   const validate = (): boolean => {
     const errs: Record<string, string> = {};
 
-    if (!formData.seller_id)                                   errs.seller_id    = 'Seller is required';
-    if (!formData.asking_price || formData.asking_price <= 0)  errs.asking_price = 'Asking price must be > 0';
+    if (!formData.seller_id) errs.seller_id = 'Seller is required';
+    if (!formData.asking_price || formData.asking_price <= 0) errs.asking_price = 'Asking price must be > 0';
 
     if (formData.collection_type === 'single_stone') {
-      if (!formData.gemstone_type)                             errs.gemstone_type = 'Gemstone Type is required';
-      if (!formData.weight || formData.weight <= 0)            errs.weight        = 'Weight must be > 0';
-      if (!formData.weight_unit)                               errs.weight_unit   = 'Weight Unit is required';
+      if (!formData.gemstone_type) errs.gemstone_type = 'Gemstone Type is required';
+      if (!formData.weight || formData.weight <= 0) errs.weight = 'Weight must be > 0';
+      if (!formData.weight_unit) errs.weight_unit = 'Weight Unit is required';
     }
     if (formData.collection_type === 'bulk_stones') {
-      if (!formData.stones.length)                             errs.stones        = 'At least one stone row is required';
+      if (!formData.stones.length) errs.stones = 'At least one stone row is required';
       formData.stones.forEach((row, i) => {
         if (!row.gemstone_type) errs[`stones.${i}.gemstone_type`] = 'Required';
         if (!row.quantity || row.quantity < 1) errs[`stones.${i}.quantity`] = 'Min 1';
       });
     }
     if (formData.collection_type === 'jewellery') {
-      if (!formData.weight || formData.weight <= 0)            errs.weight        = 'Total weight must be > 0';
-      if (!formData.weight_unit)                               errs.weight_unit   = 'Weight Unit is required';
+      if (!formData.weight || formData.weight <= 0) errs.weight = 'Total weight must be > 0';
+      if (!formData.weight_unit) errs.weight_unit = 'Weight Unit is required';
     }
     if (formData.collection_type === 'industrial_stones') {
-      if (!formData.stone_type)                                errs.stone_type    = 'Stone Type is required';
-      if (!formData.weight || formData.weight <= 0)            errs.weight        = 'Weight must be > 0';
-      if (!formData.weight_unit)                               errs.weight_unit   = 'Weight Unit is required';
+      if (!formData.stone_type) errs.stone_type = 'Stone Type is required';
+      if (!formData.weight || formData.weight <= 0) errs.weight = 'Weight must be > 0';
+      if (!formData.weight_unit) errs.weight_unit = 'Weight Unit is required';
     }
 
     setErrors(errs);
@@ -334,11 +335,10 @@ export function GemstoneDrawer({
                             setSellerOpen(false);
                             setSellerQuery('');
                           }}
-                          className={`px-3 py-2 text-xs cursor-pointer transition-colors ${
-                            formData.seller_id === s.id
+                          className={`px-3 py-2 text-xs cursor-pointer transition-colors ${formData.seller_id === s.id
                               ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
                               : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
-                          }`}
+                            }`}
                         >
                           <span className="font-medium">{s.first_name} {s.last_name ?? ''}</span>
                           <span className="ml-2 text-slate-400 text-[11px]">{s.email}</span>
@@ -361,13 +361,11 @@ export function GemstoneDrawer({
               {COLLECTION_TYPE_OPTIONS.map((opt) => (
                 <label
                   key={opt.value}
-                  className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 p-3 text-center text-xs font-semibold transition-all ${
-                    editingRecord ? 'opacity-50 cursor-not-allowed' : ''
-                  } ${
-                    formData.collection_type === opt.value
+                  className={`flex cursor-pointer flex-col items-center gap-1.5 rounded-lg border-2 p-3 text-center text-xs font-semibold transition-all ${editingRecord ? 'opacity-50 cursor-not-allowed' : ''
+                    } ${formData.collection_type === opt.value
                       ? 'border-amber-500 bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400'
                       : 'border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-amber-400/50 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
+                    }`}
                 >
                   <input
                     type="radio"
@@ -480,7 +478,7 @@ export function GemstoneDrawer({
                     <div key={url} className="group relative aspect-square">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
-                        src={url}
+                        src={getMediaUrl(url)}
                         alt="Collection image"
                         className="h-full w-full rounded-lg object-cover border border-slate-200 dark:border-slate-700"
                       />
