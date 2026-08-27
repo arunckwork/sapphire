@@ -48,6 +48,7 @@ interface CollectionBase {
   certification_lab: string;
   asking_price: number;
   image_urls: string[];                  // backend-managed image URLs
+  certificate_url?: string | null;      // optional single certificate (image or PDF)
   status: CollectionStatus;             // 'review' on creation; 'accepted' after approval
   finalized_price?: number | null;      // set on acceptance
   payment_method?: PaymentMethod | null; // set on acceptance
@@ -107,10 +108,12 @@ interface CollectionFormBase {
   collection_type: CollectionType;
   seller_id: string;
   certification_no: string;
-  certification_lab: string;           // value from CERTIFICATION_LABS constant
+  certification_lab: string;           // free-text or value from CERTIFICATION_LABS constant
   asking_price: number;
   images: File[];                       // newly added image files
   removed_image_urls: string[];         // existing image URLs to delete on update
+  certificate?: File | null;            // optional new certificate file (image or PDF)
+  remove_certificate?: boolean;         // true = delete the existing certificate on update
 }
 
 export interface SingleStoneFormData extends CollectionFormBase {

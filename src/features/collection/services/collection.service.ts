@@ -71,6 +71,16 @@ function toFormData(data: CollectionFormData): FormData {
     fd.append('removed_image_urls', url);
   }
 
+  // ── Certificate file (optional, single file) ──────────────────────────────
+  if (data.certificate) {
+    fd.append('certificate', data.certificate);
+  }
+
+  // ── Remove existing certificate (edit only) ───────────────────────────────
+  if (data.remove_certificate) {
+    fd.append('remove_certificate', 'true');
+  }
+
   return fd;
 }
 

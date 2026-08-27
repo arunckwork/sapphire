@@ -20,6 +20,7 @@ import { BulkStonesForm } from './BulkStonesForm';
 import { JewelleryForm } from './JewelleryForm';
 import { IndustrialStonesForm } from './IndustrialStonesForm';
 import { ImageUploadField } from '@/components/shared/forms/ImageUploadField';
+import { CertificateUploadField } from '@/components/shared/forms/CertificateUploadField';
 import { getMediaUrl } from '@/utils/media';
 
 /* ── Default form states per collection type ──────────────────────────────── */
@@ -31,6 +32,8 @@ const BASE_DEFAULTS = {
   asking_price: 0,
   images: [] as File[],
   removed_image_urls: [] as string[],
+  certificate: null as File | null,
+  remove_certificate: false,
 };
 
 const SINGLE_DEFAULTS: SingleStoneFormData = {
@@ -91,6 +94,8 @@ function recordToFormData(record: CollectionRecord): CollectionFormData {
     asking_price: Number(record.asking_price),
     images: [] as File[],
     removed_image_urls: [] as string[],
+    certificate: null as File | null,
+    remove_certificate: false,
   };
   switch (record.collection_type) {
     case 'single_stone':
@@ -181,6 +186,7 @@ export function GemstoneDrawer({
   /* ── Seller search / filter ───────────────────────────────────────── */
   const [sellerQuery, setSellerQuery] = useState('');
   const [sellerOpen, setSellerOpen] = useState(false);
+  const [labOpen, setLabOpen]       = useState(false);
 
   const filteredSellers = sellerQuery.trim()
     ? sellers.filter(
@@ -444,23 +450,65 @@ export function GemstoneDrawer({
                 />
               </div>
 
-              <div>
+              {/* Certification Lab — combobox (free-text + dropdown suggestions) */}
+              <div className="relative">
                 <label htmlFor="certification_lab" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                   Certification Laboratory
                 </label>
-                <select
+                <input
                   id="certification_lab"
+                  type="text"
                   value={formData.certification_lab}
-                  onChange={(e) => setBase('certification_lab', e.target.value)}
-                  className={`${inputBase} border-slate-300 dark:border-slate-700 cursor-pointer`}
-                >
-                  <option value="">Select lab…</option>
-                  {CERTIFICATION_LABS.map((lab) => (
-                    <option key={lab.value} value={lab.value}>{lab.label}</option>
-                  ))}
-                </select>
+                  onChange={(e) => { setBase('certification_lab', e.target.value); setLabOpen(true); }}
+                  onFocus={() => setLabOpen(true)}
+                  onBlur={() => setTimeout(() => setLabOpen(false), 150)}
+                  placeholder="Type or select a lab…"
+                  autoComplete="off"
+                  className={`${inputBase} border-slate-300 dark:border-slate-700`}
+                />
+                {labOpen && (
+                  <ul className="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl overflow-hidden max-h-48 overflow-y-auto">
+                    {CERTIFICATION_LABS.filter((lab) =>
+                      !formData.certification_lab ||
+                      lab.label.toLowerCase().includes(formData.certification_lab.toLowerCase())
+                    ).length === 0 ? (
+                      <li className="px-3 py-2 text-xs text-slate-400 italic">No matching labs — your text will be saved as-is</li>
+                    ) : (
+                      CERTIFICATION_LABS.filter((lab) =>
+                        !formData.certification_lab ||
+                        lab.label.toLowerCase().includes(formData.certification_lab.toLowerCase())
+                      ).map((lab) => (
+                        <li
+                          key={lab.value}
+                          onMouseDown={() => {
+                            setBase('certification_lab', lab.label);
+                            setLabOpen(false);
+                          }}
+                          className={`px-3 py-2 text-xs cursor-pointer transition-colors ${
+                            formData.certification_lab === lab.label || formData.certification_lab === lab.value
+                              ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
+                              : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          }`}
+                        >
+                          {lab.label}
+                        </li>
+                      ))
+                    )}
+                  </ul>
+                )}
               </div>
             </div>
+
+            {/* Certificate upload */}
+            <CertificateUploadField
+              file={formData.certificate ?? null}
+              existingUrl={editingRecord?.certificate_url}
+              existingRemoved={formData.remove_certificate ?? false}
+              onFileChange={(f) => setBase('certificate', f)}
+              onRemoveExisting={() =>
+                setFormData((prev) => ({ ...prev, remove_certificate: true, certificate: null }))
+              }
+            />
           </div>
 
           {/* ── SECTION: Images ──────────────────────────────────────── */}

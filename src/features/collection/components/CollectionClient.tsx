@@ -155,13 +155,13 @@ export function CollectionClient() {
             Gemstone Collection
           </h1>
           <p className="text-xs font-normal text-muted-foreground">
-            GemTrace Madagascar — Collection Inventory &amp; Grading Registry
+            Collection Inventory &amp; Grading Registry
           </p>
         </div>
       </div>
 
       {/* ── Metric Cards ─────────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4 xl:grid-cols-8">
+      {/* <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4 xl:grid-cols-8">
         {METRICS.map((metric) => (
           <div
             key={metric.title}
@@ -178,7 +178,7 @@ export function CollectionClient() {
             </div>
           </div>
         ))}
-      </div>
+      </div> */}
 
       {/* ── Grid ─────────────────────────────────────────────────────── */}
       <GemstoneGrid
