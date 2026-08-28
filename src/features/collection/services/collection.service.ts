@@ -95,14 +95,16 @@ function toFormData(data: CollectionFormData): FormData {
 export const collectionService = {
   /** Fetches paginated, filtered, sorted collections */
   getCollections: (params: Partial<CollectionsQueryParams>) => {
-    const query = new URLSearchParams({
+    const queryObj: Record<string, string> = {
       search:          params.search ?? '',
       collection_type: params.collection_type ?? '',
       sort_by:         params.sort_by ?? 'created_at',
       sort_order:      params.sort_order ?? 'desc',
       page:            String(params.page ?? 1),
       limit:           String(params.limit ?? 100),
-    }).toString();
+    };
+    if (params.status) queryObj.status = params.status;
+    const query = new URLSearchParams(queryObj).toString();
     return alovaClient.Get<CollectionsResponse>(`${ENDPOINTS.COLLECTIONS.LIST}?${query}`, { cacheFor: 0 });
   },
 

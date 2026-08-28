@@ -201,6 +201,7 @@ export interface CollectionsResponse {
 export interface CollectionsQueryParams {
   search: string;
   collection_type: string;
+  status?: string;           // optional; e.g. 'accepted' — used by inventory
   sort_by: SortField;
   sort_order: SortOrder;
   page: number;
