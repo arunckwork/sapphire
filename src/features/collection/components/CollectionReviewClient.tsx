@@ -12,6 +12,7 @@ import { getMediaUrl } from '@/utils/media';
 import type {
   CollectionRecord,
   PaymentMethod,
+  UserRef,
   SingleStoneCollection,
   BulkStonesCollection,
   IndustrialStonesCollection,
@@ -109,6 +110,19 @@ function DetailRow({ label, value, span }: { label: string; value?: string | num
         {value || <span className="text-muted-foreground font-normal italic">—</span>}
       </div>
     </div>
+  );
+}
+
+/** Renders a user's full name + email in a compact inline format */
+function UserInlineDisplay({ user }: { user?: UserRef | null }) {
+  if (!user) return <span className="text-sm text-muted-foreground font-normal italic">—</span>;
+  return (
+    <span className="text-sm text-slate-900 dark:text-slate-100 font-medium">
+      {user.first_name} {user.last_name ?? ''}
+      {user.email && (
+        <span className="ml-1.5 text-xs font-normal text-muted-foreground">({user.email})</span>
+      )}
+    </span>
   );
 }
 
@@ -383,15 +397,63 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
                 </span>
               </div>
               <p className="text-sm text-muted-foreground">{TYPE_LABEL[collection.collection_type]}</p>
+
+              {/* Seller */}
               <p className="text-xs text-muted-foreground">
                 Seller: <strong className="text-foreground">{collection.seller?.first_name} {collection.seller?.last_name ?? ''}</strong>
                 {collection.seller?.email && <span className="ml-1 text-muted-foreground">({collection.seller.email})</span>}
               </p>
+
+              {/* Created by + date */}
               <p className="text-xs text-muted-foreground">
-                Created: {collection.created_at
-                  ? new Date(collection.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
-                  : '—'}
+                {collection.created_by ? (
+                  <>
+                    Created by:{' '}
+                    <strong className="text-foreground">
+                      {collection.created_by.first_name} {collection.created_by.last_name ?? ''}
+                    </strong>
+                    {collection.created_by.email && (
+                      <span className="ml-1">({collection.created_by.email})</span>
+                    )}
+                    {collection.created_at && (
+                      <span className="ml-2">
+                        · {new Date(collection.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                      </span>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    Created:{' '}
+                    {collection.created_at
+                      ? new Date(collection.created_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })
+                      : '—'}
+                  </>
+                )}
               </p>
+
+              {/* Approved by + date (only when accepted) */}
+              {isAccepted && (
+                <p className="text-xs text-muted-foreground">
+                  Approved by:{' '}
+                  {collection.approved_by ? (
+                    <>
+                      <strong className="text-foreground">
+                        {collection.approved_by.first_name} {collection.approved_by.last_name ?? ''}
+                      </strong>
+                      {collection.approved_by.email && (
+                        <span className="ml-1">({collection.approved_by.email})</span>
+                      )}
+                      {collection.approved_at && (
+                        <span className="ml-2">
+                          · {new Date(collection.approved_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                        </span>
+                      )}
+                    </>
+                  ) : (
+                    <span className="text-muted-foreground">—</span>
+                  )}
+                </p>
+              )}
             </div>
 
             {/* Barcode — shown after acceptance */}
@@ -502,10 +564,12 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
 
       {/* ── Accepted: Finalization Details (read-only) ─────────────────── */}
       {isAccepted && (
-        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 backdrop-blur-md shadow-sm p-6 space-y-4">
+        <div className="rounded-2xl border border-emerald-500/30 bg-emerald-50/50 dark:bg-emerald-950/20 backdrop-blur-md shadow-sm p-6 space-y-5">
           <h2 className="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-400 border-b border-emerald-500/20 pb-1.5">
             Finalization Details
           </h2>
+
+          {/* Price + method */}
           <div className="grid grid-cols-2 gap-6">
             <DetailRow
               label="Finalized Price"
@@ -517,6 +581,50 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
               label="Payment Method"
               value={PAYMENT_METHOD_OPTIONS.find((o) => o.value === collection.payment_method)?.label}
             />
+          </div>
+
+          {/* Approved by */}
+          <div>
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Approved By</span>
+            <div className="mt-0.5">
+              <UserInlineDisplay user={collection.approved_by} />
+              {collection.approved_at && (
+                <span className="ml-2 text-xs text-muted-foreground">
+                  · {new Date(collection.approved_at).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                  {' '}at {new Date(collection.approved_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}
+                </span>
+              )}
+            </div>
+          </div>
+
+          {/* Payment Voucher */}
+          <div>
+            <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Payment Voucher</span>
+            <div className="mt-1.5">
+              {collection.voucher_url ? (
+                <a
+                  href={getMediaUrl(collection.voucher_url)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/50 dark:border-emerald-600/50 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-emerald-500/20 transition-colors"
+                >
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                    <polyline points="14 2 14 8 20 8" />
+                    <line x1="9" y1="13" x2="15" y2="13" />
+                    <line x1="9" y1="17" x2="13" y2="17" />
+                  </svg>
+                  Open Payment Voucher
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                    <polyline points="15 3 21 3 21 9" />
+                    <line x1="10" y1="14" x2="21" y2="3" />
+                  </svg>
+                </a>
+              ) : (
+                <span className="text-sm text-muted-foreground font-normal italic">—</span>
+              )}
+            </div>
           </div>
         </div>
       )}

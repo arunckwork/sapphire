@@ -147,7 +147,12 @@ export const collectionService = {
 
   /**
    * Approves and accepts a collection, setting status to 'accepted'.
-   * Backend generates a barcode and sets finalized_price + payment_method.
+   * On acceptance the backend:
+   *   - sets `finalized_price` and `payment_method`
+   *   - generates a barcode image (`barcode_url`)
+   *   - generates a payment voucher PDF (`voucher_url`)
+   *   - records `approved_by` (the acting user) and `approved_at` (timestamp)
+   * Returns the fully updated CollectionRecord including all generated URLs.
    */
   reviewCollection: async (id: string, data: ReviewFormData): Promise<CollectionRecord> => {
     const res = await fetch(ENDPOINTS.COLLECTIONS.REVIEW(id), {
