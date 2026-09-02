@@ -7,7 +7,7 @@ import { ROUTES } from '@/constants/routes';
  * All role/permission checks beyond session presence are enforced inside
  * Server Components and Server Actions — NOT here.
  */
-const PROTECTED_ROUTES = [ROUTES.COLLECTION, ROUTES.PROFILE, ROUTES.SETTINGS, '/dashboard'];
+const PROTECTED_ROUTES = [ROUTES.COLLECTION, ROUTES.INVENTORY, ROUTES.PROFILE, ROUTES.SETTINGS, '/dashboard'];
 const AUTH_ROUTES = [ROUTES.LOGIN, ROUTES.REGISTER, ROUTES.FORGOT_PASSWORD];
 
 /**
@@ -26,8 +26,17 @@ export function proxy(request: NextRequest) {
 
   // Unauthenticated → protected route
   if (isProtected && !accessToken) {
+    // If a refresh token is present, let the request proceed.
+    // The BFF route handler will return 401, the Alova interceptor will call
+    // /api/auth/refresh, get a new access_token cookie, and retry the request.
+    // Redirecting here would short-circuit that flow unnecessarily.
+    const refreshToken = request.cookies.get('refresh_token')?.value;
+    if (refreshToken) {
+      return NextResponse.next();
+    }
+
+    // No refresh token either — session is fully expired, send to login.
     const loginUrl = new URL(ROUTES.LOGIN, request.url);
-    // Preserve the intended destination for post-login redirect
     loginUrl.searchParams.set('redirect', pathname);
     return NextResponse.redirect(loginUrl);
   }

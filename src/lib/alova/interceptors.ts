@@ -44,12 +44,56 @@ export function beforeRequestInterceptor(method: Method): void {
 // ── Response Interceptor ───────────────────────────────────────────────────
 export const respondedInterceptor = {
   /**
-   * Runs for every successful HTTP response (2xx).
-   * Parses JSON or returns null for 204 No Content.
+   * Runs for every successful HTTP response (the fetch adapter resolves for
+   * ALL HTTP responses, including 4xx/5xx, because native fetch only rejects
+   * on network failures — never on HTTP error status codes).
+   *
+   * This is therefore the ONLY place where HTTP-status-based logic (401, 403,
+   * etc.) can be handled reliably. Errors thrown here propagate directly to
+   * the caller's .catch() and do NOT flow into onError — that hook is
+   * exclusively for adapter-level (network) rejections.
+   *
+   * Flow for a 401:
+   *   1. Attempt a token refresh via the BFF /api/auth/refresh route.
+   *   2. If refresh succeeds, retry the original request and return its result.
+   *   3. If refresh fails, clear auth state and redirect to /login.
+   *
+   * Parses JSON or returns null for 204 No Content on success.
    */
-  onSuccess: async (response: Response): Promise<unknown> => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onSuccess: async (response: Response, method: Method<any>): Promise<unknown> => {
     if (ENV.isDev) {
       console.debug(`[Alova ↓] ${response.status} ${response.url}`);
+    }
+
+    if (response.status === 401) {
+      console.log('[Alova] status is 401 — attempting token refresh');
+      const refreshed = await handleTokenRefresh();
+      if (refreshed) {
+        console.log('[Alova] token refreshed — retrying original request');
+        // New access_token cookie is now set — retry the original request.
+        return method.send();
+      }
+      // Refresh token is also expired/invalid — clear session and redirect.
+      // Dynamic import avoids circular dependency with the auth feature.
+      const { useAuthStore } = await import('@/features/auth');
+      useAuthStore.getState().clearAuth();
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login';
+      }
+      // Throw so the caller's .catch() receives a typed error rather than
+      // resolving with undefined after the redirect is initiated.
+      let errorData: unknown = {};
+      try { errorData = await response.json(); } catch { /* ignore */ }
+      throw new HttpError(response.status, errorData);
+    }
+
+    if (response.status === 403) {
+      const { toast } = await import('sonner');
+      toast.error('Access denied. You do not have permission to perform this action.');
+      let errorData: unknown = {};
+      try { errorData = await response.json(); } catch { /* ignore */ }
+      throw new HttpError(response.status, errorData);
     }
 
     if (!response.ok) {
@@ -69,32 +113,19 @@ export const respondedInterceptor = {
   },
 
   /**
-   * Runs when a request fails (network error or non-2xx thrown by onSuccess).
-   * - 401: attempt token refresh; redirect to login on failure
-   * - 403: show access-denied toast
-   * - All errors are re-thrown for component-level handling
+   * Runs ONLY when the request adapter itself rejects — i.e., a genuine
+   * network-level failure (DNS lookup failed, connection refused, timeout,
+   * CORS preflight blocked, etc.).
+   *
+   * NOTE: HTTP error status codes (4xx / 5xx) never reach this handler
+   * because the fetch adapter resolves for all HTTP responses. All
+   * HTTP-status-based logic lives in onSuccess above.
    */
-  onError: async (err: unknown): Promise<never> => {
-    if (err instanceof HttpError) {
-      if (err.status === 401) {
-        const refreshed = await handleTokenRefresh();
-        if (!refreshed) {
-          // Clear Zustand auth store and redirect to login
-          // Dynamic import avoids circular dependency
-          const { useAuthStore } = await import('@/features/auth');
-          useAuthStore.getState().clearAuth();
-          if (typeof window !== 'undefined') {
-            window.location.href = '/login';
-          }
-        }
-      }
-
-      if (err.status === 403) {
-        const { toast } = await import('sonner');
-        toast.error('Access denied. You do not have permission to perform this action.');
-      }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onError: async (err: unknown, _method: Method<any>): Promise<never> => {
+    if (ENV.isDev) {
+      console.debug('[Alova ✕] Network error:', err);
     }
-
     throw err;
   },
 };
