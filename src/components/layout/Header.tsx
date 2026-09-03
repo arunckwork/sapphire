@@ -15,7 +15,13 @@ export function Header() {
     setMounted(true);
   }, []);
 
-  const initial = user?.name ? user.name.charAt(0).toUpperCase() : 'A';
+  const initial = user?.first_name
+    ? user.first_name.charAt(0).toUpperCase()
+    : (user as { name?: string })?.name?.charAt(0).toUpperCase() || '-';
+  const fullName =
+    [user?.first_name, user?.last_name].filter(Boolean).join(' ') ||
+    (user as { name?: string })?.name ||
+    '-';
   const isDark = resolvedTheme === 'dark';
 
   return (
@@ -55,7 +61,7 @@ export function Header() {
         <div
           className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold text-white shadow-xs"
           style={{ background: 'linear-gradient(135deg, hsl(43 96% 50%), hsl(30 90% 40%))' }}
-          title={user?.name ?? 'Admin User'}
+          title={fullName}
         >
           {initial}
         </div>

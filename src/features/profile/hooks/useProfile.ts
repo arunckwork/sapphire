@@ -17,7 +17,8 @@ export function useProfile() {
       // Simulate backend update & update local store
       const updatedUser = {
         ...user,
-        name: data.name ?? user.name,
+        first_name: data.first_name ?? user.first_name,
+        last_name: data.last_name ?? user.last_name,
         email: data.email ?? user.email,
         role: data.role ?? user.role,
         updatedAt: new Date().toISOString(),

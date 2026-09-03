@@ -12,42 +12,10 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
 
-    // Demo mode credentials bypass
-    if (body.email === 'admin@sapphire.com' && body.password === '12345') {
-      const demoUser = {
-        id: 'demo-admin-id',
-        name: 'Admin User',
-        email: 'admin@sapphire.com',
-        role: 'admin',
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-
-      const response = NextResponse.json({ user: demoUser }, { status: 200 });
-
-      response.cookies.set('access_token', 'demo-access-token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60, // 7 days for demo session
-        path: '/',
-      });
-
-      response.cookies.set('refresh_token', 'demo-refresh-token', {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'lax',
-        maxAge: 7 * 24 * 60 * 60,
-        path: '/',
-      });
-
-      return response;
-    }
-
     if (!BACKEND_URL) {
       return NextResponse.json(
-        { message: 'Invalid credentials. Use admin@sapphire.com / 12345' },
-        { status: 401 },
+        { message: 'Backend not configured' },
+        { status: 503 },
       );
     }
 

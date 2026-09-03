@@ -18,7 +18,11 @@ export function useAuth() {
     try {
       const data = await authService.login(credentials);
       setUser(data.user);
-      toast.success(`Welcome back, ${data.user.name}!`);
+      const greetingName =
+        [data.user.first_name, data.user.last_name].filter(Boolean).join(' ') ||
+        (data.user as { name?: string }).name ||
+        'User';
+      toast.success(`Welcome back, ${greetingName}!`);
       router.push(ROUTES.COLLECTION);
     } catch {
       toast.error('Invalid email or password. Please try again.');

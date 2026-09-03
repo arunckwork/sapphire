@@ -11,9 +11,13 @@ export const authService = {
   login: (body: LoginDto) =>
     alovaClient.Post<AuthResponse>(ENDPOINTS.AUTH.LOGIN, body),
 
+  /** Registers a new public user via BFF */
+  register: (body: Omit<import('../types/auth.types').RegisterDto, 'confirm_password'>) =>
+    alovaClient.Post<{ message?: string }>(ENDPOINTS.AUTH.REGISTER, body),
+
   /** Logs user out via BFF */
   logout: () => alovaClient.Post<void>(ENDPOINTS.AUTH.LOGOUT),
 
-  /** Fetches current user profile */
-  getMe: () => alovaClient.Get<User>(ENDPOINTS.AUTH.ME),
+  /** Fetches current user profile — cache disabled to ensure freshness across user switches */
+  getMe: () => alovaClient.Get<User>(ENDPOINTS.AUTH.ME, { cacheFor: 0 }),
 };

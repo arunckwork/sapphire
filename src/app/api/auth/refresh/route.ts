@@ -16,17 +16,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: 'No refresh token' }, { status: 401 });
   }
 
-  // Handle demo token refresh
-  if (refreshToken === 'demo-refresh-token') {
-    const response = NextResponse.json({ message: 'Token refreshed' }, { status: 200 });
-    response.cookies.set('access_token', 'demo-access-token', {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60,
-      path: '/',
-    });
-    return response;
+  if (!BACKEND_URL) {
+    return NextResponse.json({ message: 'Backend not configured' }, { status: 503 });
   }
 
   try {

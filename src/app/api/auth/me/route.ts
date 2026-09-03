@@ -15,16 +15,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ message: 'Unauthenticated' }, { status: 401 });
   }
 
-  // Handle demo token
-  if (token === 'demo-access-token') {
-    return NextResponse.json({
-      id: 'demo-admin-id',
-      name: 'Admin User',
-      email: 'admin@sapphire.com',
-      role: 'admin',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    });
+  if (!BACKEND_URL) {
+    return NextResponse.json({ message: 'Backend not configured' }, { status: 503 });
   }
 
   try {

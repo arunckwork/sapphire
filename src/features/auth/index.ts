@@ -4,3 +4,4 @@ export * from './store/auth.store';
 export * from './hooks/useAuth';
 export * from './hooks/useRole';
 export * from './components/LoginForm';
+export * from './components/RegisterForm';

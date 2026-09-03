@@ -123,12 +123,12 @@ export function LoginForm() {
       </div>
 
       {/* Register Link Footer */}
-      {/* <p className="mt-4 text-center text-xs text-muted-foreground">
+      <p className="mt-4 text-center text-xs text-muted-foreground">
         Don&apos;t have an account?{' '}
         <Link href={ROUTES.REGISTER} className="text-primary font-medium hover:underline">
           Create account
         </Link>
-      </p> */}
+      </p>
     </div>
   );
 }

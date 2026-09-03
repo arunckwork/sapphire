@@ -4,9 +4,19 @@ export interface LoginDto {
 }
 
 export interface RegisterDto {
-  name: string;
+  first_name: string;
+  last_name?: string;
   email: string;
   password: string;
+  confirm_password?: string;
+}
+
+export interface RegisterFormErrors {
+  first_name?: string;
+  last_name?: string;
+  email?: string;
+  password?: string;
+  confirm_password?: string;
 }
 
 export interface ForgotPasswordDto {

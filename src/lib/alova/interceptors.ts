@@ -67,6 +67,20 @@ export const respondedInterceptor = {
     }
 
     if (response.status === 401) {
+      // ── Guard: never attempt refresh for these endpoints ────────────────────
+      // /api/auth/me       → 401 here means "not logged in" (expected on auth pages or expired session).
+      // /api/auth/refresh  → 401 here means refresh token is expired or absent.
+      // Retrying refresh for either would cause an infinite loop.
+      const isAuthProbe = response.url.includes('/api/auth/me');
+      const isRefreshEndpoint = response.url.includes('/api/auth/refresh');
+
+      if (isAuthProbe || isRefreshEndpoint) {
+        let errorData: unknown = {};
+        try { errorData = await response.json(); } catch { /* ignore */ }
+        throw new HttpError(response.status, errorData);
+      }
+      // ────────────────────────────────────────────────────────────────────────
+
       console.log('[Alova] status is 401 — attempting token refresh');
       const refreshed = await handleTokenRefresh();
       if (refreshed) {
@@ -79,7 +93,7 @@ export const respondedInterceptor = {
       const { useAuthStore } = await import('@/features/auth');
       useAuthStore.getState().clearAuth();
       if (typeof window !== 'undefined') {
-        window.location.href = '/login';
+        window.location.replace('/login');
       }
       // Throw so the caller's .catch() receives a typed error rather than
       // resolving with undefined after the redirect is initiated.

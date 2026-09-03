@@ -47,9 +47,16 @@ export function Sidebar() {
   const user = useAuthStore((s) => s.user);
   const { logout } = useAuth();
 
-  const userInitial = user?.name ? user.name.charAt(0).toUpperCase() : 'G';
-  const userName = user?.name ?? 'GemTrace Admin';
-  const userRole = user?.role ? user.role.charAt(0).toUpperCase() + user.role.slice(1) : 'Admin';
+  const userInitial = user?.first_name
+    ? user.first_name.charAt(0).toUpperCase()
+    : (user as { name?: string })?.name?.charAt(0).toUpperCase() || '-';
+  const userName =
+    [user?.first_name, user?.last_name].filter(Boolean).join(' ') ||
+    (user as { name?: string })?.name ||
+    '-';
+  const userRole = user?.role
+    ? user.role.charAt(0).toUpperCase() + user.role.slice(1)
+    : '-';
 
   const handleNavClick = () => {
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -152,7 +159,7 @@ export function Sidebar() {
           <button
             onClick={() => logout()}
             title="Sign out"
-            className={`flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-destructive/80 transition-colors hover:bg-destructive/10 hover:text-destructive ${!sidebarOpen ? 'md:justify-center md:px-0' : ''
+            className={` cursor-pointer flex w-full items-center gap-2.5 rounded-lg px-2.5 py-1.5 text-[11px] font-medium text-destructive/80 transition-colors hover:bg-destructive/10 hover:text-destructive ${!sidebarOpen ? 'md:justify-center md:px-0' : ''
               }`}
           >
             <LogoutIcon />

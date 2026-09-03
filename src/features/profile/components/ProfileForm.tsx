@@ -6,19 +6,32 @@ import { Button, FormField, Input, Card, Badge } from '@/components/shared';
 
 export function ProfileForm() {
   const { user, isUpdating, updateProfile } = useProfile();
+  const getFullName = (u: typeof user) =>
+    [u?.first_name, u?.last_name].filter(Boolean).join(' ') ||
+    (u as { name?: string })?.name ||
+    '';
+
+  const [name, setName] = useState(() => getFullName(user));
+  const [email, setEmail] = useState(user?.email || '');
+
   useEffect(() => {
-    setName(user?.name || '');
+    setName(getFullName(user));
     setEmail(user?.email || '');
   }, [user]);
-  const [name, setName] = useState(user?.name || '');
-  const [email, setEmail] = useState(user?.email || '');
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateProfile({ name, email });
+    const parts = name.trim().split(/\s+/);
+    const firstName = parts[0] || '';
+    const lastName = parts.slice(1).join(' ') || '';
+    await updateProfile({ first_name: firstName, last_name: lastName });
   };
 
-  const initial = user?.name ? user.name.charAt(0).toUpperCase() : 'A';
+  const initial = user?.first_name
+    ? user.first_name.charAt(0).toUpperCase()
+    : (user as { name?: string })?.name?.charAt(0).toUpperCase() || 'A';
+
+  const displayName = getFullName(user) || 'User';
 
   return (
     <div className="space-y-6 max-w-2xl">
@@ -33,10 +46,10 @@ export function ProfileForm() {
           </div>
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <h2 className="text-lg font-bold text-foreground">{user?.name ?? 'Admin User'}</h2>
-              <Badge variant="warning">{user?.role ?? 'Admin'}</Badge>
+              <h2 className="text-lg font-bold text-foreground">{displayName}</h2>
+              <Badge variant="warning">{user?.role ?? '-'}</Badge>
             </div>
-            <p className="text-xs text-muted-foreground">{user?.email ?? 'admin@gemtrace.io'}</p>
+            <p className="text-xs text-muted-foreground">{user?.email ?? '-'}</p>
           </div>
         </div>
       </Card>
@@ -67,13 +80,13 @@ export function ProfileForm() {
           </FormField>
 
           <FormField label="Role / Permissions">
-            <Input value={user?.role ?? 'Admin'} disabled className="cursor-not-allowed opacity-75" />
+            <Input value={user?.role ?? ''} disabled className="cursor-not-allowed opacity-75" />
           </FormField>
 
           <div className="pt-2 flex justify-end">
-            <Button type="submit" isLoading={isUpdating} variant="primary">
+            {/* <Button type="submit" isLoading={isUpdating} variant="primary">
               Save Changes
-            </Button>
+            </Button> */}
           </div>
         </form>
       </Card>
