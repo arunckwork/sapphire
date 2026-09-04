@@ -166,7 +166,7 @@ export const PAYMENT_METHOD_OPTIONS = [
 ] as const;
 
 export const COLLECTION_STATUS_OPTIONS = [
-  { label: 'All Status',  value: 'ALL' },
+  { label: 'All Status',  value: '' },
   { label: 'In Review',   value: 'review' },
   { label: 'Accepted',    value: 'accepted' },
 ] as const;

@@ -185,8 +185,8 @@ export interface SortConfig {
 
 export interface CollectionFilterState {
   search: string;
-  collection_type: string;  // 'ALL' or a CollectionType value
-  status: string;           // 'ALL', 'review', or 'accepted'
+  collection_type: string;  // '' = all types; or a CollectionType value
+  status: string;           // '' = all statuses; 'review' | 'accepted'
 }
 
 /* ── API list response ────────────────────────────────────────────────────── */
@@ -201,7 +201,10 @@ export interface CollectionsResponse {
 export interface CollectionsQueryParams {
   search: string;
   collection_type: string;
-  status?: string;           // optional; e.g. 'accepted' — used by inventory
+  status: string;            // '' = no filter; 'review' | 'accepted'
+  created_at_from?: string;  // ISO date string, e.g. '2026-01-01' — backend provision, no UI yet
+  created_at_to?: string;    // ISO date string, e.g. '2026-12-31' — backend provision, no UI yet
+  created_by?: string;       // user UUID — backend provision, no UI yet
   sort_by: SortField;
   sort_order: SortOrder;
   page: number;

@@ -348,7 +348,7 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
       await collectionService.reviewCollection(id, {
         finalized_price: Number(finalizedPrice),
         payment_method: paymentMethod as PaymentMethod,
-      });
+      }).send();
       toast.success(`Collection ${collection.serial_no} accepted successfully.`);
       refetch();
       router.push('/collection');

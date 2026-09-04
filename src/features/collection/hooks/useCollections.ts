@@ -2,15 +2,16 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { collectionService } from '../services/collection.service';
-import type { CollectionRecord, CollectionsQueryParams } from '../types/gemstone.types';
+import type { CollectionRecord, CollectionsQueryParams, SortField, SortOrder } from '../types/gemstone.types';
 
 const DEFAULT_PARAMS: CollectionsQueryParams = {
   search: '',
   collection_type: '',
+  status: '',
   sort_by: 'created_at',
   sort_order: 'desc',
   page: 1,
-  limit: 100,
+  limit: 25,
 };
 
 export function useCollections() {
@@ -45,11 +46,23 @@ export function useCollections() {
 
   const refetch = useCallback(() => setTick((t) => t + 1), []);
 
+  // ── Filter setters (each resets page to 1) ────────────────────────────────
+
   const setSearch = useCallback((value: string) =>
     setParams((prev) => ({ ...prev, search: value, page: 1 })), []);
 
   const setCollectionType = useCallback((value: string) =>
     setParams((prev) => ({ ...prev, collection_type: value, page: 1 })), []);
+
+  const setStatus = useCallback((value: string) =>
+    setParams((prev) => ({ ...prev, status: value, page: 1 })), []);
+
+  // ── Sort setter ───────────────────────────────────────────────────────────
+
+  const setSortConfig = useCallback((field: SortField, order: SortOrder) =>
+    setParams((prev) => ({ ...prev, sort_by: field, sort_order: order, page: 1 })), []);
+
+  // ── Pagination setters ────────────────────────────────────────────────────
 
   const setPage = useCallback((page: number) =>
     setParams((prev) => ({ ...prev, page })), []);
@@ -68,6 +81,8 @@ export function useCollections() {
     params,
     setSearch,
     setCollectionType,
+    setStatus,
+    setSortConfig,
     setPage,
     setLimit,
     refetch,

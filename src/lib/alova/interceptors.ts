@@ -31,8 +31,13 @@ export function beforeRequestInterceptor(method: Method): void {
     }
   }
 
-  // Only set Content-Type if not already set and not a FormData request
-  if (!method.config.headers['Content-Type'] && !(method.config.data instanceof FormData)) {
+  // Only set Content-Type: application/json if not already set and not a FormData request
+  const isFormData =
+    typeof FormData !== 'undefined' &&
+    (method.data instanceof FormData ||
+      ((method.config as Record<string, unknown>)?.data instanceof FormData));
+
+  if (!method.config.headers['Content-Type'] && !isFormData) {
     method.config.headers['Content-Type'] = 'application/json';
   }
 

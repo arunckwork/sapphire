@@ -14,7 +14,7 @@ export function useCollectionMutations(refetch: () => void) {
   const addCollection = async (formData: CollectionFormData): Promise<boolean> => {
     setIsAdding(true);
     try {
-      await collectionService.createCollection(formData);
+      await collectionService.createCollection(formData).send();
       toast.success('New collection added successfully.');
       refetch();
       return true;
@@ -34,7 +34,7 @@ export function useCollectionMutations(refetch: () => void) {
   const editCollection = async (id: string, formData: CollectionFormData): Promise<boolean> => {
     setIsEditing(true);
     try {
-      await collectionService.updateCollection(id, formData);
+      await collectionService.updateCollection(id, formData).send();
       toast.success('Collection updated successfully.');
       refetch();
       return true;
@@ -49,7 +49,7 @@ export function useCollectionMutations(refetch: () => void) {
   const reviewCollection = async (id: string, data: ReviewFormData): Promise<boolean> => {
     setIsReviewing(true);
     try {
-      await collectionService.reviewCollection(id, data);
+      await collectionService.reviewCollection(id, data).send();
       toast.success('Collection accepted successfully.');
       refetch();
       return true;

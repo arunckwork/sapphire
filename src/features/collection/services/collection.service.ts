@@ -96,14 +96,18 @@ export const collectionService = {
   /** Fetches paginated, filtered, sorted collections */
   getCollections: (params: Partial<CollectionsQueryParams>) => {
     const queryObj: Record<string, string> = {
-      search:          params.search ?? '',
-      collection_type: params.collection_type ?? '',
-      sort_by:         params.sort_by ?? 'created_at',
-      sort_order:      params.sort_order ?? 'desc',
-      page:            String(params.page ?? 1),
-      limit:           String(params.limit ?? 100),
+      sort_by:    params.sort_by    ?? 'created_at',
+      sort_order: params.sort_order ?? 'desc',
+      page:       String(params.page  ?? 1),
+      limit:      String(params.limit ?? 25),
     };
-    if (params.status) queryObj.status = params.status;
+    // Conditionally include filter params — omit when empty/undefined to keep URLs clean
+    if (params.search?.trim())       queryObj.search          = params.search.trim();
+    if (params.collection_type)      queryObj.collection_type = params.collection_type;
+    if (params.status)               queryObj.status          = params.status;
+    if (params.created_at_from)      queryObj.created_at_from = params.created_at_from;
+    if (params.created_at_to)        queryObj.created_at_to   = params.created_at_to;
+    if (params.created_by)           queryObj.created_by      = params.created_by;
     const query = new URLSearchParams(queryObj).toString();
     return alovaClient.Get<CollectionsResponse>(`${ENDPOINTS.COLLECTIONS.LIST}?${query}`, { cacheFor: 0 });
   },
@@ -116,36 +120,15 @@ export const collectionService = {
    * Creates a new collection via multipart/form-data.
    * Returns the created CollectionRecord.
    */
-  createCollection: async (data: CollectionFormData): Promise<CollectionRecord> => {
-    const res = await fetch(ENDPOINTS.COLLECTIONS.LIST, {
-      method: 'POST',
-      credentials: 'include',
-      body: toFormData(data),
-      // Do NOT set Content-Type — browser will set it with the correct multipart boundary
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: res.statusText }));
-      throw Object.assign(new Error(err.message ?? 'Create failed'), { status: res.status });
-    }
-    return res.json() as Promise<CollectionRecord>;
-  },
+  createCollection: (data: CollectionFormData) =>
+    alovaClient.Post<CollectionRecord>(ENDPOINTS.COLLECTIONS.LIST, toFormData(data)),
 
   /**
    * Updates an existing collection via multipart/form-data.
    * Returns the updated CollectionRecord.
    */
-  updateCollection: async (id: string, data: CollectionFormData): Promise<CollectionRecord> => {
-    const res = await fetch(ENDPOINTS.COLLECTIONS.BY_ID(id), {
-      method: 'PUT',
-      credentials: 'include',
-      body: toFormData(data),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: res.statusText }));
-      throw Object.assign(new Error(err.message ?? 'Update failed'), { status: res.status });
-    }
-    return res.json() as Promise<CollectionRecord>;
-  },
+  updateCollection: (id: string, data: CollectionFormData) =>
+    alovaClient.Put<CollectionRecord>(ENDPOINTS.COLLECTIONS.BY_ID(id), toFormData(data)),
 
   /**
    * Approves and accepts a collection, setting status to 'accepted'.
@@ -156,19 +139,8 @@ export const collectionService = {
    *   - records `approved_by` (the acting user) and `approved_at` (timestamp)
    * Returns the fully updated CollectionRecord including all generated URLs.
    */
-  reviewCollection: async (id: string, data: ReviewFormData): Promise<CollectionRecord> => {
-    const res = await fetch(ENDPOINTS.COLLECTIONS.REVIEW(id), {
-      method: 'PATCH',
-      credentials: 'include',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data),
-    });
-    if (!res.ok) {
-      const err = await res.json().catch(() => ({ message: res.statusText }));
-      throw Object.assign(new Error(err.message ?? 'Review failed'), { status: res.status });
-    }
-    return res.json() as Promise<CollectionRecord>;
-  },
+  reviewCollection: (id: string, data: ReviewFormData) =>
+    alovaClient.Patch<CollectionRecord>(ENDPOINTS.COLLECTIONS.REVIEW(id), data),
 
   /** Deletes a collection */
   deleteCollection: (id: string) =>

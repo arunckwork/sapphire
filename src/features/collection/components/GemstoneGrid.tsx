@@ -1,10 +1,11 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import type {
   CollectionRecord,
   SortConfig,
   SortField,
+  SortOrder,
   CollectionFilterState,
   SingleStoneCollection,
   BulkStonesCollection,
@@ -12,21 +13,27 @@ import type {
   IndustrialStonesCollection,
 } from '../types/gemstone.types';
 import { COLLECTION_TYPE_OPTIONS, COLLECTION_STATUS_OPTIONS } from '../constants/gemstone.constants';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface CollectionGridProps {
   records: CollectionRecord[];
+  total: number;             // server-side total count (all pages)
+  page: number;
+  totalPages: number;
+  limit: number;
+  isLoading: boolean;
+  filters: CollectionFilterState;
+  sortConfig: SortConfig;
+  onFilterChange: (patch: Partial<CollectionFilterState>) => void;
+  onSortChange: (field: SortField, order: SortOrder) => void;
+  onPageChange: (page: number) => void;
+  onLimitChange: (limit: number) => void;
   onEdit: (record: CollectionRecord) => void;
   onDelete: (id: string) => void;
   onAddNew: () => void;
   onReview: (record: CollectionRecord) => void;
   canManage: boolean; // admin or manager — can create, edit, delete, review
 }
-
-const DEFAULT_FILTERS: CollectionFilterState = {
-  search: '',
-  collection_type: 'ALL',
-  status: 'ALL',
-};
 
 const COLLECTION_TYPE_BADGE: Record<string, string> = {
   single_stone:      'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-500/30',
@@ -90,64 +97,56 @@ function getDetailsDisplay(record: CollectionRecord): string {
 
 /* ── Component ─────────────────────────────────────────────────────────── */
 
-export function GemstoneGrid({ records, onEdit, onDelete, onAddNew, onReview, canManage }: CollectionGridProps) {
-  const [filters, setFilters] = useState<CollectionFilterState>(DEFAULT_FILTERS);
-  const [sortConfig, setSortConfig] = useState<SortConfig>({ field: 'created_at', order: 'desc' });
+export function GemstoneGrid({
+  records,
+  total,
+  page,
+  totalPages,
+  limit,
+  isLoading,
+  filters,
+  sortConfig,
+  onFilterChange,
+  onSortChange,
+  onPageChange,
+  onLimitChange,
+  onEdit,
+  onDelete,
+  onAddNew,
+  onReview,
+  canManage,
+}: CollectionGridProps) {
+  // Local search state — debounced before firing the API call
+  const [localSearch, setLocalSearch] = useState(filters.search);
+  const debouncedSearch = useDebounce(localSearch, 350);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
+  // Sync debounced search up to parent (triggers API call)
+  useEffect(() => {
+    if (debouncedSearch !== filters.search) {
+      onFilterChange({ search: debouncedSearch });
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
+  // If parent resets filters externally, sync local search input back
+  useEffect(() => {
+    setLocalSearch(filters.search);
+  }, [filters.search]);
+
   const handleSort = (field: SortField) => {
-    setSortConfig((prev) =>
-      prev.field === field
-        ? { field, order: prev.order === 'asc' ? 'desc' : 'asc' }
-        : { field, order: 'asc' }
-    );
+    const newOrder: SortOrder =
+      sortConfig.field === field && sortConfig.order === 'asc' ? 'desc' : 'asc';
+    onSortChange(field, newOrder);
   };
 
-  const resetFilters = () => setFilters(DEFAULT_FILTERS);
+  const resetFilters = () => {
+    setLocalSearch('');
+    onFilterChange({ search: '', collection_type: '', status: '' });
+  };
 
   const hasActiveFilters =
-    filters.search !== '' || filters.collection_type !== 'ALL' || filters.status !== 'ALL';
-
-  const processedRecords = useMemo(() => {
-    return records
-      .filter((rec) => {
-        if (filters.search.trim()) {
-          const q = filters.search.toLowerCase();
-          const sellerName = `${rec.seller?.first_name ?? ''} ${rec.seller?.last_name ?? ''}`.toLowerCase();
-          if (
-            !rec.serial_no?.toLowerCase().includes(q) &&
-            !sellerName.includes(q) &&
-            !rec.collection_type.includes(q) &&
-            !rec.certification_no?.toLowerCase().includes(q)
-          ) return false;
-        }
-        if (filters.collection_type !== 'ALL' && rec.collection_type !== filters.collection_type) {
-          return false;
-        }
-        if (filters.status !== 'ALL' && rec.status !== filters.status) {
-          return false;
-        }
-        return true;
-      })
-      .sort((a, b) => {
-        const { field, order } = sortConfig;
-        let valA: string | number = '';
-        let valB: string | number = '';
-        if (field === 'asking_price') {
-          valA = Number(a.asking_price) || 0;
-          valB = Number(b.asking_price) || 0;
-        } else if (field === 'created_at') {
-          valA = (a.created_at ?? '').toLowerCase();
-          valB = (b.created_at ?? '').toLowerCase();
-        } else {
-          valA = (a.collection_type ?? '').toLowerCase();
-          valB = (b.collection_type ?? '').toLowerCase();
-        }
-        if (valA < valB) return order === 'asc' ? -1 : 1;
-        if (valA > valB) return order === 'asc' ? 1 : -1;
-        return 0;
-      });
-  }, [records, filters, sortConfig]);
+    filters.search !== '' || filters.collection_type !== '' || filters.status !== '';
 
   const recordToDelete = records.find((r) => r.id === deletingId);
 
@@ -160,8 +159,8 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew, onReview, ca
           <div className="relative min-w-[200px] flex-1 sm:max-w-xs">
             <input
               type="text"
-              value={filters.search}
-              onChange={(e) => setFilters((f) => ({ ...f, search: e.target.value }))}
+              value={localSearch}
+              onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search serial, seller, cert…"
               className="w-full rounded-lg border border-border bg-background pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50"
             />
@@ -171,10 +170,10 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew, onReview, ca
           {/* Collection Type Filter */}
           <select
             value={filters.collection_type}
-            onChange={(e) => setFilters((f) => ({ ...f, collection_type: e.target.value }))}
+            onChange={(e) => onFilterChange({ collection_type: e.target.value })}
             className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
           >
-            <option value="ALL">All Types</option>
+            <option value="">All Types</option>
             {COLLECTION_TYPE_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
@@ -183,7 +182,7 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew, onReview, ca
           {/* Status Filter */}
           <select
             value={filters.status}
-            onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}
+            onChange={(e) => onFilterChange({ status: e.target.value })}
             className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
           >
             {COLLECTION_STATUS_OPTIONS.map((opt) => (
@@ -265,7 +264,16 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew, onReview, ca
             </thead>
 
             <tbody className="divide-y divide-border/60">
-              {processedRecords.length === 0 ? (
+              {isLoading ? (
+                /* Loading skeleton rows */
+                Array.from({ length: 5 }).map((_, i) => (
+                  <tr key={i} className="animate-pulse">
+                    <td colSpan={8} className="px-4 py-3.5">
+                      <div className="h-8 rounded-md bg-muted/60" />
+                    </td>
+                  </tr>
+                ))
+              ) : records.length === 0 ? (
                 <tr>
                   <td colSpan={8} className="px-4 py-12 text-center text-muted-foreground">
                     <div className="flex flex-col items-center justify-center gap-2">
@@ -288,7 +296,7 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew, onReview, ca
                   </td>
                 </tr>
               ) : (
-                processedRecords.map((item) => (
+                records.map((item) => (
                   <tr key={item.id} className="group hover:bg-muted/50 transition-colors duration-150">
 
                     {/* Collection Type + Seller */}
@@ -415,16 +423,61 @@ export function GemstoneGrid({ records, onEdit, onDelete, onAddNew, onReview, ca
           </table>
         </div>
 
-        {/* Footer */}
+        {/* ── Footer: count + pagination ────────────────────────────── */}
         <div
           style={{ backgroundColor: 'hsl(var(--table-footer-bg))', color: 'hsl(var(--table-footer-fg))' }}
-          className="border-t border-border px-4 py-2.5 flex items-center justify-between text-[11px] font-semibold"
+          className="border-t border-border px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-[11px] font-semibold"
         >
-          <span>
-            Showing <strong className="text-foreground">{processedRecords.length}</strong> of{' '}
-            <strong className="text-foreground">{records.length}</strong> entries
-          </span>
-          {hasActiveFilters && <span>Filtered by active criteria</span>}
+          {/* Left: count summary */}
+          <div className="flex items-center gap-3">
+            <span>
+              Showing{' '}
+              <strong className="text-foreground">{records.length}</strong>
+              {' '}of{' '}
+              <strong className="text-foreground">{total}</strong>
+              {' '}entries
+            </span>
+            {hasActiveFilters && <span className="text-muted-foreground font-normal">· Filtered</span>}
+          </div>
+
+          {/* Right: per-page + prev/next */}
+          <div className="flex items-center gap-3">
+            {/* Per-page selector */}
+            <div className="flex items-center gap-1.5">
+              <span className="text-muted-foreground font-normal">Per page:</span>
+              <select
+                value={limit}
+                onChange={(e) => onLimitChange(Number(e.target.value))}
+                className="rounded-md border border-border bg-background px-2 py-0.5 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
+              >
+                {[10, 25, 50, 100].map((n) => (
+                  <option key={n} value={n}>{n}</option>
+                ))}
+              </select>
+            </div>
+
+            {/* Page controls */}
+            <div className="flex items-center gap-1.5">
+              <button
+                onClick={() => onPageChange(page - 1)}
+                disabled={page <= 1 || isLoading}
+                className="rounded-md border border-border bg-background px-2 py-0.5 text-[11px] text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent transition-colors"
+              >
+                ← Prev
+              </button>
+              <span className="text-muted-foreground font-normal">
+                Page <strong className="text-foreground">{page}</strong> of{' '}
+                <strong className="text-foreground">{totalPages}</strong>
+              </span>
+              <button
+                onClick={() => onPageChange(page + 1)}
+                disabled={page >= totalPages || isLoading}
+                className="rounded-md border border-border bg-background px-2 py-0.5 text-[11px] text-foreground disabled:opacity-40 disabled:cursor-not-allowed hover:bg-accent transition-colors"
+              >
+                Next →
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 

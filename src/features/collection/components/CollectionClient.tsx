@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import type { CollectionFormData, CollectionRecord } from '../types/gemstone.types';
+import type { CollectionFilterState, CollectionFormData, CollectionRecord, SortConfig, SortField, SortOrder } from '../types/gemstone.types';
 import { GemstoneGrid } from './GemstoneGrid';
 import { GemstoneDrawer } from './GemstoneDrawer';
 import { useCollections } from '../hooks/useCollections';
@@ -21,7 +21,15 @@ export function CollectionClient() {
   const {
     collections,
     total,
+    totalPages,
     isLoading: isCollectionsLoading,
+    params,
+    setSearch,
+    setCollectionType,
+    setStatus,
+    setSortConfig,
+    setPage,
+    setLimit,
     refetch,
   } = useCollections();
 
@@ -38,78 +46,32 @@ export function CollectionClient() {
     isEditing,
   } = useCollectionMutations(refetch);
 
-  /* ── Metrics ─────────────────────────────────────────────────────── */
-  const totalCollections = total || collections.length;
-  const totalAskingValue = collections.reduce((acc, r) => acc + (Number(r.asking_price) || 0), 0);
-  const singleStoneCount = collections.filter((r) => r.collection_type === 'single_stone').length;
-  const bulkCount = collections.filter((r) => r.collection_type === 'bulk_stones').length;
-  const jewelleryCount = collections.filter((r) => r.collection_type === 'jewellery').length;
-  const industrialCount = collections.filter((r) => r.collection_type === 'industrial_stones').length;
-  const inReviewCount = collections.filter((r) => r.status === 'review').length;
-  const acceptedCount = collections.filter((r) => r.status === 'accepted').length;
+  /* ── Derived filter + sort state from params ─────────────────────── */
 
-  const METRICS = [
-    {
-      title: 'Total Collections',
-      value: isCollectionsLoading ? '—' : totalCollections,
-      unit: 'entries',
-      textColor: 'text-amber-600 dark:text-amber-400',
-      borderColor: 'border-amber-500/20 hover:border-amber-500/35',
-    },
-    {
-      title: 'Total Asking Value',
-      value: isCollectionsLoading
-        ? '—'
-        : `$${totalAskingValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      unit: 'combined',
-      textColor: 'text-emerald-600 dark:text-emerald-400',
-      borderColor: 'border-emerald-500/20 hover:border-emerald-500/35',
-    },
-    {
-      title: 'In Review',
-      value: isCollectionsLoading ? '—' : inReviewCount,
-      unit: 'pending',
-      textColor: 'text-amber-500 dark:text-amber-300',
-      borderColor: 'border-amber-400/20 hover:border-amber-400/35',
-    },
-    {
-      title: 'Accepted',
-      value: isCollectionsLoading ? '—' : acceptedCount,
-      unit: 'approved',
-      textColor: 'text-teal-600 dark:text-teal-400',
-      borderColor: 'border-teal-500/20 hover:border-teal-500/35',
-    },
-    {
-      title: 'Single Stones',
-      value: isCollectionsLoading ? '—' : singleStoneCount,
-      unit: 'items',
-      textColor: 'text-sky-600 dark:text-sky-400',
-      borderColor: 'border-sky-500/20 hover:border-sky-500/35',
-    },
-    {
-      title: 'Bulk Lots',
-      value: isCollectionsLoading ? '—' : bulkCount,
-      unit: 'lots',
-      textColor: 'text-violet-600 dark:text-violet-400',
-      borderColor: 'border-violet-500/20 hover:border-violet-500/35',
-    },
-    {
-      title: 'Jewellery',
-      value: isCollectionsLoading ? '—' : jewelleryCount,
-      unit: 'pieces',
-      textColor: 'text-purple-600 dark:text-purple-400',
-      borderColor: 'border-purple-500/20 hover:border-purple-500/35',
-    },
-    {
-      title: 'Industrial',
-      value: isCollectionsLoading ? '—' : industrialCount,
-      unit: 'entries',
-      textColor: 'text-slate-600 dark:text-slate-400',
-      borderColor: 'border-slate-500/20 hover:border-slate-500/35',
-    },
-  ];
+  const filters: CollectionFilterState = {
+    search: params.search,
+    collection_type: params.collection_type,
+    status: params.status,
+  };
 
-  /* ── Handlers ────────────────────────────────────────────────────── */
+  const sortConfig: SortConfig = {
+    field: params.sort_by,
+    order: params.sort_order,
+  };
+
+  /* ── Filter / sort / pagination handlers ─────────────────────────── */
+
+  const handleFilterChange = (patch: Partial<CollectionFilterState>) => {
+    if (patch.search !== undefined) setSearch(patch.search);
+    if (patch.collection_type !== undefined) setCollectionType(patch.collection_type);
+    if (patch.status !== undefined) setStatus(patch.status);
+  };
+
+  const handleSortChange = (field: SortField, order: SortOrder) => {
+    setSortConfig(field, order);
+  };
+
+  /* ── CRUD handlers ───────────────────────────────────────────────── */
 
   const handleAddNew = () => {
     if (!canManage) return;
@@ -160,29 +122,20 @@ export function CollectionClient() {
         </div>
       </div>
 
-      {/* ── Metric Cards ─────────────────────────────────────────────── */}
-      {/* <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4 xl:grid-cols-8">
-        {METRICS.map((metric) => (
-          <div
-            key={metric.title}
-            className={`flex flex-col justify-between rounded-xl border bg-card/60 p-4 backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${metric.borderColor}`}
-          >
-            <span className="text-[11px] font-medium tracking-wide text-muted-foreground">
-              {metric.title}
-            </span>
-            <div className="mt-2.5 space-y-0.5">
-              <div className={`text-2xl font-bold tracking-tight ${metric.textColor}`}>
-                {metric.value}
-              </div>
-              <div className="text-[11px] text-muted-foreground font-normal">{metric.unit}</div>
-            </div>
-          </div>
-        ))}
-      </div> */}
-
       {/* ── Grid ─────────────────────────────────────────────────────── */}
       <GemstoneGrid
         records={collections}
+        total={total}
+        page={params.page}
+        totalPages={totalPages}
+        limit={params.limit}
+        isLoading={isCollectionsLoading}
+        filters={filters}
+        sortConfig={sortConfig}
+        onFilterChange={handleFilterChange}
+        onSortChange={handleSortChange}
+        onPageChange={setPage}
+        onLimitChange={setLimit}
         onEdit={handleEdit}
         onDelete={handleDelete}
         onAddNew={handleAddNew}
