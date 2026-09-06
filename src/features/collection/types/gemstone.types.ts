@@ -37,6 +37,7 @@ export interface BulkStoneRow {
   quantity: number;
   weight: number;
   weight_unit: string;
+  price?: number;   // optional per-row asking price; used in Add New flow only
 }
 
 /* ── Collection Records (API response shape) ──────────────────────────────── */

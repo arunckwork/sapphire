@@ -9,6 +9,8 @@ interface BulkStonesFormProps {
   data: BulkStonesFormData;
   errors: Record<string, string>;
   onChange: <K extends keyof BulkStonesFormData>(field: K, value: BulkStonesFormData[K]) => void;
+  /** Fired whenever stone row prices change; total is the sum of all row prices (0 if none set). Add-New flow only. */
+  onStonePricesChange?: (total: number) => void;
 }
 
 const sectionHead =
@@ -24,12 +26,16 @@ const EMPTY_ROW: BulkStoneRow = {
   weight_unit: 'ct',
 };
 
-export function BulkStonesForm({ data, errors, onChange }: BulkStonesFormProps) {
+export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: BulkStonesFormProps) {
   const updateRow = (index: number, patch: Partial<BulkStoneRow>) => {
     const updated = data.stones.map((row, i) =>
       i === index ? { ...row, ...patch } : row
     );
     onChange('stones', updated);
+    if (onStonePricesChange) {
+      const total = updated.reduce((acc, r) => acc + (r.price ?? 0), 0);
+      onStonePricesChange(total);
+    }
   };
 
   const addRow = () => onChange('stones', [...data.stones, { ...EMPTY_ROW }]);
@@ -91,7 +97,7 @@ export function BulkStonesForm({ data, errors, onChange }: BulkStonesFormProps) 
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                   Quantity <span className="text-rose-500">*</span>
@@ -133,6 +139,28 @@ export function BulkStonesForm({ data, errors, onChange }: BulkStonesFormProps) 
                   ))}
                 </select>
               </div>
+              {onStonePricesChange !== undefined && (
+                <div>
+                  <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                    Price
+                    <span className="ml-1 text-slate-400 font-normal">(optional)</span>
+                  </label>
+                  <div className="relative">
+                    <span className="absolute inset-y-0 left-2.5 flex items-center text-xs text-slate-400 pointer-events-none">$</span>
+                    <input
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      value={row.price ?? ''}
+                      onChange={(e) =>
+                        updateRow(idx, { price: e.target.value === '' ? undefined : parseFloat(e.target.value) || 0 })
+                      }
+                      className={`${inputBase} pl-6`}
+                      placeholder="0.00"
+                    />
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         ))}

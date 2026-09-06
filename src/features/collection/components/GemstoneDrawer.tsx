@@ -411,6 +411,13 @@ export function GemstoneDrawer({
               onChange={(field, value) =>
                 setFormData((prev) => ({ ...prev, [field]: value }))
               }
+              onStonePricesChange={
+                !editingRecord
+                  ? (total) => {
+                      if (total > 0) setBase('asking_price', total);
+                    }
+                  : undefined
+              }
             />
           )}
           {formData.collection_type === 'jewellery' && (
@@ -576,6 +583,18 @@ export function GemstoneDrawer({
               </div>
               {errors.asking_price && (
                 <span className="mt-1 block text-[11px] text-rose-500">{errors.asking_price}</span>
+              )}
+              {/* Auto-calculate hint — shown only in Add New bulk_stones when stone prices sum > 0 */}
+              {formData.collection_type === 'bulk_stones' && !editingRecord && (
+                (formData as BulkStonesFormData).stones.reduce((acc, r) => acc + (r.price ?? 0), 0) > 0
+              ) && (
+                <span className="mt-1 flex items-center gap-1 text-[11px] text-amber-500 dark:text-amber-400">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                    <polyline points="16 7 22 7 22 13" />
+                  </svg>
+                  Auto-calculated from stone prices. You may override.
+                </span>
               )}
             </div>
           </div>
