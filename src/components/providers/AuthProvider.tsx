@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import { useAuthStore, authService } from '@/features/auth';
 import { ROUTES } from '@/constants/routes';
@@ -14,6 +14,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const setUser = useAuthStore((s) => s.setUser);
   const clearAuth = useAuthStore((s) => s.clearAuth);
+  const hydratedRef = useRef(false);
 
   useEffect(() => {
     // Skip session probe on public/auth routes — no cookie exists here by design.
@@ -21,11 +22,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return;
     }
 
+    // If already hydrated in this session or store is already populated (e.g., via login), skip.
+    if (hydratedRef.current || useAuthStore.getState().user) {
+      return;
+    }
+
+    hydratedRef.current = true;
     let cancelled = false;
 
     authService
       .getMe()
       .then((data) => {
+        setUser(data);
         if (!cancelled) setUser(data);
       })
       .catch(() => {
