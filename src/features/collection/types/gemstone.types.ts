@@ -210,3 +210,25 @@ export interface CollectionsQueryParams {
   page: number;
   limit: number;
 }
+
+/* ── Negotiation & Referral Types ─────────────────────────────────────────── */
+
+export interface NegotiationSender {
+  id: number;
+  username: string;
+  role?: string;
+}
+
+export interface NegotiationLog {
+  id: number | string;
+  sender: NegotiationSender;
+  message_text: string;
+  counter_offer_price: number | string | null;
+  created_at: string;
+}
+
+export interface PostNegotiationDto {
+  message_text: string;
+  counter_offer_price?: number | null;
+}
+

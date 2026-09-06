@@ -6,6 +6,8 @@ import type {
   CollectionRecord,
   CollectionsQueryParams,
   ReviewFormData,
+  NegotiationLog,
+  PostNegotiationDto,
 } from '../types/gemstone.types';
 
 /**
@@ -145,4 +147,12 @@ export const collectionService = {
   /** Deletes a collection */
   deleteCollection: (id: string) =>
     alovaClient.Delete<void>(ENDPOINTS.COLLECTIONS.BY_ID(id)),
+
+  /** Fetches negotiation log history for a collection */
+  getNegotiationLogs: (id: string) =>
+    alovaClient.Get<NegotiationLog[]>(ENDPOINTS.COLLECTIONS.NEGOTIATION(id), { cacheFor: 0 }),
+
+  /** Posts a new negotiation message or counter-offer */
+  postNegotiationLog: (id: string, data: PostNegotiationDto) =>
+    alovaClient.Post<NegotiationLog>(ENDPOINTS.COLLECTIONS.NEGOTIATION(id), data),
 };

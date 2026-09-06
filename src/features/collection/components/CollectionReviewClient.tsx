@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { useCollectionDetail } from '../hooks/useCollectionDetail';
 import { useRole } from '@/features/auth/hooks/useRole';
 import { collectionService } from '../services/collection.service';
+import { NegotiationReferralDrawer } from './NegotiationReferralDrawer';
 import { PAYMENT_METHOD_OPTIONS } from '../constants/gemstone.constants';
 import { getMediaUrl } from '@/utils/media';
 import type {
@@ -297,6 +298,7 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
   const [priceError, setPriceError]     = useState('');
   const [methodError, setMethodError]   = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isNegotiationDrawerOpen, setIsNegotiationDrawerOpen] = useState(false);
 
   /* lightbox */
   const [lightbox, setLightbox] = useState<{ urls: string[]; index: number } | null>(null);
@@ -689,18 +691,32 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-end gap-3 pt-2">
+          <div className="flex flex-wrap items-center justify-end gap-3 pt-2">
             <Link
               href="/collection"
               className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
             >
               Back to Collections
             </Link>
+
+            {/* ── Negotiation and referral button ── */}
+            <button
+              type="button"
+              onClick={() => setIsNegotiationDrawerOpen(true)}
+              className="flex items-center gap-2 rounded-lg border border-amber-500/40 bg-amber-500/10 px-5 py-2.5 text-sm font-semibold text-amber-700 dark:text-amber-300 hover:bg-amber-500/20 shadow-xs transition-all cursor-pointer"
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+              </svg>
+              Negotiation and referral
+            </button>
+
+            {/* ── Approve & Accept button ── */}
             <button
               type="button"
               onClick={handleApprove}
               disabled={isSubmitting}
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-2.5 text-sm font-bold text-white hover:from-emerald-500 hover:to-emerald-600 shadow-md shadow-emerald-500/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-emerald-600 to-emerald-700 px-6 py-2.5 text-sm font-bold text-white hover:from-emerald-500 hover:to-emerald-600 shadow-md shadow-emerald-500/30 transition-all disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
             >
               {isSubmitting ? (
                 <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
@@ -722,22 +738,50 @@ export function CollectionReviewClient({ id }: CollectionReviewClientProps) {
       {!isAccepted && !canReview && (
         <div className="rounded-2xl border border-border bg-card/60 p-6 text-center space-y-2">
           <p className="text-sm text-muted-foreground">This collection is pending review by a manager or administrator.</p>
-          <Link href="/collection" className="inline-block text-xs text-amber-600 hover:underline">← Back to Collections</Link>
+          <div className="flex items-center justify-center gap-3 pt-2">
+            <Link href="/collection" className="inline-block text-xs text-amber-600 hover:underline">← Back to Collections</Link>
+            <button
+              type="button"
+              onClick={() => setIsNegotiationDrawerOpen(true)}
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-amber-600 hover:underline cursor-pointer"
+            >
+              Negotiation &amp; referral history
+            </button>
+          </div>
         </div>
       )}
 
-      {/* ── Accepted: Back link ────────────────────────────────────────── */}
+      {/* ── Accepted: Back link & Negotiation history button ──────────── */}
       {isAccepted && (
-        <div className="flex justify-start">
+        <div className="flex items-center justify-between">
           <Link
             href="/collection"
             className="rounded-lg border border-border px-5 py-2.5 text-sm font-semibold text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
           >
             ← Back to Collections
           </Link>
+          <button
+            type="button"
+            onClick={() => setIsNegotiationDrawerOpen(true)}
+            className="flex items-center gap-2 rounded-lg border border-border bg-card/80 px-4 py-2 text-xs font-semibold text-foreground hover:bg-accent transition-colors cursor-pointer"
+          >
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+            </svg>
+            Negotiation and referral history
+          </button>
         </div>
       )}
     </div>
+
+    {/* ── Negotiation & Referral Drawer ───────────────────────────────── */}
+    {collection && (
+      <NegotiationReferralDrawer
+        isOpen={isNegotiationDrawerOpen}
+        onClose={() => setIsNegotiationDrawerOpen(false)}
+        collection={collection}
+      />
+    )}
 
     {/* Lightbox portal */}
     {lightbox && (
