@@ -38,22 +38,22 @@ interface InventoryGridProps {
 /* ── Display helpers ───────────────────────────────────────────────────── */
 
 const COLLECTION_TYPE_BADGE: Record<string, string> = {
-  single_stone:      'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-500/30',
-  bulk_stones:       'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400 border-sky-500/30',
-  jewellery:         'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-purple-500/30',
+  single_stone: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-500/30',
+  bulk_stones: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400 border-sky-500/30',
+  jewellery: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-purple-500/30',
   industrial_stones: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-500/30',
 };
 
 const COLLECTION_TYPE_LABEL: Record<string, string> = {
-  single_stone:      'Single Stone',
-  bulk_stones:       'Bulk Stones',
-  jewellery:         'Jewellery',
+  single_stone: 'Single Stone',
+  bulk_stones: 'Bulk Stones',
+  jewellery: 'Jewellery',
   industrial_stones: 'Industrial',
 };
 
 const PAYMENT_METHOD_LABEL: Record<string, string> = {
-  cash:          'Cash',
-  mobile_money:  'Mobile Money',
+  cash: 'Cash',
+  mobile_money: 'Mobile Money',
   bank_transfer: 'Bank Transfer',
 };
 
@@ -68,7 +68,7 @@ function getWeightDisplay(record: CollectionRecord): string {
   }
   if (record.collection_type === 'bulk_stones') {
     const r = record as BulkStonesCollection;
-    const qty       = r.stones.reduce((acc, s) => acc + (s.quantity || 0), 0);
+    const qty = r.stones.reduce((acc, s) => acc + (s.quantity || 0), 0);
     const weightSum = r.stones.reduce((acc, s) => acc + (s.weight || 0), 0);
     const primaryUnit = r.stones[0]?.weight_unit || 'ct';
     return weightSum > 0 ? `${weightSum} ${primaryUnit} · ${qty} pcs` : `${qty} pcs`;
@@ -135,7 +135,7 @@ export function InventoryGrid({
     if (debouncedSearch !== filters.search) {
       onFilterChange({ search: debouncedSearch });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
   // If parent resets filters externally, sync local search input back
@@ -416,7 +416,7 @@ export function InventoryGrid({
                       <div className="flex items-center justify-end gap-1.5 opacity-90 group-hover:opacity-100">
                         {/* View Details */}
                         <button
-                          onClick={() => router.push(`/collection/${item.id}/review`)}
+                          onClick={() => router.push(`/inventory/${item.id}/details`)}
                           title="View Details"
                           className="rounded-md p-1.5 text-muted-foreground hover:bg-slate-500/10 hover:text-slate-700 dark:hover:text-slate-300 transition-colors"
                         >

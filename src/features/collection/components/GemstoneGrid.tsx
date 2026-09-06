@@ -32,20 +32,21 @@ interface CollectionGridProps {
   onDelete: (id: string) => void;
   onAddNew: () => void;
   onReview: (record: CollectionRecord) => void;
+  onViewDetails: (record: CollectionRecord) => void;
   canManage: boolean; // admin or manager — can create, edit, delete, review
 }
 
 const COLLECTION_TYPE_BADGE: Record<string, string> = {
-  single_stone:      'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-500/30',
-  bulk_stones:       'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400 border-sky-500/30',
-  jewellery:         'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-purple-500/30',
+  single_stone: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-500/30',
+  bulk_stones: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400 border-sky-500/30',
+  jewellery: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-purple-500/30',
   industrial_stones: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-500/30',
 };
 
 const COLLECTION_TYPE_LABEL: Record<string, string> = {
-  single_stone:      'Single Stone',
-  bulk_stones:       'Bulk Stones',
-  jewellery:         'Jewellery',
+  single_stone: 'Single Stone',
+  bulk_stones: 'Bulk Stones',
+  jewellery: 'Jewellery',
   industrial_stones: 'Industrial',
 };
 
@@ -114,6 +115,7 @@ export function GemstoneGrid({
   onDelete,
   onAddNew,
   onReview,
+  onViewDetails,
   canManage,
 }: CollectionGridProps) {
   // Local search state — debounced before firing the API call
@@ -126,7 +128,7 @@ export function GemstoneGrid({
     if (debouncedSearch !== filters.search) {
       onFilterChange({ search: debouncedSearch });
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedSearch]);
 
   // If parent resets filters externally, sync local search input back
@@ -397,7 +399,7 @@ export function GemstoneGrid({
                         {/* View details (all users) */}
                         {item.status === 'accepted' && (
                           <button
-                            onClick={() => onReview(item)}
+                            onClick={() => onViewDetails(item)}
                             title="View Details"
                             className="rounded-md p-1.5 text-muted-foreground hover:bg-slate-500/10 hover:text-slate-600 dark:hover:text-slate-400 transition-colors"
                           >

@@ -107,6 +107,9 @@ export function CollectionClient() {
   const handleReview = (record: CollectionRecord) => {
     router.push(`/collection/${record.id}/review`);
   };
+  const handleViewDetails = (record: CollectionRecord) => {
+    router.push(`/collection/${record.id}/details`);
+  };
 
   return (
     <div className="space-y-6">
@@ -140,6 +143,7 @@ export function CollectionClient() {
         onDelete={handleDelete}
         onAddNew={handleAddNew}
         onReview={handleReview}
+        onViewDetails={handleViewDetails}
         canManage={canManage}
       />
 
