@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import type { CollectionFilterState, SortConfig, SortField, SortOrder } from '@/features/collection/types/gemstone.types';
 import { useInventory } from '../hooks/useInventory';
 import { InventoryGrid } from './InventoryGrid';
 
@@ -8,49 +9,39 @@ export function InventoryClient() {
   const {
     collections,
     total,
+    totalPages,
     isLoading,
+    params,
+    setSearch,
+    setCollectionType,
+    setSortConfig,
+    setPage,
+    setLimit,
   } = useInventory();
 
-  /* ── Metrics ───────────────────────────────────────────────────────── */
-  const totalFinalizedValue = collections.reduce(
-    (acc, r) => acc + (Number(r.finalized_price) || 0),
-    0
-  );
-  const withVoucher = collections.filter((r) => !!r.voucher_url).length;
-  const pendingVoucher = collections.filter((r) => !r.voucher_url).length;
+  /* ── Derived filter + sort state from params ─────────────────────── */
 
-  const METRICS = [
-    {
-      title: 'Total Accepted',
-      value: isLoading ? '—' : total,
-      unit: 'collections',
-      textColor: 'text-teal-600 dark:text-teal-400',
-      borderColor: 'border-teal-500/20 hover:border-teal-500/35',
-    },
-    {
-      title: 'Finalized Value',
-      value: isLoading
-        ? '—'
-        : `$${totalFinalizedValue.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`,
-      unit: 'combined',
-      textColor: 'text-emerald-600 dark:text-emerald-400',
-      borderColor: 'border-emerald-500/20 hover:border-emerald-500/35',
-    },
-    {
-      title: 'Vouchers Available',
-      value: isLoading ? '—' : withVoucher,
-      unit: 'ready',
-      textColor: 'text-sky-600 dark:text-sky-400',
-      borderColor: 'border-sky-500/20 hover:border-sky-500/35',
-    },
-    {
-      title: 'Voucher Pending',
-      value: isLoading ? '—' : pendingVoucher,
-      unit: 'awaiting',
-      textColor: 'text-amber-600 dark:text-amber-400',
-      borderColor: 'border-amber-500/20 hover:border-amber-500/35',
-    },
-  ];
+  const filters: CollectionFilterState = {
+    search: params.search,
+    collection_type: params.collection_type,
+    status: params.status,
+  };
+
+  const sortConfig: SortConfig = {
+    field: params.sort_by,
+    order: params.sort_order,
+  };
+
+  /* ── Filter / sort / pagination handlers ─────────────────────────── */
+
+  const handleFilterChange = (patch: Partial<CollectionFilterState>) => {
+    if (patch.search !== undefined) setSearch(patch.search);
+    if (patch.collection_type !== undefined) setCollectionType(patch.collection_type);
+  };
+
+  const handleSortChange = (field: SortField, order: SortOrder) => {
+    setSortConfig(field, order);
+  };
 
   return (
     <div className="space-y-6">
@@ -71,28 +62,22 @@ export function InventoryClient() {
         </span>
       </div>
 
-      {/* ── Metric Cards ───────────────────────────────────────────────── */}
-      {/* <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
-        {METRICS.map((metric) => (
-          <div
-            key={metric.title}
-            className={`flex flex-col justify-between rounded-xl border bg-card/60 p-4 backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${metric.borderColor}`}
-          >
-            <span className="text-[11px] font-medium tracking-wide text-muted-foreground">
-              {metric.title}
-            </span>
-            <div className="mt-2.5 space-y-0.5">
-              <div className={`text-2xl font-bold tracking-tight ${metric.textColor}`}>
-                {metric.value}
-              </div>
-              <div className="text-[11px] text-muted-foreground font-normal">{metric.unit}</div>
-            </div>
-          </div>
-        ))}
-      </div> */}
-
       {/* ── Grid ───────────────────────────────────────────────────────── */}
-      <InventoryGrid records={collections} isLoading={isLoading} />
+      <InventoryGrid
+        records={collections}
+        total={total}
+        page={params.page}
+        totalPages={totalPages}
+        limit={params.limit}
+        isLoading={isLoading}
+        filters={filters}
+        sortConfig={sortConfig}
+        onFilterChange={handleFilterChange}
+        onSortChange={handleSortChange}
+        onPageChange={setPage}
+        onLimitChange={setLimit}
+      />
     </div>
   );
 }
+

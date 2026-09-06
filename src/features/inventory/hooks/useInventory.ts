@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect } from 'react';
 import { collectionService } from '@/features/collection/services/collection.service';
-import type { CollectionRecord, CollectionsQueryParams } from '@/features/collection/types/gemstone.types';
+import type { CollectionRecord, CollectionsQueryParams, SortField, SortOrder } from '@/features/collection/types/gemstone.types';
 
 const DEFAULT_PARAMS: CollectionsQueryParams = {
   search:          '',
@@ -11,7 +11,7 @@ const DEFAULT_PARAMS: CollectionsQueryParams = {
   sort_by:         'created_at',
   sort_order:      'desc',
   page:            1,
-  limit:           100,
+  limit:           25,
 };
 
 export function useInventory() {
@@ -46,11 +46,20 @@ export function useInventory() {
 
   const refetch = useCallback(() => setTick((t) => t + 1), []);
 
+  // ── Filter setters (each resets page to 1) ────────────────────────────────
+
   const setSearch = useCallback((value: string) =>
     setParams((prev) => ({ ...prev, search: value, page: 1 })), []);
 
   const setCollectionType = useCallback((value: string) =>
     setParams((prev) => ({ ...prev, collection_type: value, page: 1 })), []);
+
+  // ── Sort setter ───────────────────────────────────────────────────────────
+
+  const setSortConfig = useCallback((field: SortField, order: SortOrder) =>
+    setParams((prev) => ({ ...prev, sort_by: field, sort_order: order, page: 1 })), []);
+
+  // ── Pagination setters ────────────────────────────────────────────────────
 
   const setPage = useCallback((page: number) =>
     setParams((prev) => ({ ...prev, page })), []);
@@ -69,6 +78,7 @@ export function useInventory() {
     params,
     setSearch,
     setCollectionType,
+    setSortConfig,
     setPage,
     setLimit,
     refetch,

@@ -4,12 +4,17 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useUIStore } from '@/store';
 import { useAuthStore, useAuth } from '@/features/auth';
+import { useRole } from '@/features/auth/hooks/useRole';
 import { ROUTES } from '@/constants/routes';
+import { ROLES } from '@/constants/roles';
+import type { Role } from '@/constants/roles';
 
 interface NavItem {
   label: string;
   href: string;
   icon: React.ReactNode;
+  /** Allowlist of roles that can see this item. Undefined = visible to all. */
+  roles?: Role[];
 }
 
 const NAV_ITEMS: NavItem[] = [
@@ -17,26 +22,31 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Collection',
     href: ROUTES.COLLECTION,
     icon: <GemIcon />,
+    // no roles restriction — visible to all
   },
   {
     label: 'Inventory',
     href: ROUTES.INVENTORY,
     icon: <InventoryIcon />,
+    roles: [ROLES.ADMIN, ROLES.MANAGER],
   },
   {
     label: 'Users',
     href: ROUTES.USERS,
     icon: <UsersIcon />,
+    roles: [ROLES.ADMIN, ROLES.MANAGER],
   },
   {
     label: 'Profile',
     href: ROUTES.PROFILE,
     icon: <UserIcon />,
+    // no roles restriction — visible to all
   },
   {
     label: 'Settings',
     href: ROUTES.SETTINGS,
     icon: <SettingsIcon />,
+    roles: [ROLES.ADMIN, ROLES.MANAGER],
   },
 ];
 
@@ -46,6 +56,11 @@ export function Sidebar() {
   const setSidebarOpen = useUIStore((s) => s.setSidebarOpen);
   const user = useAuthStore((s) => s.user);
   const { logout } = useAuth();
+  const { role } = useRole();
+
+  const visibleNavItems = NAV_ITEMS.filter(
+    (item) => !item.roles || (role !== null && item.roles.includes(role))
+  );
 
   const userInitial = user?.first_name
     ? user.first_name.charAt(0).toUpperCase()
@@ -102,7 +117,7 @@ export function Sidebar() {
 
         {/* ── Navigation Links ──────────────────────────────────────────── */}
         <nav className="flex-1 space-y-1 overflow-y-auto px-2.5 py-3">
-          {NAV_ITEMS.map((item) => {
+          {visibleNavItems.map((item) => {
             const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
 
             return (
