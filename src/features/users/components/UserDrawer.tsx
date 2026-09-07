@@ -81,13 +81,16 @@ interface UserDrawerProps {
   onAdd: (data: UserFormData) => Promise<boolean>;
   onEdit: (id: string, data: Pick<UserFormData, 'first_name' | 'last_name' | 'role'>) => Promise<boolean>;
   isSubmitting: boolean;
+  /** Roles the current actor is allowed to assign. Controls the Role dropdown options. */
+  availableRoles: import('@/constants/roles').Role[];
 }
 
-const ROLE_OPTIONS = [
-  { value: ROLES.ADMIN, label: 'Admin' },
-  { value: ROLES.MANAGER, label: 'Manager' },
-  { value: ROLES.USER, label: 'User' },
-];
+const ALL_ROLE_OPTIONS: Record<string, string> = {
+  [ROLES.ADMIN]: 'Admin',
+  [ROLES.MANAGER]: 'Manager',
+  [ROLES.STAFF]: 'Staff',
+  [ROLES.USER]: 'User',
+};
 
 export function UserDrawer({
   isOpen,
@@ -97,6 +100,7 @@ export function UserDrawer({
   onAdd,
   onEdit,
   isSubmitting,
+  availableRoles,
 }: UserDrawerProps) {
   const isEdit = editingUser !== null;
 
@@ -252,8 +256,8 @@ export function UserDrawer({
             onBlur={() => handleBlur('role')}
           >
             <option value="" disabled>Select a role</option>
-            {ROLE_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
+            {availableRoles.map((r) => (
+              <option key={r} value={r}>{ALL_ROLE_OPTIONS[r] ?? r}</option>
             ))}
           </Select>
         </FormField>

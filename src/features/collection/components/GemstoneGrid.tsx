@@ -33,7 +33,8 @@ interface CollectionGridProps {
   onAddNew: () => void;
   onReview: (record: CollectionRecord) => void;
   onViewDetails: (record: CollectionRecord) => void;
-  canManage: boolean; // admin or manager — can create, edit, delete, review
+  canManage: boolean;     // admin or manager — can create, edit, delete, approve
+  canViewReview: boolean; // admin, manager, or staff — can navigate to review/detail page
 }
 
 const COLLECTION_TYPE_BADGE: Record<string, string> = {
@@ -117,6 +118,7 @@ export function GemstoneGrid({
   onReview,
   onViewDetails,
   canManage,
+  canViewReview,
 }: CollectionGridProps) {
   // Local search state — debounced before firing the API call
   const [localSearch, setLocalSearch] = useState(filters.search);
@@ -376,7 +378,7 @@ export function GemstoneGrid({
                     {/* Actions */}
                     <td className="px-4 py-3.5 text-right">
                       <div className="flex items-center justify-end gap-1.5 opacity-90 group-hover:opacity-100">
-                        {/* Review button — manager/admin, only for 'review' status */}
+                        {/* Review button — manager/admin only, for 'review' status */}
                         {canManage && item.status === 'review' && (
                           <button
                             onClick={() => onReview(item)}
@@ -384,6 +386,16 @@ export function GemstoneGrid({
                             className="rounded-md p-1.5 text-muted-foreground hover:bg-emerald-500/10 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
                           >
                             <ReviewIcon />
+                          </button>
+                        )}
+                        {/* View (read-only) — staff on 'review' status items */}
+                        {!canManage && canViewReview && item.status === 'review' && (
+                          <button
+                            onClick={() => onReview(item)}
+                            title="View Details"
+                            className="rounded-md p-1.5 text-muted-foreground hover:bg-slate-500/10 hover:text-slate-600 dark:hover:text-slate-400 transition-colors"
+                          >
+                            <EyeIcon />
                           </button>
                         )}
                         {/* Edit — manager/admin, only for non-accepted records */}
@@ -396,7 +408,7 @@ export function GemstoneGrid({
                             <EditIcon />
                           </button>
                         )}
-                        {/* View details (all users) */}
+                        {/* View details — accepted records (all users with view access) */}
                         {item.status === 'accepted' && (
                           <button
                             onClick={() => onViewDetails(item)}

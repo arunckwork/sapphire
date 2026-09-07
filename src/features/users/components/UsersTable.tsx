@@ -9,6 +9,7 @@ import { Badge, Button, Spinner, EmptyState, ConfirmDialog } from '@/components/
 const ROLE_BADGE: Record<string, string> = {
   [ROLES.ADMIN]: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
   [ROLES.MANAGER]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
+  [ROLES.STAFF]: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
   [ROLES.USER]: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
 };
 

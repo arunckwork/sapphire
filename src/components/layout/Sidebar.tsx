@@ -28,7 +28,7 @@ const NAV_ITEMS: NavItem[] = [
     label: 'Inventory',
     href: ROUTES.INVENTORY,
     icon: <InventoryIcon />,
-    roles: [ROLES.ADMIN, ROLES.MANAGER],
+    roles: [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF],
   },
   {
     label: 'Users',

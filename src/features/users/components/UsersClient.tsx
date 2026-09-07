@@ -2,6 +2,8 @@
 
 import React, { useState } from 'react';
 import { useRole } from '@/features/auth';
+import { ROLES } from '@/constants/roles';
+import type { Role } from '@/constants/roles';
 import { useUsers } from '../hooks/useUsers';
 import { useUserMutations } from '../hooks/useUserMutations';
 import { UsersTable } from './UsersTable';
@@ -10,6 +12,16 @@ import type { User } from '../types/user.types';
 
 export function UsersClient() {
   const { isAdmin, isManager } = useRole();
+
+  /**
+   * Roles the current actor is allowed to assign:
+   * - Admin  → can assign any role (admin / manager / staff / user)
+   * - Manager → cannot escalate to admin; can assign manager / staff / user
+   */
+  const availableRoles: Role[] = isAdmin
+    ? [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF, ROLES.USER]
+    : [ROLES.MANAGER, ROLES.STAFF, ROLES.USER];
+
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingUser, setEditingUser] = useState<User | null>(null);
 
@@ -142,6 +154,7 @@ export function UsersClient() {
         onAdd={addUser}
         onEdit={editUser}
         isSubmitting={isAdding || isEditing}
+        availableRoles={availableRoles}
       />
     </div>
   );
