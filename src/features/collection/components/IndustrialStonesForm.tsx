@@ -39,7 +39,7 @@ export function IndustrialStonesForm({ data, errors, onChange }: IndustrialStone
 
           <AutocompleteField
             id="ind_variety"
-            label="Variety"
+            label="Variety (English Name)"
             options={GEMSTONE_VARIETIES}
             value={data.variety}
             onChange={(v) => onChange('variety', v)}

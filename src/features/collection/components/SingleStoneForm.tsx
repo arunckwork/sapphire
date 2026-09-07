@@ -53,7 +53,7 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
 
           <AutocompleteField
             id="variety"
-            label="Variety"
+            label="Variety (English Name)"
             options={GEMSTONE_VARIETIES}
             value={data.variety}
             onChange={(v) => onChange('variety', v)}

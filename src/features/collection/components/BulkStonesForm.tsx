@@ -9,7 +9,7 @@ interface BulkStonesFormProps {
   data: BulkStonesFormData;
   errors: Record<string, string>;
   onChange: <K extends keyof BulkStonesFormData>(field: K, value: BulkStonesFormData[K]) => void;
-  /** Fired whenever stone row prices change; total is the sum of all row prices (0 if none set). Add-New flow only. */
+  /** Fired whenever stone row prices change; total is the sum of all row prices (0 if none set). Optional – omitting it does NOT hide the price fields. */
   onStonePricesChange?: (total: number) => void;
 }
 
@@ -89,7 +89,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
 
               <AutocompleteField
                 id={`bulk_variety_${idx}`}
-                label="Variety"
+                label="Variety (English Name)"
                 options={GEMSTONE_VARIETIES}
                 value={row.variety}
                 onChange={(v) => updateRow(idx, { variety: v })}
@@ -139,28 +139,26 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
                   ))}
                 </select>
               </div>
-              {onStonePricesChange !== undefined && (
-                <div>
-                  <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                    Price
-                    <span className="ml-1 text-slate-400 font-normal">(optional)</span>
-                  </label>
-                  <div className="relative">
-                    <span className="absolute inset-y-0 left-2.5 flex items-center text-xs text-slate-400 pointer-events-none">$</span>
-                    <input
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={row.price ?? ''}
-                      onChange={(e) =>
-                        updateRow(idx, { price: e.target.value === '' ? undefined : parseFloat(e.target.value) || 0 })
-                      }
-                      className={`${inputBase} pl-6`}
-                      placeholder="0.00"
-                    />
-                  </div>
+              <div>
+                <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
+                  Price
+                  <span className="ml-1 text-slate-400 font-normal">(optional)</span>
+                </label>
+                <div className="relative">
+                  <span className="absolute inset-y-0 left-2.5 flex items-center text-xs text-slate-400 pointer-events-none">$</span>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.01"
+                    value={row.price ?? ''}
+                    onChange={(e) =>
+                      updateRow(idx, { price: e.target.value === '' ? undefined : parseFloat(e.target.value) || 0 })
+                    }
+                    className={`${inputBase} pl-6`}
+                    placeholder="0.00"
+                  />
                 </div>
-              )}
+              </div>
             </div>
           </div>
         ))}

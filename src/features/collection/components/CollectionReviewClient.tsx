@@ -62,6 +62,7 @@ function CollectionDetailRows({ record }: { record: CollectionRecord }) {
                   <th className="px-3 py-2 text-left">Variety</th>
                   <th className="px-3 py-2 text-center">Qty</th>
                   <th className="px-3 py-2 text-right">Weight</th>
+                  <th className="px-3 py-2 text-right">Price</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
@@ -71,6 +72,7 @@ function CollectionDetailRows({ record }: { record: CollectionRecord }) {
                     <td className="px-3 py-1.5 text-muted-foreground capitalize">{s.variety || '—'}</td>
                     <td className="px-3 py-1.5 text-center">{s.quantity}</td>
                     <td className="px-3 py-1.5 text-right">{s.weight} {s.weight_unit}</td>
+                    <td className="px-3 py-1.5 text-right">{s.price ? '$' + Number(s.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -386,8 +388,8 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
                 <div className="flex items-center gap-2 flex-wrap">
                   <h1 className="text-xl font-bold text-foreground">{collection.serial_no}</h1>
                   <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${isAccepted
-                      ? 'border-emerald-500/30 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                      : 'border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
+                    ? 'border-emerald-500/30 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                    : 'border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'
                     }`}>
                     {isAccepted ? (
                       <><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />Accepted</>
