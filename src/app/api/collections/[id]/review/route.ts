@@ -5,8 +5,12 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
 /**
  * PATCH /api/collections/:id/review
  *
- * Approve and accept a collection. Sends { finalized_price, payment_method }
- * to the backend, which sets status = 'accepted' and generates a barcode.
+ * Approve and accept a collection. Forwards a multipart/form-data body
+ * containing { finalized_price, payment_method } and, when the payment method
+ * is mobile_money, optional { mobile_money_number, receipt } fields.
+ *
+ * Content-Type is NOT set explicitly — fetch derives the multipart boundary
+ * from the FormData body automatically.
  *
  * Auth: admin or manager role required (enforced by backend).
  */
@@ -20,15 +24,18 @@ export async function PATCH(
 
   try {
     const { id } = await params;
-    const body = await request.json();
+
+    // Pass-through the multipart/form-data body verbatim (same pattern as PUT /collections/:id).
+    // Do NOT read as JSON — the client may include a receipt file in the payload.
+    const formData = await request.formData();
 
     const res = await fetch(`${BACKEND_URL}/api/v1/collections/${id}/review`, {
       method: 'PATCH',
       headers: {
-        'Content-Type': 'application/json',
+        // Do NOT set Content-Type — let fetch set the multipart boundary automatically
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify(body),
+      body: formData,
     });
 
     const contentType = res.headers.get('content-type') ?? '';

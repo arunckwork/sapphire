@@ -5,6 +5,7 @@ export interface AppSettings {
   defaultOrigin: string;
   defaultWeightUnit: 'ct' | 'g' | 'ratti';
   language: string;
+  defaultCurrency: string;
 }
 
 export type UpdateSettingsDto = Partial<AppSettings>;

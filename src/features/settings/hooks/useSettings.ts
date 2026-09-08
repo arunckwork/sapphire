@@ -12,6 +12,7 @@ const DEFAULT_SETTINGS: AppSettings = {
   defaultOrigin: 'Madagascar (Ilakaka)',
   defaultWeightUnit: 'ct',
   language: 'English (US)',
+  defaultCurrency: 'MGA',
 };
 
 export function useSettings() {

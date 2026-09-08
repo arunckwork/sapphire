@@ -35,25 +35,45 @@ export function SettingsForm() {
             />
           </FormField>
 
-          <FormField label="Default Gemstone Origin">
+          {/* <FormField label="Default Gemstone Origin">
             <Select
               value={formData.defaultOrigin}
               onChange={(e) => setFormData((prev) => ({ ...prev, defaultOrigin: e.target.value }))}
               options={ORIGIN_OPTIONS.map((o) => ({ label: o.label, value: o.value }))}
             />
-          </FormField>
+          </FormField> */}
 
-          <FormField label="Default Weight Unit">
+          {/* <FormField label="Default Weight Unit">
             <Select
               value={formData.defaultWeightUnit}
               onChange={(e) => setFormData((prev) => ({ ...prev, defaultWeightUnit: e.target.value as any }))}
               options={WEIGHT_UNITS.map((u) => ({ label: u.label, value: u.value }))}
             />
+          </FormField> */}
+        </Card>
+
+        {/* Currency & Finance */}
+        <Card className="p-6 space-y-4">
+          <h3 className="text-sm font-semibold text-foreground border-b border-border pb-2">
+            Currency Settings
+          </h3>
+
+          <FormField label="Default Currency">
+            <Select
+              value={formData.defaultCurrency || 'MGA'}
+              onChange={(e) => setFormData((prev) => ({ ...prev, defaultCurrency: e.target.value }))}
+              options={[
+                { label: 'Ariary (MGA)', value: 'MGA' },
+                { label: 'Sri Lankan Rupee (LKR)', value: 'LKR' },
+                { label: 'US Dollar (USD)', value: 'USD' },
+                { label: 'Euro (EUR)', value: 'EUR' },
+              ]}
+            />
           </FormField>
         </Card>
 
         {/* Notifications & Security */}
-        <Card className="p-6 space-y-4">
+        {/* <Card className="p-6 space-y-4">
           <h3 className="text-sm font-semibold text-foreground border-b border-border pb-2">
             Notifications & Alerts
           </h3>
@@ -71,7 +91,7 @@ export function SettingsForm() {
             checked={formData.securityAlerts}
             onChange={(e) => setFormData((prev) => ({ ...prev, securityAlerts: e.target.checked }))}
           />
-        </Card>
+        </Card> */}
 
         <div className="flex justify-end">
           <Button type="submit" isLoading={isSaving} variant="primary">

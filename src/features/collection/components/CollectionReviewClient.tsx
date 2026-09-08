@@ -297,6 +297,8 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
 
   const [finalizedPrice, setFinalizedPrice] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('');
+  const [mobileMoneyNumber, setMobileMoneyNumber] = useState('');
+  const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [priceError, setPriceError] = useState('');
   const [methodError, setMethodError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -352,6 +354,8 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
       await collectionService.reviewCollection(id, {
         finalized_price: Number(finalizedPrice),
         payment_method: paymentMethod as PaymentMethod,
+        mobile_money_number: paymentMethod === 'mobile_money' ? mobileMoneyNumber : undefined,
+        receipt: paymentMethod === 'mobile_money' ? receiptFile : undefined,
       }).send();
       toast.success(`Collection ${collection.serial_no} accepted successfully.`);
       refetch();
@@ -585,6 +589,46 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
               />
             </div>
 
+            {/* Mobile Money details (only when payment_method is mobile_money) */}
+            {collection.payment_method === 'mobile_money' && (
+              <div className="grid grid-cols-2 gap-6">
+                <DetailRow
+                  label="Mobile Number"
+                  value={collection.mobile_money_number ?? undefined}
+                />
+
+                {/* Receipt */}
+                <div>
+                  <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Payment Receipt</span>
+                  <div className="mt-1.5">
+                    {collection.receipt_url ? (
+                      <a
+                        href={getMediaUrl(collection.receipt_url)}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-2 rounded-lg border border-emerald-400/50 dark:border-emerald-600/50 bg-emerald-600 hover:bg-emerald-700 dark:bg-emerald-700 dark:hover:bg-emerald-600 px-4 py-2 text-xs font-bold text-white shadow-sm shadow-emerald-500/20 transition-colors"
+                      >
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                          <polyline points="14 2 14 8 20 8" />
+                          <line x1="9" y1="13" x2="15" y2="13" />
+                          <line x1="9" y1="17" x2="13" y2="17" />
+                        </svg>
+                        Open Receipt
+                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="opacity-70">
+                          <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
+                          <polyline points="15 3 21 3 21 9" />
+                          <line x1="10" y1="14" x2="21" y2="3" />
+                        </svg>
+                      </a>
+                    ) : (
+                      <span className="text-sm text-muted-foreground font-normal italic">—</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
             {/* Approved by */}
             <div>
               <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Approved By</span>
@@ -678,7 +722,15 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
                 <select
                   id="payment_method"
                   value={paymentMethod}
-                  onChange={(e) => { setPaymentMethod(e.target.value as PaymentMethod); setMethodError(''); }}
+                  onChange={(e) => {
+                    setPaymentMethod(e.target.value as PaymentMethod);
+                    setMethodError('');
+                    // Reset mobile money fields when switching away
+                    if (e.target.value !== 'mobile_money') {
+                      setMobileMoneyNumber('');
+                      setReceiptFile(null);
+                    }
+                  }}
                   className={inputCls(!!methodError)}
                 >
                   <option value="">Select payment method…</option>
@@ -689,6 +741,62 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
                 {methodError && <p className="mt-1 text-[11px] text-rose-500">{methodError}</p>}
               </div>
             </div>
+
+            {/* ── Mobile Money optional fields ─────────────────────────── */}
+            {paymentMethod === 'mobile_money' && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1 border-t border-amber-500/15">
+                {/* Mobile Number */}
+                <div>
+                  <label htmlFor="mobile_money_number" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+                    Mobile Number <span className="text-xs font-normal text-muted-foreground">(optional)</span>
+                  </label>
+                  <input
+                    id="mobile_money_number"
+                    type="text"
+                    value={mobileMoneyNumber}
+                    onChange={(e) => setMobileMoneyNumber(e.target.value)}
+                    placeholder="e.g. +94 71 234 5678"
+                    className={inputCls(false)}
+                  />
+                </div>
+
+                {/* Receipt Upload */}
+                <div>
+                  <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+                    Payment Receipt <span className="text-xs font-normal text-muted-foreground">(optional)</span>
+                  </label>
+                  <label
+                    htmlFor="receipt_file"
+                    className="flex cursor-pointer items-center gap-2.5 rounded-lg border border-dashed border-border bg-background px-3.5 py-2.5 text-sm text-muted-foreground transition-colors hover:border-amber-400 hover:text-foreground"
+                  >
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="shrink-0">
+                      <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                      <polyline points="17 8 12 3 7 8" />
+                      <line x1="12" y1="3" x2="12" y2="15" />
+                    </svg>
+                    <span className="truncate">
+                      {receiptFile ? receiptFile.name : 'Click to upload image or PDF'}
+                    </span>
+                    <input
+                      id="receipt_file"
+                      type="file"
+                      accept="image/*,application/pdf"
+                      className="sr-only"
+                      onChange={(e) => setReceiptFile(e.target.files?.[0] ?? null)}
+                    />
+                  </label>
+                  {receiptFile && (
+                    <button
+                      type="button"
+                      onClick={() => setReceiptFile(null)}
+                      className="mt-1 text-[11px] text-rose-500 hover:underline"
+                    >
+                      Remove
+                    </button>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Action Buttons */}
             <div className="flex flex-wrap items-center justify-end gap-3 pt-2">

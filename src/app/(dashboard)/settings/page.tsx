@@ -14,7 +14,7 @@ export default function SettingsPage() {
           Settings & Preferences
         </h1>
         <p className="text-xs font-normal text-muted-foreground">
-          Configure interface options, defaults, and notification preferences.
+          Configure interface options, defaults, and currency preferences.
         </p>
       </div>
 

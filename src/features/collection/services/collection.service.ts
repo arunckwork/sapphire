@@ -134,15 +134,32 @@ export const collectionService = {
 
   /**
    * Approves and accepts a collection, setting status to 'accepted'.
+   * Sends multipart/form-data so the optional receipt file can be included.
    * On acceptance the backend:
    *   - sets `finalized_price` and `payment_method`
+   *   - optionally stores `mobile_money_number` and uploads `receipt` (mobile_money only)
    *   - generates a barcode image (`barcode_url`)
    *   - generates a payment voucher PDF (`voucher_url`)
    *   - records `approved_by` (the acting user) and `approved_at` (timestamp)
    * Returns the fully updated CollectionRecord including all generated URLs.
    */
-  reviewCollection: (id: string, data: ReviewFormData) =>
-    alovaClient.Patch<CollectionRecord>(ENDPOINTS.COLLECTIONS.REVIEW(id), data),
+  reviewCollection: (id: string, data: ReviewFormData) => {
+    const fd = new FormData();
+    fd.append('finalized_price', String(data.finalized_price));
+    fd.append('payment_method', data.payment_method);
+
+    // Mobile-money-specific optional fields
+    if (data.payment_method === 'mobile_money') {
+      if (data.mobile_money_number?.trim()) {
+        fd.append('mobile_money_number', data.mobile_money_number.trim());
+      }
+      if (data.receipt) {
+        fd.append('receipt', data.receipt);
+      }
+    }
+
+    return alovaClient.Patch<CollectionRecord>(ENDPOINTS.COLLECTIONS.REVIEW(id), fd);
+  },
 
   /** Deletes a collection */
   deleteCollection: (id: string) =>
