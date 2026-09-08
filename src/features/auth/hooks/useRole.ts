@@ -13,6 +13,7 @@ export function useRole() {
     isAdmin: role === ROLES.ADMIN,
     isManager: role === ROLES.MANAGER,
     isStaff: role === ROLES.STAFF,
+    isUser: role === ROLES.USER,
     hasRole: (requiredRole: Role) => role === requiredRole,
   };
 }

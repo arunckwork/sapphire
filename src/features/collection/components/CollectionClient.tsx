@@ -12,9 +12,9 @@ import { useRole } from '@/features/auth/hooks/useRole';
 
 export function CollectionClient() {
   const router = useRouter();
-  const { isAdmin, isManager, isStaff } = useRole();
+  const { isAdmin, isManager, isStaff, isUser } = useRole();
   const canManage = isAdmin || isManager;
-  const canViewReview = isAdmin || isManager || isStaff;
+  const canViewReview = isAdmin || isManager || isStaff || isUser;
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [editingRecord, setEditingRecord] = useState<CollectionRecord | null>(null);
