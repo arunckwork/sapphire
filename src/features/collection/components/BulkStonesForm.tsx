@@ -4,6 +4,8 @@ import React from 'react';
 import type { BulkStonesFormData, BulkStoneRow } from '../types/gemstone.types';
 import { GEMSTONE_TYPES, GEMSTONE_VARIETIES, WEIGHT_UNITS } from '../constants/gemstone.constants';
 import { AutocompleteField } from '@/components/shared/forms/AutocompleteField';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { getCurrencySymbol } from '@/utils/format';
 
 interface BulkStonesFormProps {
   data: BulkStonesFormData;
@@ -27,6 +29,7 @@ const EMPTY_ROW: BulkStoneRow = {
 };
 
 export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: BulkStonesFormProps) {
+  const { currency } = useCurrency();
   const updateRow = (index: number, patch: Partial<BulkStoneRow>) => {
     const updated = data.stones.map((row, i) =>
       i === index ? { ...row, ...patch } : row
@@ -145,7 +148,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
                   <span className="ml-1 text-slate-400 font-normal">(optional)</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-2.5 flex items-center text-xs text-slate-400 pointer-events-none">$</span>
+                  <span className="absolute inset-y-0 left-2.5 flex items-center text-xs text-slate-400 pointer-events-none">{getCurrencySymbol(currency)}</span>
                   <input
                     type="number"
                     min="0"

@@ -17,6 +17,8 @@ import type {
 } from '@/features/collection/types/gemstone.types';
 import { COLLECTION_TYPE_OPTIONS } from '@/features/collection/constants/gemstone.constants';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatPrice } from '@/utils/format';
 
 /* ── Props ─────────────────────────────────────────────────────────────── */
 
@@ -125,6 +127,7 @@ export function InventoryGrid({
   onLimitChange,
 }: InventoryGridProps) {
   const router = useRouter();
+  const { currency } = useCurrency();
 
   // Local search state — debounced before firing the API call
   const [localSearch, setLocalSearch] = useState(filters.search);
@@ -345,18 +348,14 @@ export function InventoryGrid({
                     {/* Asking Price */}
                     <td className="px-4 py-3.5">
                       <span className="font-bold text-foreground">
-                        {item.asking_price != null && !isNaN(Number(item.asking_price))
-                          ? `$${Number(item.asking_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                          : '—'}
+                        {formatPrice(item.asking_price, currency)}
                       </span>
                     </td>
 
                     {/* Finalized Price */}
                     <td className="px-4 py-3.5">
                       <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                        {item.finalized_price != null && !isNaN(Number(item.finalized_price))
-                          ? `$${Number(item.finalized_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                          : '—'}
+                        {formatPrice(item.finalized_price, currency)}
                       </span>
                     </td>
 

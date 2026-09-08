@@ -22,6 +22,8 @@ import { IndustrialStonesForm } from './IndustrialStonesForm';
 import { ImageUploadField } from '@/components/shared/forms/ImageUploadField';
 import { CertificateUploadField } from '@/components/shared/forms/CertificateUploadField';
 import { getMediaUrl } from '@/utils/media';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { getCurrencySymbol } from '@/utils/format';
 
 /* ── Default form states per collection type ──────────────────────────────── */
 
@@ -136,6 +138,7 @@ export function GemstoneDrawer({
     editingRecord ? recordToFormData(editingRecord) : { ...SINGLE_DEFAULTS }
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const { currency } = useCurrency();
 
   // Tracks existing image URLs from the record; user can remove individual ones
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>(
@@ -569,7 +572,7 @@ export function GemstoneDrawer({
                 Asking Price <span className="text-rose-500">*</span>
               </label>
               <div className="relative">
-                <span className="absolute inset-y-0 left-3 flex items-center text-xs text-slate-400 pointer-events-none">$</span>
+                <span className="absolute inset-y-0 left-3 flex items-center text-xs text-slate-400 pointer-events-none">{getCurrencySymbol(currency)}</span>
                 <input
                   id="asking_price"
                   type="number"

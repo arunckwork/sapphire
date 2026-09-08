@@ -4,6 +4,8 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Drawer } from '@/components/shared/feedback/Drawer';
 import { useNegotiation } from '../hooks/useNegotiation';
 import { useAuthStore } from '@/features/auth';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatPrice } from '@/utils/format';
 import type { CollectionRecord } from '../types/gemstone.types';
 
 interface NegotiationReferralDrawerProps {
@@ -19,6 +21,7 @@ export function NegotiationReferralDrawer({
 }: NegotiationReferralDrawerProps) {
   const currentUser = useAuthStore((s) => s.user);
   const { logs, isLoading, isSending, error, sendMessage } = useNegotiation(collection.id, isOpen);
+  const { currency } = useCurrency();
 
   const [messageText, setMessageText] = useState('');
   const [counterPrice, setCounterPrice] = useState('');
@@ -51,7 +54,7 @@ export function NegotiationReferralDrawer({
     }
 
     const success = await sendMessage({
-      message_text: trimmed || (priceNum ? `Proposed counter-offer: $${priceNum.toLocaleString()}` : ''),
+      message_text: trimmed || (priceNum ? `Proposed counter-offer: ${formatPrice(priceNum, currency)}` : ''),
       counter_offer_price: priceNum,
     });
 
@@ -120,7 +123,7 @@ export function NegotiationReferralDrawer({
                 Asking Price
               </span>
               <span className="text-sm font-bold text-amber-600 dark:text-amber-400">
-                ${Number(collection.asking_price || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatPrice(collection.asking_price || 0, currency)}
               </span>
             </div>
           </div>
@@ -128,7 +131,7 @@ export function NegotiationReferralDrawer({
             <div className="mt-2 pt-2 border-t border-border/40 flex items-center justify-between text-xs">
               <span className="text-muted-foreground">Final Agreed Price:</span>
               <span className="font-bold text-emerald-600 dark:text-emerald-400">
-                ${Number(collection.finalized_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                {formatPrice(collection.finalized_price, currency)}
               </span>
             </div>
           )}
@@ -210,10 +213,7 @@ export function NegotiationReferralDrawer({
                           Counter-Offer
                         </span>
                         <span className="text-sm font-extrabold tracking-tight">
-                          ${Number(log.counter_offer_price).toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          {formatPrice(log.counter_offer_price, currency)}
                         </span>
                       </div>
                     )}

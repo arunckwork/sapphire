@@ -10,6 +10,8 @@ import { collectionService } from '../services/collection.service';
 import { NegotiationReferralDrawer } from './NegotiationReferralDrawer';
 import { PAYMENT_METHOD_OPTIONS } from '../constants/gemstone.constants';
 import { getMediaUrl } from '@/utils/media';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatPrice, getCurrencySymbol } from '@/utils/format';
 import type {
   CollectionRecord,
   PaymentMethod,
@@ -30,6 +32,7 @@ const TYPE_LABEL: Record<string, string> = {
 
 /* ── Type-specific detail rows ───────────────────────────────────────────── */
 function CollectionDetailRows({ record }: { record: CollectionRecord }) {
+  const { currency } = useCurrency();
   if (record.collection_type === 'single_stone') {
     const r = record as SingleStoneCollection;
     return (
@@ -72,7 +75,7 @@ function CollectionDetailRows({ record }: { record: CollectionRecord }) {
                     <td className="px-3 py-1.5 text-muted-foreground capitalize">{s.variety || '—'}</td>
                     <td className="px-3 py-1.5 text-center">{s.quantity}</td>
                     <td className="px-3 py-1.5 text-right">{s.weight} {s.weight_unit}</td>
-                    <td className="px-3 py-1.5 text-right">{s.price ? '$' + Number(s.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '—'}</td>
+                    <td className="px-3 py-1.5 text-right">{s.price ? formatPrice(s.price, currency) : '—'}</td>
                   </tr>
                 ))}
               </tbody>
@@ -292,6 +295,7 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
   const router = useRouter();
   const { isAdmin, isManager } = useRole();
   const canReview = isAdmin || isManager;
+  const { currency } = useCurrency();
 
   const { collection, isLoading, error, refetch } = useCollectionDetail(id);
 
@@ -484,7 +488,7 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
             </h2>
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <DetailRow label="Collection Type" value={TYPE_LABEL[collection.collection_type]} />
-              <DetailRow label="Asking Price" value={`$${Number(collection.asking_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`} />
+              <DetailRow label="Asking Price" value={formatPrice(collection.asking_price, currency)} />
               <DetailRow label="Certification No." value={collection.certification_no} />
               <DetailRow label="Certification Lab" value={collection.certification_lab} />
               {/* Certificate */}
@@ -580,7 +584,7 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
               <DetailRow
                 label="Finalized Price"
                 value={collection.finalized_price
-                  ? `$${Number(collection.finalized_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  ? formatPrice(collection.finalized_price, currency)
                   : undefined}
               />
               <DetailRow
@@ -694,7 +698,7 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
                   Finalized Price <span className="text-rose-500">*</span>
                 </label>
                 <div className="relative">
-                  <span className="absolute inset-y-0 left-3 flex items-center text-sm text-muted-foreground pointer-events-none">$</span>
+                  <span className="absolute inset-y-0 left-3 flex items-center text-sm text-muted-foreground pointer-events-none">{getCurrencySymbol(currency)}</span>
                   <input
                     id="finalized_price"
                     type="number"
@@ -709,7 +713,7 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
                 {priceError && <p className="mt-1 text-[11px] text-rose-500">{priceError}</p>}
                 {collection.asking_price && (
                   <p className="mt-1 text-[11px] text-muted-foreground">
-                    Asking price: ${Number(collection.asking_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                    Asking price: {formatPrice(collection.asking_price, currency)}
                   </p>
                 )}
               </div>

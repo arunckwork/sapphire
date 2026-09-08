@@ -14,6 +14,8 @@ import type {
 } from '../types/gemstone.types';
 import { COLLECTION_TYPE_OPTIONS, COLLECTION_STATUS_OPTIONS } from '../constants/gemstone.constants';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useCurrency } from '@/contexts/CurrencyContext';
+import { formatPrice } from '@/utils/format';
 
 interface CollectionGridProps {
   records: CollectionRecord[];
@@ -120,6 +122,8 @@ export function GemstoneGrid({
   canManage,
   canViewReview,
 }: CollectionGridProps) {
+  const { currency } = useCurrency();
+
   // Local search state — debounced before firing the API call
   const [localSearch, setLocalSearch] = useState(filters.search);
   const debouncedSearch = useDebounce(localSearch, 350);
@@ -363,7 +367,7 @@ export function GemstoneGrid({
                     <td className="px-4 py-3.5">
                       <span className="font-bold text-foreground">
                         {item.asking_price != null && !isNaN(Number(item.asking_price))
-                          ? `$${Number(item.asking_price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          ? formatPrice(item.asking_price, currency)
                           : '—'}
                       </span>
                     </td>
@@ -525,7 +529,7 @@ export function GemstoneGrid({
               </div>
               <div>
                 <strong>Asking Price:</strong>{' '}
-                ${recordToDelete.asking_price?.toLocaleString() ?? '—'}
+                {formatPrice(recordToDelete.asking_price, currency)}
               </div>
             </div>
 
