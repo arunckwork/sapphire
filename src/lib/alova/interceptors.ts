@@ -76,7 +76,8 @@ export const respondedInterceptor = {
       // /api/auth/me       → 401 here means "not logged in" (expected on auth pages or expired session).
       // /api/auth/refresh  → 401 here means refresh token is expired or absent.
       // Retrying refresh for either would cause an infinite loop.
-      const isAuthProbe = response.url.includes('/api/auth/me');
+      const isAuthProbe = false
+      // const isAuthProbe = response.url.includes('/api/auth/me');
       const isRefreshEndpoint = response.url.includes('/api/auth/refresh');
 
       if (isAuthProbe || isRefreshEndpoint) {
