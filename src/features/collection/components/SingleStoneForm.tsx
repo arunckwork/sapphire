@@ -2,18 +2,10 @@
 
 import React from 'react';
 import type { SingleStoneFormData } from '../types/gemstone.types';
-import {
-  GEMSTONE_TYPES,
-  GEMSTONE_VARIETIES,
-  TREATMENT_OPTIONS,
-  ORIGIN_OPTIONS,
-  WEIGHT_UNITS,
-  SHAPE_OPTIONS,
-  CUT_OPTIONS,
-  COLOR_OPTIONS,
-  CLARITY_OPTIONS,
-} from '../constants/gemstone.constants';
+import { WEIGHT_UNITS } from '../constants/gemstone.constants';
+import { useGemstoneOptions } from '@/features/masterdata';
 import { AutocompleteField } from '@/components/shared/forms/AutocompleteField';
+
 
 interface SingleStoneFormProps {
   data: SingleStoneFormData;
@@ -32,6 +24,7 @@ function borderFor(field: string, errors: Record<string, string>) {
 }
 
 export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps) {
+  const { options } = useGemstoneOptions();
   return (
     <div className="space-y-6">
 
@@ -44,7 +37,7 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
             id="gemstone_type"
             label="Gemstone Type"
             required
-            options={GEMSTONE_TYPES}
+            options={options.gemstone_types}
             value={data.gemstone_type}
             onChange={(v) => onChange('gemstone_type', v)}
             placeholder="e.g. sapphire"
@@ -54,7 +47,7 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
           <AutocompleteField
             id="variety"
             label="Variety (English Name)"
-            options={GEMSTONE_VARIETIES}
+            options={options.gemstone_varieties}
             value={data.variety}
             onChange={(v) => onChange('variety', v)}
             placeholder="e.g. blue sapphire"
@@ -65,7 +58,7 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
           <AutocompleteField
             id="treatment"
             label="Treatment"
-            options={TREATMENT_OPTIONS}
+            options={options.treatment_options}
             value={data.treatment}
             onChange={(v) => onChange('treatment', v)}
             placeholder="e.g. none / unheated"
@@ -74,7 +67,7 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
           <AutocompleteField
             id="origin"
             label="Origin"
-            options={ORIGIN_OPTIONS}
+            options={options.origin_options}
             value={data.origin}
             onChange={(v) => onChange('origin', v)}
             placeholder="e.g. sri lanka (ratnapura)"
@@ -135,7 +128,7 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
           <AutocompleteField
             id="shape"
             label="Shape"
-            options={SHAPE_OPTIONS}
+            options={options.shape_options}
             value={data.shape}
             onChange={(v) => onChange('shape', v)}
             placeholder="e.g. cushion"
@@ -144,7 +137,7 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
           <AutocompleteField
             id="cut"
             label="Cut"
-            options={CUT_OPTIONS}
+            options={options.cut_options}
             value={data.cut}
             onChange={(v) => onChange('cut', v)}
             placeholder="e.g. excellent"
@@ -153,7 +146,7 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
           <AutocompleteField
             id="color"
             label="Color"
-            options={COLOR_OPTIONS}
+            options={options.color_options}
             value={data.color}
             onChange={(v) => onChange('color', v)}
             placeholder="e.g. royal blue"
@@ -162,7 +155,7 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
           <AutocompleteField
             id="clarity"
             label="Clarity"
-            options={CLARITY_OPTIONS}
+            options={options.clarity_options}
             value={data.clarity}
             onChange={(v) => onChange('clarity', v)}
             placeholder="e.g. vvs1"

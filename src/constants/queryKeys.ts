@@ -6,4 +6,8 @@ export const QUERY_KEYS = {
     all: (params?: object) => ['users', params] as const,
     byId: (id: string) => ['users', id] as const,
   },
+  masterdata: {
+    all: ['masterdata'] as const,
+  },
 } as const;
+

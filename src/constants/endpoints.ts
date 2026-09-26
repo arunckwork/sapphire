@@ -20,4 +20,5 @@ export const ENDPOINTS = {
     NEGOTIATION: (id: string) => `/api/collections/${id}/negotiation`,
   },
   SELLERS: '/api/users?role=user', // BFF route for fetching users with role=user (for seller autocomplete)
+  MASTERDATA: '/api/masterdata',    // BFF route for fetching all gemstone dropdown masterdata
 } as const;

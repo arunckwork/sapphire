@@ -2,7 +2,8 @@
 
 import React from 'react';
 import type { BulkStonesFormData, BulkStoneRow } from '../types/gemstone.types';
-import { GEMSTONE_TYPES, GEMSTONE_VARIETIES, WEIGHT_UNITS } from '../constants/gemstone.constants';
+import { WEIGHT_UNITS } from '../constants/gemstone.constants';
+import { useGemstoneOptions } from '@/features/masterdata';
 import { AutocompleteField } from '@/components/shared/forms/AutocompleteField';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { getCurrencySymbol } from '@/utils/format';
@@ -30,6 +31,7 @@ const EMPTY_ROW: BulkStoneRow = {
 
 export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: BulkStonesFormProps) {
   const { currency } = useCurrency();
+  const { options } = useGemstoneOptions();
   const updateRow = (index: number, patch: Partial<BulkStoneRow>) => {
     const updated = data.stones.map((row, i) =>
       i === index ? { ...row, ...patch } : row
@@ -83,7 +85,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
                 id={`bulk_type_${idx}`}
                 label="Gemstone Type"
                 required
-                options={GEMSTONE_TYPES}
+                options={options.gemstone_types}
                 value={row.gemstone_type}
                 onChange={(v) => updateRow(idx, { gemstone_type: v })}
                 placeholder="e.g. sapphire"
@@ -93,7 +95,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
               <AutocompleteField
                 id={`bulk_variety_${idx}`}
                 label="Variety (English Name)"
-                options={GEMSTONE_VARIETIES}
+                options={options.gemstone_varieties}
                 value={row.variety}
                 onChange={(v) => updateRow(idx, { variety: v })}
                 placeholder="e.g. blue sapphire"

@@ -13,8 +13,8 @@ import type {
 } from '../types/gemstone.types';
 import {
   COLLECTION_TYPE_OPTIONS,
-  CERTIFICATION_LABS,
 } from '../constants/gemstone.constants';
+import { useGemstoneOptions } from '@/features/masterdata';
 import { SingleStoneForm } from './SingleStoneForm';
 import { BulkStonesForm } from './BulkStonesForm';
 import { JewelleryForm } from './JewelleryForm';
@@ -139,6 +139,7 @@ export function GemstoneDrawer({
   );
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { currency } = useCurrency();
+  const { options } = useGemstoneOptions();
 
   // Tracks existing image URLs from the record; user can remove individual ones
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>(
@@ -478,13 +479,13 @@ export function GemstoneDrawer({
                 />
                 {labOpen && (
                   <ul className="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl overflow-hidden max-h-48 overflow-y-auto">
-                    {CERTIFICATION_LABS.filter((lab) =>
+                    {options.certification_labs.filter((lab) =>
                       !formData.certification_lab ||
                       lab.label.toLowerCase().includes(formData.certification_lab.toLowerCase())
                     ).length === 0 ? (
                       <li className="px-3 py-2 text-xs text-slate-400 italic">No matching labs — your text will be saved as-is</li>
                     ) : (
-                      CERTIFICATION_LABS.filter((lab) =>
+                      options.certification_labs.filter((lab) =>
                         !formData.certification_lab ||
                         lab.label.toLowerCase().includes(formData.certification_lab.toLowerCase())
                       ).map((lab) => (

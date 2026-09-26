@@ -2,7 +2,8 @@
 
 import React from 'react';
 import type { IndustrialStonesFormData } from '../types/gemstone.types';
-import { INDUSTRIAL_STONE_TYPES, GEMSTONE_VARIETIES, WEIGHT_UNITS } from '../constants/gemstone.constants';
+import { WEIGHT_UNITS } from '../constants/gemstone.constants';
+import { useGemstoneOptions } from '@/features/masterdata';
 import { AutocompleteField } from '@/components/shared/forms/AutocompleteField';
 
 interface IndustrialStonesFormProps {
@@ -18,6 +19,7 @@ const inputBase =
 const labelBase = 'block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1';
 
 export function IndustrialStonesForm({ data, errors, onChange }: IndustrialStonesFormProps) {
+  const { options } = useGemstoneOptions();
   return (
     <div className="space-y-6">
 
@@ -30,7 +32,7 @@ export function IndustrialStonesForm({ data, errors, onChange }: IndustrialStone
             id="stone_type"
             label="Stone Type"
             required
-            options={INDUSTRIAL_STONE_TYPES}
+            options={options.industrial_stone_types}
             value={data.stone_type}
             onChange={(v) => onChange('stone_type', v)}
             placeholder="e.g. abrasive corundum"
@@ -40,7 +42,7 @@ export function IndustrialStonesForm({ data, errors, onChange }: IndustrialStone
           <AutocompleteField
             id="ind_variety"
             label="Variety (English Name)"
-            options={GEMSTONE_VARIETIES}
+            options={options.gemstone_varieties}
             value={data.variety}
             onChange={(v) => onChange('variety', v)}
             placeholder="e.g. star ruby"

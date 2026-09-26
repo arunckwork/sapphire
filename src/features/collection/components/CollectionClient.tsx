@@ -9,6 +9,8 @@ import { useCollections } from '../hooks/useCollections';
 import { useCollectionMutations } from '../hooks/useCollectionMutations';
 import { useSellers } from '../hooks/useSellers';
 import { useRole } from '@/features/auth/hooks/useRole';
+import { GemstoneOptionsProvider } from '@/features/masterdata';
+
 
 export function CollectionClient() {
   const router = useRouter();
@@ -113,7 +115,8 @@ export function CollectionClient() {
   };
 
   return (
-    <div className="space-y-6">
+    <GemstoneOptionsProvider>
+      <div className="space-y-6">
       {/* ── Page Header ──────────────────────────────────────────────── */}
       <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
         <div>
@@ -160,6 +163,8 @@ export function CollectionClient() {
         isSellersLoading={isSellersLoading}
         isSubmitting={isAdding || isEditing}
       />
-    </div>
+      </div>
+    </GemstoneOptionsProvider>
   );
 }
+
