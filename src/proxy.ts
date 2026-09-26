@@ -7,7 +7,15 @@ import { ROUTES } from '@/constants/routes';
  * All role/permission checks beyond session presence are enforced inside
  * Server Components and Server Actions — NOT here.
  */
-const PROTECTED_ROUTES = [ROUTES.COLLECTION, ROUTES.INVENTORY, ROUTES.PROFILE, ROUTES.SETTINGS, '/dashboard'];
+const PROTECTED_ROUTES = [
+  ROUTES.COLLECTION,
+  ROUTES.INVENTORY,
+  ROUTES.USERS,
+  ROUTES.MASTERDATA,
+  ROUTES.PROFILE,
+  ROUTES.SETTINGS,
+  '/dashboard',
+];
 const AUTH_ROUTES = [ROUTES.LOGIN, ROUTES.REGISTER, ROUTES.FORGOT_PASSWORD];
 
 /**

@@ -7,7 +7,9 @@ export const QUERY_KEYS = {
     byId: (id: string) => ['users', id] as const,
   },
   masterdata: {
-    all: ['masterdata'] as const,
+    all:       ['masterdata'] as const,
+    adminList: (category: string) => ['masterdata', 'admin', category] as const,
   },
+
 } as const;
 
