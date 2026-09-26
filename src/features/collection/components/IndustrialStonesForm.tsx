@@ -3,7 +3,7 @@
 import React from 'react';
 import type { IndustrialStonesFormData } from '../types/gemstone.types';
 import { WEIGHT_UNITS } from '../constants/gemstone.constants';
-import { useGemstoneOptions } from '@/features/masterdata';
+import { useGemstoneOptions, useQuickAddMasterdata } from '@/features/masterdata';
 import { AutocompleteField } from '@/components/shared/forms/AutocompleteField';
 
 interface IndustrialStonesFormProps {
@@ -20,6 +20,8 @@ const labelBase = 'block text-xs font-semibold text-slate-800 dark:text-slate-20
 
 export function IndustrialStonesForm({ data, errors, onChange }: IndustrialStonesFormProps) {
   const { options } = useGemstoneOptions();
+  const { quickAdd, pendingCategory } = useQuickAddMasterdata();
+
   return (
     <div className="space-y-6">
 
@@ -35,8 +37,11 @@ export function IndustrialStonesForm({ data, errors, onChange }: IndustrialStone
             options={options.industrial_stone_types}
             value={data.stone_type}
             onChange={(v) => onChange('stone_type', v)}
-            placeholder="e.g. abrasive corundum"
+            placeholder="Select or search…"
             error={errors.stone_type}
+            categoryKey="industrial_stone_types"
+            onQuickAdd={quickAdd}
+            isAdding={pendingCategory === 'industrial_stone_types'}
           />
 
           <AutocompleteField
@@ -45,7 +50,10 @@ export function IndustrialStonesForm({ data, errors, onChange }: IndustrialStone
             options={options.gemstone_varieties}
             value={data.variety}
             onChange={(v) => onChange('variety', v)}
-            placeholder="e.g. star ruby"
+            placeholder="Select or search…"
+            categoryKey="gemstone_varieties"
+            onQuickAdd={quickAdd}
+            isAdding={pendingCategory === 'gemstone_varieties'}
           />
         </div>
       </div>

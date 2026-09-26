@@ -17,6 +17,7 @@ export * from './context/GemstoneOptionsContext';
 export * from './services/masterdataAdmin.service';
 export * from './hooks/useMasterdataAdmin';
 export * from './hooks/useMasterdataMutations';
+export * from './hooks/useQuickAddMasterdata';
 
 // Components
 export * from './components/MasterdataClient';

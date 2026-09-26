@@ -14,7 +14,8 @@ import type {
 import {
   COLLECTION_TYPE_OPTIONS,
 } from '../constants/gemstone.constants';
-import { useGemstoneOptions } from '@/features/masterdata';
+import { useGemstoneOptions, useQuickAddMasterdata } from '@/features/masterdata';
+import { AutocompleteField } from '@/components/shared/forms/AutocompleteField';
 import { SingleStoneForm } from './SingleStoneForm';
 import { BulkStonesForm } from './BulkStonesForm';
 import { JewelleryForm } from './JewelleryForm';
@@ -140,6 +141,7 @@ export function GemstoneDrawer({
   const [errors, setErrors] = useState<Record<string, string>>({});
   const { currency } = useCurrency();
   const { options } = useGemstoneOptions();
+  const { quickAdd, pendingCategory } = useQuickAddMasterdata();
 
   // Tracks existing image URLs from the record; user can remove individual ones
   const [existingImageUrls, setExistingImageUrls] = useState<string[]>(
@@ -190,7 +192,6 @@ export function GemstoneDrawer({
   /* ── Seller search / filter ───────────────────────────────────────── */
   const [sellerQuery, setSellerQuery] = useState('');
   const [sellerOpen, setSellerOpen] = useState(false);
-  const [labOpen, setLabOpen]       = useState(false);
 
   const filteredSellers = sellerQuery.trim()
     ? sellers.filter(
@@ -461,53 +462,18 @@ export function GemstoneDrawer({
                 />
               </div>
 
-              {/* Certification Lab — combobox (free-text + dropdown suggestions) */}
-              <div className="relative">
-                <label htmlFor="certification_lab" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                  Certification Laboratory
-                </label>
-                <input
-                  id="certification_lab"
-                  type="text"
-                  value={formData.certification_lab}
-                  onChange={(e) => { setBase('certification_lab', e.target.value); setLabOpen(true); }}
-                  onFocus={() => setLabOpen(true)}
-                  onBlur={() => setTimeout(() => setLabOpen(false), 150)}
-                  placeholder="Type or select a lab…"
-                  autoComplete="off"
-                  className={`${inputBase} border-slate-300 dark:border-slate-700`}
-                />
-                {labOpen && (
-                  <ul className="absolute z-50 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-xl overflow-hidden max-h-48 overflow-y-auto">
-                    {options.certification_labs.filter((lab) =>
-                      !formData.certification_lab ||
-                      lab.label.toLowerCase().includes(formData.certification_lab.toLowerCase())
-                    ).length === 0 ? (
-                      <li className="px-3 py-2 text-xs text-slate-400 italic">No matching labs — your text will be saved as-is</li>
-                    ) : (
-                      options.certification_labs.filter((lab) =>
-                        !formData.certification_lab ||
-                        lab.label.toLowerCase().includes(formData.certification_lab.toLowerCase())
-                      ).map((lab) => (
-                        <li
-                          key={lab.value}
-                          onMouseDown={() => {
-                            setBase('certification_lab', lab.label);
-                            setLabOpen(false);
-                          }}
-                          className={`px-3 py-2 text-xs cursor-pointer transition-colors ${
-                            formData.certification_lab === lab.label || formData.certification_lab === lab.value
-                              ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
-                              : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
-                          }`}
-                        >
-                          {lab.label}
-                        </li>
-                      ))
-                    )}
-                  </ul>
-                )}
-              </div>
+              {/* Certification Lab — strict select with quick-add to masterdata */}
+              <AutocompleteField
+                id="certification_lab"
+                label="Certification Laboratory"
+                options={options.certification_labs}
+                value={formData.certification_lab}
+                onChange={(v) => setBase('certification_lab', v)}
+                placeholder="Select or search a lab…"
+                categoryKey="certification_labs"
+                onQuickAdd={quickAdd}
+                isAdding={pendingCategory === 'certification_labs'}
+              />
             </div>
 
             {/* Certificate upload */}

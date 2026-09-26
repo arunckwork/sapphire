@@ -3,7 +3,7 @@
 import React from 'react';
 import type { SingleStoneFormData } from '../types/gemstone.types';
 import { WEIGHT_UNITS } from '../constants/gemstone.constants';
-import { useGemstoneOptions } from '@/features/masterdata';
+import { useGemstoneOptions, useQuickAddMasterdata } from '@/features/masterdata';
 import { AutocompleteField } from '@/components/shared/forms/AutocompleteField';
 
 
@@ -25,6 +25,8 @@ function borderFor(field: string, errors: Record<string, string>) {
 
 export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps) {
   const { options } = useGemstoneOptions();
+  const { quickAdd, pendingCategory } = useQuickAddMasterdata();
+
   return (
     <div className="space-y-6">
 
@@ -40,8 +42,11 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
             options={options.gemstone_types}
             value={data.gemstone_type}
             onChange={(v) => onChange('gemstone_type', v)}
-            placeholder="e.g. sapphire"
+            placeholder="Select or search…"
             error={errors.gemstone_type}
+            categoryKey="gemstone_types"
+            onQuickAdd={quickAdd}
+            isAdding={pendingCategory === 'gemstone_types'}
           />
 
           <AutocompleteField
@@ -50,7 +55,10 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
             options={options.gemstone_varieties}
             value={data.variety}
             onChange={(v) => onChange('variety', v)}
-            placeholder="e.g. blue sapphire"
+            placeholder="Select or search…"
+            categoryKey="gemstone_varieties"
+            onQuickAdd={quickAdd}
+            isAdding={pendingCategory === 'gemstone_varieties'}
           />
         </div>
 
@@ -61,7 +69,10 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
             options={options.treatment_options}
             value={data.treatment}
             onChange={(v) => onChange('treatment', v)}
-            placeholder="e.g. none / unheated"
+            placeholder="Select or search…"
+            categoryKey="treatment_options"
+            onQuickAdd={quickAdd}
+            isAdding={pendingCategory === 'treatment_options'}
           />
 
           <AutocompleteField
@@ -70,7 +81,10 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
             options={options.origin_options}
             value={data.origin}
             onChange={(v) => onChange('origin', v)}
-            placeholder="e.g. sri lanka (ratnapura)"
+            placeholder="Select or search…"
+            categoryKey="origin_options"
+            onQuickAdd={quickAdd}
+            isAdding={pendingCategory === 'origin_options'}
           />
         </div>
       </div>
@@ -131,7 +145,10 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
             options={options.shape_options}
             value={data.shape}
             onChange={(v) => onChange('shape', v)}
-            placeholder="e.g. cushion"
+            placeholder="Select or search…"
+            categoryKey="shape_options"
+            onQuickAdd={quickAdd}
+            isAdding={pendingCategory === 'shape_options'}
           />
 
           <AutocompleteField
@@ -140,7 +157,10 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
             options={options.cut_options}
             value={data.cut}
             onChange={(v) => onChange('cut', v)}
-            placeholder="e.g. excellent"
+            placeholder="Select or search…"
+            categoryKey="cut_options"
+            onQuickAdd={quickAdd}
+            isAdding={pendingCategory === 'cut_options'}
           />
 
           <AutocompleteField
@@ -149,7 +169,10 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
             options={options.color_options}
             value={data.color}
             onChange={(v) => onChange('color', v)}
-            placeholder="e.g. royal blue"
+            placeholder="Select or search…"
+            categoryKey="color_options"
+            onQuickAdd={quickAdd}
+            isAdding={pendingCategory === 'color_options'}
           />
 
           <AutocompleteField
@@ -158,7 +181,10 @@ export function SingleStoneForm({ data, errors, onChange }: SingleStoneFormProps
             options={options.clarity_options}
             value={data.clarity}
             onChange={(v) => onChange('clarity', v)}
-            placeholder="e.g. vvs1"
+            placeholder="Select or search…"
+            categoryKey="clarity_options"
+            onQuickAdd={quickAdd}
+            isAdding={pendingCategory === 'clarity_options'}
           />
         </div>
 

@@ -3,7 +3,7 @@
 import React from 'react';
 import type { BulkStonesFormData, BulkStoneRow } from '../types/gemstone.types';
 import { WEIGHT_UNITS } from '../constants/gemstone.constants';
-import { useGemstoneOptions } from '@/features/masterdata';
+import { useGemstoneOptions, useQuickAddMasterdata } from '@/features/masterdata';
 import { AutocompleteField } from '@/components/shared/forms/AutocompleteField';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { getCurrencySymbol } from '@/utils/format';
@@ -32,6 +32,8 @@ const EMPTY_ROW: BulkStoneRow = {
 export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: BulkStonesFormProps) {
   const { currency } = useCurrency();
   const { options } = useGemstoneOptions();
+  const { quickAdd, pendingCategory } = useQuickAddMasterdata();
+
   const updateRow = (index: number, patch: Partial<BulkStoneRow>) => {
     const updated = data.stones.map((row, i) =>
       i === index ? { ...row, ...patch } : row
@@ -88,8 +90,11 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
                 options={options.gemstone_types}
                 value={row.gemstone_type}
                 onChange={(v) => updateRow(idx, { gemstone_type: v })}
-                placeholder="e.g. sapphire"
+                placeholder="Select or search…"
                 error={errors[`stones.${idx}.gemstone_type`]}
+                categoryKey="gemstone_types"
+                onQuickAdd={quickAdd}
+                isAdding={pendingCategory === 'gemstone_types'}
               />
 
               <AutocompleteField
@@ -98,7 +103,10 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
                 options={options.gemstone_varieties}
                 value={row.variety}
                 onChange={(v) => updateRow(idx, { variety: v })}
-                placeholder="e.g. blue sapphire"
+                placeholder="Select or search…"
+                categoryKey="gemstone_varieties"
+                onQuickAdd={quickAdd}
+                isAdding={pendingCategory === 'gemstone_varieties'}
               />
             </div>
 
