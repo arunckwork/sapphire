@@ -40,10 +40,10 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    const res = await fetch(`${BACKEND_URL}/api/v1/masterdata/admin`, {
-      method:  'POST',
+    const res = await fetch(`${BACKEND_URL}/api/v1/masterdata/admin/`, {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body:    JSON.stringify(body),
+      body: JSON.stringify(body),
     });
     const contentType = res.headers.get('content-type') ?? '';
     const raw = await res.text();

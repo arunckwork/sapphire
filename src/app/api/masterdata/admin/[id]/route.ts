@@ -20,10 +20,10 @@ export async function PATCH(
 
   try {
     const body = await request.json();
-    const res = await fetch(`${BACKEND_URL}/api/v1/masterdata/admin/${id}`, {
-      method:  'PATCH',
+    const res = await fetch(`${BACKEND_URL}/api/v1/masterdata/admin/${id}/`, {
+      method: 'PATCH',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-      body:    JSON.stringify(body),
+      body: JSON.stringify(body),
     });
     const contentType = res.headers.get('content-type') ?? '';
     const raw = await res.text();

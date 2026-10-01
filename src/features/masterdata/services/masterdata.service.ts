@@ -14,6 +14,6 @@ import type { MasterDataResponse } from '../types/masterdata.types';
 export const masterdataService = {
   getMasterdata: () =>
     alovaClient.Get<MasterDataResponse>(ENDPOINTS.MASTERDATA, {
-      cacheFor: 5 * 60 * 1000, // 5 minutes
+      cacheFor: 0, // 5 minutes = 5 * 60 * 1000
     }),
 };
