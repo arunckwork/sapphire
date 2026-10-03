@@ -2,50 +2,39 @@
 
 import React, { useState } from 'react';
 import { useRole } from '@/features/auth';
-import { ROLES } from '@/constants/roles';
-import type { Role } from '@/constants/roles';
-import { useUsers } from '../hooks/useUsers';
-import { useUserMutations } from '../hooks/useUserMutations';
-import { UsersTable } from './UsersTable';
-import { UserDrawer } from './UserDrawer';
-import type { User } from '../types/user.types';
+import { useSellers } from '../hooks/useSellers';
+import { useSellerMutations } from '../hooks/useSellerMutations';
+import { SellersTable } from './SellersTable';
+import { SellerDrawer } from './SellerDrawer';
+import type { User } from '@/features/users';
 
-export function UsersClient() {
+export function SellersClient() {
   const { isAdmin, isManager } = useRole();
 
-  /**
-   * Roles the current actor is allowed to assign:
-   * - Admin  → can assign any role (admin / manager / staff)
-   * - Manager → cannot escalate to admin; can assign manager / staff
-   */
-  const availableRoles: Role[] = isAdmin
-    ? [ROLES.ADMIN, ROLES.MANAGER, ROLES.STAFF]
-    : [ROLES.MANAGER, ROLES.STAFF];
-
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
-  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [editingSeller, setEditingSeller] = useState<User | null>(null);
 
   const {
-    users, total, totalPages, isLoading, params,
+    sellers, total, totalPages, isLoading, params,
     setSearch, setSort, setPage, setLimit, refetch,
-  } = useUsers();
+  } = useSellers();
 
-  const { addUser, editUser, suspendUser, activateUser, isAdding, isEditing, suspendingId, activatingId } =
-    useUserMutations(refetch);
+  const { addSeller, editSeller, suspendSeller, activateSeller, isAdding, isEditing, suspendingId, activatingId } =
+    useSellerMutations(refetch);
 
   const handleAddNew = () => {
-    setEditingUser(null);
+    setEditingSeller(null);
     setIsDrawerOpen(true);
   };
 
-  const handleEdit = (user: User) => {
-    setEditingUser(user);
+  const handleEdit = (seller: User) => {
+    setEditingSeller(seller);
     setIsDrawerOpen(true);
   };
 
   const handleClose = () => {
     setIsDrawerOpen(false);
-    setEditingUser(null);
+    setEditingSeller(null);
   };
 
   // Guard: only admin + manager can access this page
@@ -58,7 +47,7 @@ export function UsersClient() {
           </svg>
         </div>
         <h2 className="text-base font-semibold text-foreground">Access Denied</h2>
-        <p className="mt-1 text-xs text-muted-foreground">You don&apos;t have permission to manage users.</p>
+        <p className="mt-1 text-xs text-muted-foreground">You don&apos;t have permission to manage sellers.</p>
       </div>
     );
   }
@@ -68,10 +57,10 @@ export function UsersClient() {
       {/* ── Page Header ─────────────────────────────────────────── */}
       <div>
         <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-200 md:text-2xl">
-          User Management
+          Seller Management
         </h1>
         <p className="text-xs font-normal text-muted-foreground">
-          Manage system users, roles, and access permissions.
+          Manage registered sellers and their platform access.
         </p>
       </div>
 
@@ -79,31 +68,31 @@ export function UsersClient() {
       <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-4">
         {[
           {
-            title: 'Total Users',
+            title: 'Total Sellers',
             value: total,
-            color: 'text-amber-600 dark:text-amber-400',
-            border: 'border-amber-500/20 hover:border-amber-500/35',
+            color: 'text-teal-600 dark:text-teal-400',
+            border: 'border-teal-500/20 hover:border-teal-500/35',
           },
           {
             title: 'Active',
-            value: users ? users.filter((u) => u.status === 'active').length : 0,
+            value: sellers ? sellers.filter((s) => s.status === 'active').length : 0,
             color: 'text-emerald-600 dark:text-emerald-400',
             border: 'border-emerald-500/20 hover:border-emerald-500/35',
             note: 'on this page',
           },
           {
             title: 'Suspended',
-            value: users ? users.filter((u) => u.status === 'suspended').length : 0,
+            value: sellers ? sellers.filter((s) => s.status === 'suspended').length : 0,
             color: 'text-rose-600 dark:text-rose-400',
             border: 'border-rose-500/20 hover:border-rose-500/35',
             note: 'on this page',
           },
           {
-            title: 'Admins',
-            value: users ? users.filter((u) => u.role === 'admin').length : 0,
-            color: 'text-purple-600 dark:text-purple-400',
-            border: 'border-purple-500/20 hover:border-purple-500/35',
-            note: 'on this page',
+            title: 'This Page',
+            value: sellers ? sellers.length : 0,
+            color: 'text-slate-600 dark:text-slate-400',
+            border: 'border-slate-500/20 hover:border-slate-500/35',
+            note: 'loaded records',
           },
         ].map((stat) => (
           <div
@@ -126,8 +115,8 @@ export function UsersClient() {
       </div>
 
       {/* ── Table ───────────────────────────────────────────────── */}
-      <UsersTable
-        users={users}
+      <SellersTable
+        sellers={sellers}
         total={total}
         totalPages={totalPages}
         isLoading={isLoading}
@@ -137,24 +126,23 @@ export function UsersClient() {
         onPageChange={setPage}
         onLimitChange={setLimit}
         onEdit={handleEdit}
-        onSuspend={suspendUser}
-        onActivate={activateUser}
+        onSuspend={suspendSeller}
+        onActivate={activateSeller}
         suspendingId={suspendingId}
         activatingId={activatingId}
         onAddNew={handleAddNew}
       />
 
       {/* ── Drawer ──────────────────────────────────────────────── */}
-      <UserDrawer
-        key={editingUser ? editingUser.id : isDrawerOpen ? 'new' : 'closed'}
+      <SellerDrawer
+        key={editingSeller ? editingSeller.id : isDrawerOpen ? 'new' : 'closed'}
         isOpen={isDrawerOpen}
         onClose={handleClose}
         onSuccess={handleClose}
-        editingUser={editingUser}
-        onAdd={addUser}
-        onEdit={editUser}
+        editingSeller={editingSeller}
+        onAdd={addSeller}
+        onEdit={editSeller}
         isSubmitting={isAdding || isEditing}
-        availableRoles={availableRoles}
       />
     </div>
   );

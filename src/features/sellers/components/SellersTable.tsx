@@ -1,18 +1,11 @@
 'use client';
 
 import React, { useState } from 'react';
-import type { User, SortableUserField, UsersQueryParams } from '../types/user.types';
-import { ROLES } from '@/constants/roles';
+import type { User } from '@/features/users';
+import type { SortableSellerField, SellersQueryParams } from '../types/seller.types';
 import { Badge, Button, Spinner, EmptyState, ConfirmDialog } from '@/components/shared';
 
-/* ── Role badge colours ─────────────────────────────────────────────── */
-const ROLE_BADGE: Record<string, string> = {
-  [ROLES.ADMIN]: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400',
-  [ROLES.MANAGER]: 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400',
-  [ROLES.STAFF]: 'bg-teal-100 text-teal-700 dark:bg-teal-900/30 dark:text-teal-400',
-  [ROLES.USER]: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400',
-};
-
+/* ── Status badge colours ───────────────────────────────────────────── */
 const STATUS_BADGE: Record<string, string> = {
   active: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
   suspended: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
@@ -20,15 +13,14 @@ const STATUS_BADGE: Record<string, string> = {
 
 /* ── Column definitions ─────────────────────────────────────────────── */
 interface Column {
-  key: SortableUserField | 'name' | 'status' | 'actions';
+  key: SortableSellerField | 'name' | 'status' | 'actions';
   label: string;
-  sortable?: SortableUserField;
+  sortable?: SortableSellerField;
 }
 
 const COLUMNS: Column[] = [
   { key: 'name', label: 'Name', sortable: 'first_name' },
   { key: 'email', label: 'Email', sortable: 'email' },
-  { key: 'role', label: 'Role', sortable: 'role' },
   { key: 'status', label: 'Status' },
   { key: 'createdAt', label: 'Joined', sortable: 'createdAt' },
   { key: 'actions', label: '' },
@@ -53,7 +45,7 @@ function SortIcon({ active, order }: { active: boolean; order: 'asc' | 'desc' })
 function SkeletonRow() {
   return (
     <tr className="border-b border-border/30">
-      {Array.from({ length: 6 }).map((_, i) => (
+      {Array.from({ length: 5 }).map((_, i) => (
         <td key={i} className="px-4 py-3">
           <div className="h-3.5 rounded-full bg-muted/70 animate-pulse" style={{ width: `${60 + (i % 3) * 15}%` }} />
         </td>
@@ -62,26 +54,26 @@ function SkeletonRow() {
   );
 }
 
-interface UsersTableProps {
-  users: User[];
+interface SellersTableProps {
+  sellers: User[];
   total: number;
   totalPages: number;
   isLoading: boolean;
-  params: UsersQueryParams;
+  params: SellersQueryParams;
   onSearchChange: (value: string) => void;
-  onSort: (field: SortableUserField) => void;
+  onSort: (field: SortableSellerField) => void;
   onPageChange: (page: number) => void;
   onLimitChange: (limit: number) => void;
-  onEdit: (user: User) => void;
-  onSuspend: (user: User) => Promise<void>;
-  onActivate: (user: User) => Promise<void>;
+  onEdit: (seller: User) => void;
+  onSuspend: (seller: User) => Promise<void>;
+  onActivate: (seller: User) => Promise<void>;
   suspendingId: string | null;
   activatingId: string | null;
   onAddNew: () => void;
 }
 
-export function UsersTable({
-  users,
+export function SellersTable({
+  sellers,
   total,
   totalPages,
   isLoading,
@@ -96,9 +88,9 @@ export function UsersTable({
   suspendingId,
   activatingId,
   onAddNew,
-}: UsersTableProps) {
+}: SellersTableProps) {
   const [searchValue, setSearchValue] = useState('');
-  const [confirmUser, setConfirmUser] = useState<User | null>(null);
+  const [confirmSeller, setConfirmSeller] = useState<User | null>(null);
   const [confirmAction, setConfirmAction] = useState<'suspend' | 'activate' | null>(null);
 
   const handleSearchInput = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -107,18 +99,18 @@ export function UsersTable({
   };
 
   const handleConfirm = async () => {
-    if (!confirmUser || !confirmAction) return;
-    if (confirmAction === 'suspend') await onSuspend(confirmUser);
-    else await onActivate(confirmUser);
-    setConfirmUser(null);
+    if (!confirmSeller || !confirmAction) return;
+    if (confirmAction === 'suspend') await onSuspend(confirmSeller);
+    else await onActivate(confirmSeller);
+    setConfirmSeller(null);
     setConfirmAction(null);
   };
 
   const start = (params.page - 1) * params.limit + 1;
   const end = Math.min(params.page * params.limit, total);
 
-  const isBusy = (userId: string) =>
-    suspendingId === userId || activatingId === userId;
+  const isBusy = (sellerId: string) =>
+    suspendingId === sellerId || activatingId === sellerId;
 
   return (
     <div className="rounded-xl border border-border/40 bg-card/60 backdrop-blur-md">
@@ -132,11 +124,11 @@ export function UsersTable({
             </svg>
           </span>
           <input
-            id="users-search"
+            id="sellers-search"
             type="search"
             value={searchValue}
             onChange={handleSearchInput}
-            placeholder="Search by name, email, role…"
+            placeholder="Search by name or email…"
             className="h-8 w-full rounded-lg border border-border/60 bg-background/80 pl-8 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-primary/60 focus:outline-none focus:ring-1 focus:ring-primary/30 transition-colors"
           />
         </div>
@@ -144,7 +136,7 @@ export function UsersTable({
         <div className="flex items-center gap-2">
           {/* Per-page */}
           <select
-            id="users-page-size"
+            id="sellers-page-size"
             value={params.limit}
             onChange={(e) => onLimitChange(Number(e.target.value))}
             className="h-8 rounded-lg border border-border/60 bg-background/80 px-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary/30"
@@ -156,7 +148,7 @@ export function UsersTable({
 
           {/* Add New */}
           <Button
-            id="add-user-btn"
+            id="add-seller-btn"
             type="button"
             variant="primary"
             onClick={onAddNew}
@@ -165,7 +157,7 @@ export function UsersTable({
             <svg className="mr-1.5 h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
               <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
             </svg>
-            Add User
+            Add Seller
           </Button>
         </div>
       </div>
@@ -195,110 +187,103 @@ export function UsersTable({
           <tbody>
             {isLoading
               ? Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
-              : users?.length === 0
-                ? (
-                  <tr>
-                    <td colSpan={6} className="py-16 text-center">
-                      <EmptyState
-                        title="No users found"
-                        description={params.search ? 'Try adjusting your search.' : 'Add the first user to get started.'}
-                      />
-                    </td>
-                  </tr>
-                )
-                : users && users.map((user) => (
-                  <tr
-                    key={user.id}
-                    className="border-b border-border/30 transition-colors hover:bg-muted/30"
-                  >
-                    {/* Name */}
-                    <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">
-                      <div className="flex items-center gap-2.5">
-                        <div
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
-                          style={{ background: 'linear-gradient(135deg, hsl(217 91% 60%), hsl(200 85% 50%))' }}
-                        >
-                          {user.first_name.charAt(0).toUpperCase()}
-                        </div>
-                        <span>{user.first_name} {user.last_name ?? ''}</span>
+              : sellers?.length === 0
+              ? (
+                <tr>
+                  <td colSpan={5} className="py-16 text-center">
+                    <EmptyState
+                      title="No sellers found"
+                      description={params.search ? 'Try adjusting your search.' : 'Add the first seller to get started.'}
+                    />
+                  </td>
+                </tr>
+              )
+              : sellers && sellers.map((seller) => (
+                <tr
+                  key={seller.id}
+                  className="border-b border-border/30 transition-colors hover:bg-muted/30"
+                >
+                  {/* Name */}
+                  <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">
+                    <div className="flex items-center gap-2.5">
+                      <div
+                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
+                        style={{ background: 'linear-gradient(135deg, hsl(160 70% 40%), hsl(200 85% 50%))' }}
+                      >
+                        {seller.first_name.charAt(0).toUpperCase()}
                       </div>
-                    </td>
+                      <span>{seller.first_name} {seller.last_name ?? ''}</span>
+                    </div>
+                  </td>
 
-                    {/* Email */}
-                    <td className="px-4 py-3 text-muted-foreground">{user.email}</td>
+                  {/* Email */}
+                  <td className="px-4 py-3 text-muted-foreground">{seller.email}</td>
 
-                    {/* Role */}
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${ROLE_BADGE[user.role] ?? ROLE_BADGE[ROLES.USER]}`}>
-                        {user.role === 'user' ? 'Seller' : user.role.charAt(0).toUpperCase() + user.role.slice(1)}
-                      </span>
-                    </td>
+                  {/* Status */}
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_BADGE[seller.status] ?? STATUS_BADGE.active}`}>
+                      {seller.status === 'active' ? 'Active' : 'Suspended'}
+                    </span>
+                  </td>
 
-                    {/* Status */}
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium ${STATUS_BADGE[user.status] ?? STATUS_BADGE.active}`}>
-                        {user.status === 'active' ? 'Active' : 'Suspended'}
-                      </span>
-                    </td>
+                  {/* Joined */}
+                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                    {new Date(seller.createdAt).toLocaleDateString('en-GB', {
+                      day: '2-digit', month: 'short', year: 'numeric',
+                    })}
+                  </td>
 
-                    {/* Joined */}
-                    <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
-                      {new Date(user.createdAt).toLocaleDateString('en-GB', {
-                        day: '2-digit', month: 'short', year: 'numeric',
-                      })}
-                    </td>
+                  {/* Actions */}
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        id={`edit-seller-${seller.id}`}
+                        onClick={() => onEdit(seller)}
+                        disabled={isBusy(seller.id)}
+                        className="rounded-md px-2 py-1 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors disabled:opacity-40"
+                      >
+                        Edit
+                      </button>
 
-                    {/* Actions */}
-                    <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
+                      {seller.status === 'active' ? (
                         <button
-                          id={`edit-user-${user.id}`}
-                          onClick={() => onEdit(user)}
-                          disabled={isBusy(user.id)}
-                          className="rounded-md px-2 py-1 text-[11px] font-medium text-primary hover:bg-primary/10 transition-colors disabled:opacity-40"
+                          id={`suspend-seller-${seller.id}`}
+                          onClick={() => { setConfirmSeller(seller); setConfirmAction('suspend'); }}
+                          disabled={isBusy(seller.id)}
+                          className="rounded-md px-2 py-1 text-[11px] font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors disabled:opacity-40 flex items-center gap-1"
                         >
-                          Edit
+                          {suspendingId === seller.id ? <Spinner size="sm" /> : null}
+                          Suspend
                         </button>
-
-                        {user.status === 'active' ? (
-                          <button
-                            id={`suspend-user-${user.id}`}
-                            onClick={() => { setConfirmUser(user); setConfirmAction('suspend'); }}
-                            disabled={isBusy(user.id)}
-                            className="rounded-md px-2 py-1 text-[11px] font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-900/20 transition-colors disabled:opacity-40 flex items-center gap-1"
-                          >
-                            {suspendingId === user.id ? <Spinner size="sm" /> : null}
-                            Suspend
-                          </button>
-                        ) : (
-                          <button
-                            id={`activate-user-${user.id}`}
-                            onClick={() => { setConfirmUser(user); setConfirmAction('activate'); }}
-                            disabled={isBusy(user.id)}
-                            className="rounded-md px-2 py-1 text-[11px] font-medium text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors disabled:opacity-40 flex items-center gap-1"
-                          >
-                            {activatingId === user.id ? <Spinner size="sm" /> : null}
-                            Activate
-                          </button>
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      ) : (
+                        <button
+                          id={`activate-seller-${seller.id}`}
+                          onClick={() => { setConfirmSeller(seller); setConfirmAction('activate'); }}
+                          disabled={isBusy(seller.id)}
+                          className="rounded-md px-2 py-1 text-[11px] font-medium text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-900/20 transition-colors disabled:opacity-40 flex items-center gap-1"
+                        >
+                          {activatingId === seller.id ? <Spinner size="sm" /> : null}
+                          Activate
+                        </button>
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              ))}
           </tbody>
         </table>
       </div>
 
       {/* ── Pagination ─────────────────────────────────────────────── */}
-      {!isLoading && users && users.length > 0 && (
+      {!isLoading && sellers && sellers.length > 0 && (
         <div className="flex items-center justify-between border-t border-border/40 px-4 py-3">
           <p className="text-[11px] text-muted-foreground">
             Showing <span className="font-medium text-foreground">{start}–{end}</span> of{' '}
-            <span className="font-medium text-foreground">{total}</span> users
+            <span className="font-medium text-foreground">{total}</span> sellers
           </p>
           <div className="flex items-center gap-1">
             <button
-              id="users-prev-page"
+              id="sellers-prev-page"
               onClick={() => onPageChange(params.page - 1)}
               disabled={params.page <= 1}
               className="rounded-md px-2.5 py-1 text-[11px] font-medium text-muted-foreground hover:bg-muted/60 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
@@ -309,7 +294,7 @@ export function UsersTable({
               {params.page} / {totalPages}
             </span>
             <button
-              id="users-next-page"
+              id="sellers-next-page"
               onClick={() => onPageChange(params.page + 1)}
               disabled={params.page >= totalPages}
               className="rounded-md px-2.5 py-1 text-[11px] font-medium text-muted-foreground hover:bg-muted/60 transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
@@ -322,18 +307,18 @@ export function UsersTable({
 
       {/* ── Confirm Dialog ─────────────────────────────────────────── */}
       <ConfirmDialog
-        isOpen={confirmUser !== null}
-        onClose={() => { setConfirmUser(null); setConfirmAction(null); }}
+        isOpen={confirmSeller !== null}
+        onClose={() => { setConfirmSeller(null); setConfirmAction(null); }}
         onConfirm={handleConfirm}
-        title={confirmAction === 'suspend' ? 'Suspend User' : 'Activate User'}
+        title={confirmAction === 'suspend' ? 'Suspend Seller' : 'Activate Seller'}
         description={
           confirmAction === 'suspend'
-            ? `${confirmUser?.first_name} will lose access to the system immediately.`
-            : `${confirmUser?.first_name} will regain full system access.`
+            ? `${confirmSeller?.first_name} will lose access to the system immediately.`
+            : `${confirmSeller?.first_name} will regain full system access.`
         }
         confirmText={confirmAction === 'suspend' ? 'Yes, Suspend' : 'Yes, Activate'}
         variant={confirmAction === 'suspend' ? 'danger' : 'primary'}
-        isLoading={isBusy(confirmUser?.id ?? '')}
+        isLoading={isBusy(confirmSeller?.id ?? '')}
       />
     </div>
   );

@@ -37,6 +37,12 @@ const NAV_ITEMS: NavItem[] = [
     roles: [ROLES.ADMIN, ROLES.MANAGER],
   },
   {
+    label: 'Sellers',
+    href: ROUTES.SELLERS,
+    icon: <SellerIcon />,
+    roles: [ROLES.ADMIN, ROLES.MANAGER],
+  },
+  {
     label: 'Masterdata',
     href: ROUTES.MASTERDATA,
     icon: <DatabaseIcon />,
@@ -257,6 +263,16 @@ function DatabaseIcon() {
       <ellipse cx="12" cy="5" rx="9" ry="3" />
       <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3" />
       <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+    </svg>
+  );
+}
+
+function SellerIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z" />
+      <line x1="3" y1="6" x2="21" y2="6" />
+      <path d="M16 10a4 4 0 0 1-8 0" />
     </svg>
   );
 }

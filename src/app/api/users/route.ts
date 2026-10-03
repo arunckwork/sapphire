@@ -22,6 +22,8 @@ export async function GET(request: NextRequest) {
 
   try {
     const { searchParams } = new URL(request.url);
+    // Exclude role=user records — sellers are managed via the /sellers module
+    searchParams.set('exclude_role', 'user');
     const backendRes = await fetch(
       `${BACKEND_URL}/api/v1/users?${searchParams.toString()}`,
       {

@@ -8,5 +8,5 @@ import type { SellerRef, SellerResponseRef } from '../types/gemstone.types';
  */
 export const sellerService = {
   getSellers: () =>
-    alovaClient.Get<SellerResponseRef>(ENDPOINTS.SELLERS, { cacheFor: 60_000 }), // 60s cache — seller list rarely changes
+    alovaClient.Get<SellerResponseRef>(ENDPOINTS.SELLERS.AUTOCOMPLETE, { cacheFor: 60_000 }), // 60s cache — seller list rarely changes
 };

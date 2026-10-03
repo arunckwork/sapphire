@@ -19,7 +19,20 @@ export const ENDPOINTS = {
     REVIEW: (id: string) => `/api/collections/${id}/review`,
     NEGOTIATION: (id: string) => `/api/collections/${id}/negotiation`,
   },
-  SELLERS: '/api/users?role=user', // BFF route for fetching users with role=user (for seller autocomplete)
+  /**
+   * SELLERS endpoints — backed by the same upstream /api/v1/users API but
+   * scoped to role=user. Kept separate so the URL can diverge later without
+   * touching the Users module.
+   */
+  SELLERS: {
+    LIST: '/api/sellers',                                          // GET  — paginated list (role=user enforced server-side)
+    REGISTER: '/api/sellers/register',                             // POST — create seller (role forced to "user" by BFF)
+    BY_ID: (id: string) => `/api/sellers/${id}`,                  // PUT  — update seller
+    SUSPEND: (id: string) => `/api/sellers/${id}/suspend`,         // POST — suspend seller
+    ACTIVATE: (id: string) => `/api/sellers/${id}/activate`,       // POST — activate seller
+    /** Legacy autocomplete endpoint used by GemstoneDrawer / BulkStonesForm etc. */
+    AUTOCOMPLETE: '/api/users/sellers',
+  },
   MASTERDATA: '/api/masterdata',           // read-only dropdown options
   MASTERDATA_ADMIN: '/api/masterdata/admin', // admin CRUD for masterdata items
 } as const;
