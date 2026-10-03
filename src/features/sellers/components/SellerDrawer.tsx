@@ -12,10 +12,60 @@ import {
   Drawer,
   FormField,
   Input,
-  PasswordInput,
   Button,
   AlertBanner,
 } from '@/components/shared';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const PASSWORD_RE = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
+/** Accepts: +91-9876543210  9876543210  +1 (555) 123-4567  — 7-20 chars */
+const MOBILE_RE = /^[+]?[\d\s\-().]{7,20}$/;
+
+/**
+ * Generates a cryptographically strong, random unique password that satisfies
+ * PASSWORD_RE (at least 8 chars, 1 uppercase, 1 number, 1 special character).
+ */
+function generateSecureSellerPassword(): string {
+  const upper = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+  const lower = 'abcdefghijkmnopqrstuvwxyz';
+  const digits = '23456789';
+  const symbols = '!@#$%^&*()_+-=[]{}';
+  const allChars = upper + lower + digits + symbols;
+
+  const getRandomChar = (charset: string) => {
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+      const arr = new Uint32Array(1);
+      window.crypto.getRandomValues(arr);
+      return charset[arr[0] % charset.length];
+    }
+    return charset[Math.floor(Math.random() * charset.length)];
+  };
+
+  // Ensure at least one character from each required set
+  const chars = [
+    getRandomChar(upper),
+    getRandomChar(lower),
+    getRandomChar(digits),
+    getRandomChar(symbols),
+  ];
+
+  // Fill up to 16 characters for extra entropy
+  for (let i = chars.length; i < 16; i++) {
+    chars.push(getRandomChar(allChars));
+  }
+
+  // Shuffle array using Fisher-Yates
+  for (let i = chars.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [chars[i], chars[j]] = [chars[j], chars[i]];
+  }
+
+  const result = chars.join('');
+  if (PASSWORD_RE.test(result)) {
+    return result;
+  }
+  return `Sel${Date.now()}!Aa1`;
+}
 
 const EMPTY_FORM: SellerFormData = {
   first_name: '',
@@ -28,16 +78,11 @@ const EMPTY_FORM: SellerFormData = {
   profile_photo: null,
 };
 
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
-const PASSWORD_RE = /^(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/;
-/** Accepts: +91-9876543210  9876543210  +1 (555) 123-4567  — 7-20 chars */
-const MOBILE_RE = /^[+]?[\d\s\-().]{7,20}$/;
-
 function validateField(
   field: keyof SellerFormData,
   value: string | File | null,
-  allValues: SellerFormData,
-  isEdit: boolean,
+  _allValues: SellerFormData,
+  _isEdit: boolean,
 ): string | undefined {
   const str = typeof value === 'string' ? value : '';
   switch (field) {
@@ -62,15 +107,8 @@ function validateField(
       if (!str.trim()) return 'Location is required.';
       break;
     case 'password':
-      if (isEdit) break;
-      if (!str) return 'Password is required.';
-      if (!PASSWORD_RE.test(str))
-        return 'Min 8 chars, 1 uppercase, 1 number, 1 special character.';
-      break;
     case 'confirm_password':
-      if (isEdit) break;
-      if (!str) return 'Please confirm your password.';
-      if (str !== allValues.password) return 'Passwords do not match.';
+      // Credentials are auto-populated in the background and hidden from UI
       break;
   }
   return undefined;
@@ -79,7 +117,7 @@ function validateField(
 function validateAll(formData: SellerFormData, isEdit: boolean): SellerFormErrors {
   const errors: SellerFormErrors = {};
   (Object.keys(formData) as Array<keyof SellerFormData>).forEach((field) => {
-    if (field === 'profile_photo') return; // photo is optional — no validation
+    if (field === 'profile_photo' || field === 'password' || field === 'confirm_password') return;
     const err = validateField(field, formData[field] as string, formData, isEdit);
     if (err) errors[field as keyof SellerFormErrors] = err;
   });
@@ -126,7 +164,12 @@ export function SellerDrawer({
         profile_photo: null,
       };
     }
-    return { ...EMPTY_FORM };
+    const autoPassword = generateSecureSellerPassword();
+    return {
+      ...EMPTY_FORM,
+      password: autoPassword,
+      confirm_password: autoPassword,
+    };
   }, [editingSeller]);
 
   const [form, setForm] = useState<SellerFormData>(getInitialForm);
@@ -153,7 +196,7 @@ export function SellerDrawer({
   };
 
   const handleBlur = (field: keyof SellerFormData) => {
-    if (field === 'profile_photo') return;
+    if (field === 'profile_photo' || field === 'password' || field === 'confirm_password') return;
     const err = validateField(field, form[field] as string, form, isEdit);
     setErrors((prev) => ({ ...prev, [field]: err }));
   };
@@ -162,7 +205,19 @@ export function SellerDrawer({
     e.preventDefault();
     setApiError(null);
 
-    const allErrors = validateAll(form, isEdit);
+    // Safeguard: Ensure random unique credentials exist when adding a new seller
+    let submitForm = { ...form };
+    if (!isEdit) {
+      if (!submitForm.password || !PASSWORD_RE.test(submitForm.password)) {
+        const autoPass = generateSecureSellerPassword();
+        submitForm.password = autoPass;
+        submitForm.confirm_password = autoPass;
+      } else if (!submitForm.confirm_password || submitForm.confirm_password !== submitForm.password) {
+        submitForm.confirm_password = submitForm.password;
+      }
+    }
+
+    const allErrors = validateAll(submitForm, isEdit);
     if (Object.keys(allErrors).length > 0) {
       setErrors(allErrors);
       toast.error('Please fix the errors before submitting.');
@@ -174,15 +229,15 @@ export function SellerDrawer({
       ok = await onEdit(
         editingSeller.id,
         {
-          first_name: form.first_name,
-          last_name: form.last_name,
-          mobile: form.mobile,
-          location: form.location,
+          first_name: submitForm.first_name,
+          last_name: submitForm.last_name,
+          mobile: submitForm.mobile,
+          location: submitForm.location,
         },
-        { file: form.profile_photo, remove: photoRemoved },
+        { file: submitForm.profile_photo, remove: photoRemoved },
       );
     } else {
-      ok = await onAdd(form);
+      ok = await onAdd(submitForm);
     }
 
     if (ok) {
@@ -248,35 +303,30 @@ export function SellerDrawer({
               <img
                 src={getMediaUrl(existingPhotoUrl)}
                 alt="Current profile photo"
-                className="h-16 w-16 rounded-full object-cover border border-border/40"
+                className="h-16 w-16 rounded-full object-cover border border-border"
               />
-              <div className="space-y-1">
-                <p className="text-xs text-muted-foreground">Current photo</p>
-                <button
-                  type="button"
-                  onClick={() => setPhotoRemoved(true)}
-                  className="text-[11px] font-medium text-rose-600 hover:text-rose-700 transition-colors"
-                >
-                  Remove photo
-                </button>
-              </div>
+              <button
+                type="button"
+                onClick={() => setPhotoRemoved(true)}
+                className="text-xs text-rose-500 hover:text-rose-600 underline"
+              >
+                Remove photo
+              </button>
             </div>
           )}
 
-          {/* New photo upload — shown when no existing photo, or after removal */}
-          {!existingPhotoUrl && (
+          {/* Upload / camera capture */}
+          {(!existingPhotoUrl || photoRemoved) && (
             <ImageUploadField
               files={form.profile_photo ? [form.profile_photo] : []}
               onChange={(files) => handleChange('profile_photo', files[0] ?? null)}
               maxFiles={1}
-              label={isEdit ? 'Upload new photo' : 'Profile photo'}
+              label="Profile Photo"
             />
           )}
         </div>
 
-        <div className="border-t border-border/30" />
-
-        {/* ── Name ─────────────────────────────────────────────── */}
+        {/* ── Name Fields ───────────────────────────────────────── */}
         <div className="grid grid-cols-2 gap-3">
           <FormField label="First Name" required error={errors.first_name}>
             <Input
@@ -284,39 +334,49 @@ export function SellerDrawer({
               value={form.first_name}
               onChange={(e) => handleChange('first_name', e.target.value)}
               onBlur={() => handleBlur('first_name')}
-              placeholder="Jane"
+              placeholder="Kasun"
               autoComplete="given-name"
             />
           </FormField>
+
           <FormField label="Last Name" error={errors.last_name}>
             <Input
               id="seller-last-name"
               value={form.last_name}
               onChange={(e) => handleChange('last_name', e.target.value)}
               onBlur={() => handleBlur('last_name')}
-              placeholder="Doe"
+              placeholder="Perera (optional)"
               autoComplete="family-name"
             />
           </FormField>
         </div>
 
-        {/* ── Email ────────────────────────────────────────────── */}
-        <FormField label="Email" required error={errors.email}>
+        {/* ── Email ─────────────────────────────────────────────── */}
+        <FormField
+          label="Email Address"
+          required
+          error={errors.email}
+          helperText={isEdit ? 'Email cannot be changed after creation.' : undefined}
+        >
           <Input
             id="seller-email"
             type="email"
             value={form.email}
             onChange={(e) => handleChange('email', e.target.value)}
             onBlur={() => handleBlur('email')}
-            placeholder="jane@example.com"
-            autoComplete="email"
+            placeholder="seller@example.com"
             disabled={isEdit}
-            className={isEdit ? 'cursor-not-allowed opacity-70' : ''}
+            autoComplete="email"
           />
         </FormField>
 
-        {/* ── Mobile Number ────────────────────────────────────── */}
-        <FormField label="Mobile Number" required error={errors.mobile}>
+        {/* ── Mobile ────────────────────────────────────────────── */}
+        <FormField
+          label="Mobile Number"
+          required
+          error={errors.mobile}
+          helperText="With or without country code (e.g. +91 98765 43210 or 0771234567)"
+        >
           <Input
             id="seller-mobile"
             type="tel"
@@ -342,37 +402,6 @@ export function SellerDrawer({
           isAdding={pendingCategory === 'location_options'}
           error={errors.location}
         />
-
-        {/* ── Password — add mode only ──────────────────────────── */}
-        {!isEdit && (
-          <>
-            <div className="border-t border-border/40 pt-4">
-              <p className="mb-3 text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                Credentials
-              </p>
-            </div>
-            <FormField label="Password" required error={errors.password}>
-              <PasswordInput
-                id="seller-password"
-                value={form.password}
-                onChange={(e) => handleChange('password', e.target.value)}
-                onBlur={() => handleBlur('password')}
-                placeholder="Min 8 chars, 1 uppercase, 1 number, 1 special"
-                autoComplete="new-password"
-              />
-            </FormField>
-            <FormField label="Re-enter Password" required error={errors.confirm_password}>
-              <PasswordInput
-                id="seller-confirm-password"
-                value={form.confirm_password}
-                onChange={(e) => handleChange('confirm_password', e.target.value)}
-                onBlur={() => handleBlur('confirm_password')}
-                placeholder="Must match password above"
-                autoComplete="new-password"
-              />
-            </FormField>
-          </>
-        )}
       </form>
     </Drawer>
   );
