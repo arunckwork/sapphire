@@ -20,6 +20,9 @@ export interface SellerFormData {
   email: string;
   password: string;
   confirm_password: string; // client-side only — stripped before submit
+  mobile: string;
+  location: string;
+  profile_photo: File | null; // client-side only — uploaded via separate photo endpoint
 }
 
 export interface SellerFormErrors {
@@ -28,6 +31,9 @@ export interface SellerFormErrors {
   email?: string;
   password?: string;
   confirm_password?: string;
+  mobile?: string;
+  location?: string;
+  profile_photo?: string;
 }
 
 export type SortableSellerField = 'first_name' | 'email' | 'createdAt';

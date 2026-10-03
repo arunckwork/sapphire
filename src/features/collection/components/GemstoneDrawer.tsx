@@ -201,7 +201,7 @@ export function GemstoneDrawer({
     )
     : sellers;
 
-  const selectedSeller = sellers.find((s) => s.id === formData.seller_id) || null;
+  const selectedSeller = sellers?.find((s) => s.id === formData.seller_id) || null;
 
   /* ── Validation ─────────────────────────────────────────────────────── */
   const validate = (): boolean => {
@@ -335,10 +335,10 @@ export function GemstoneDrawer({
                     />
                   </div>
                   <ul className="max-h-48 overflow-y-auto py-1">
-                    {filteredSellers.length === 0 ? (
+                    {filteredSellers?.length === 0 ? (
                       <li className="px-3 py-2 text-xs text-slate-400 italic">No sellers found</li>
                     ) : (
-                      filteredSellers.map((s) => (
+                      filteredSellers?.map((s) => (
                         <li
                           key={s.id}
                           onClick={() => {
@@ -347,8 +347,8 @@ export function GemstoneDrawer({
                             setSellerQuery('');
                           }}
                           className={`px-3 py-2 text-xs cursor-pointer transition-colors ${formData.seller_id === s.id
-                              ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
-                              : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
+                            ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-700 dark:text-amber-400 font-semibold'
+                            : 'text-slate-900 dark:text-slate-100 hover:bg-slate-50 dark:hover:bg-slate-800'
                             }`}
                         >
                           <span className="font-medium">{s.first_name} {s.last_name ?? ''}</span>
@@ -419,8 +419,8 @@ export function GemstoneDrawer({
               onStonePricesChange={
                 !editingRecord
                   ? (total) => {
-                      if (total > 0) setBase('asking_price', total);
-                    }
+                    if (total > 0) setBase('asking_price', total);
+                  }
                   : undefined
               }
             />
@@ -558,14 +558,14 @@ export function GemstoneDrawer({
               {formData.collection_type === 'bulk_stones' && !editingRecord && (
                 (formData as BulkStonesFormData).stones.reduce((acc, r) => acc + (r.price ?? 0), 0) > 0
               ) && (
-                <span className="mt-1 flex items-center gap-1 text-[11px] text-amber-500 dark:text-amber-400">
-                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
-                    <polyline points="16 7 22 7 22 13" />
-                  </svg>
-                  Auto-calculated from stone prices. You may override.
-                </span>
-              )}
+                  <span className="mt-1 flex items-center gap-1 text-[11px] text-amber-500 dark:text-amber-400">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="22 7 13.5 15.5 8.5 10.5 2 17" />
+                      <polyline points="16 7 22 7 22 13" />
+                    </svg>
+                    Auto-calculated from stone prices. You may override.
+                  </span>
+                )}
             </div>
           </div>
         </form>

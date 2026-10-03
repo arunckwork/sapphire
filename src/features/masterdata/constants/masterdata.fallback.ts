@@ -32,4 +32,5 @@ export const STATIC_MASTERDATA_FALLBACK: MasterDataResponse = {
   clarity_options:        [...CLARITY_OPTIONS],
   certification_labs:     [...CERTIFICATION_LABS],
   industrial_stone_types: [...INDUSTRIAL_STONE_TYPES],
+  location_options:       [], // populated from backend only — no hardcoded fallback
 };

@@ -4,6 +4,7 @@ import React, { useState } from 'react';
 import type { User } from '@/features/users';
 import type { SortableSellerField, SellersQueryParams } from '../types/seller.types';
 import { Badge, Button, Spinner, EmptyState, ConfirmDialog } from '@/components/shared';
+import { getMediaUrl } from '@/utils/media';
 
 /* ── Status badge colours ───────────────────────────────────────────── */
 const STATUS_BADGE: Record<string, string> = {
@@ -13,7 +14,7 @@ const STATUS_BADGE: Record<string, string> = {
 
 /* ── Column definitions ─────────────────────────────────────────────── */
 interface Column {
-  key: SortableSellerField | 'name' | 'status' | 'actions';
+  key: SortableSellerField | 'name' | 'mobile' | 'location' | 'status' | 'actions';
   label: string;
   sortable?: SortableSellerField;
 }
@@ -21,6 +22,8 @@ interface Column {
 const COLUMNS: Column[] = [
   { key: 'name', label: 'Name', sortable: 'first_name' },
   { key: 'email', label: 'Email', sortable: 'email' },
+  { key: 'mobile', label: 'Mobile' },
+  { key: 'location', label: 'Location' },
   { key: 'status', label: 'Status' },
   { key: 'createdAt', label: 'Joined', sortable: 'createdAt' },
   { key: 'actions', label: '' },
@@ -45,7 +48,7 @@ function SortIcon({ active, order }: { active: boolean; order: 'asc' | 'desc' })
 function SkeletonRow() {
   return (
     <tr className="border-b border-border/30">
-      {Array.from({ length: 5 }).map((_, i) => (
+      {Array.from({ length: 7 }).map((_, i) => (
         <td key={i} className="px-4 py-3">
           <div className="h-3.5 rounded-full bg-muted/70 animate-pulse" style={{ width: `${60 + (i % 3) * 15}%` }} />
         </td>
@@ -186,11 +189,11 @@ export function SellersTable({
           </thead>
           <tbody>
             {isLoading
-              ? Array.from({ length: 5 }).map((_, i) => <SkeletonRow key={i} />)
+              ? Array.from({ length: 7 }).map((_, i) => <SkeletonRow key={i} />)
               : sellers?.length === 0
               ? (
                 <tr>
-                  <td colSpan={5} className="py-16 text-center">
+                  <td colSpan={7} className="py-16 text-center">
                     <EmptyState
                       title="No sellers found"
                       description={params.search ? 'Try adjusting your search.' : 'Add the first seller to get started.'}
@@ -203,21 +206,53 @@ export function SellersTable({
                   key={seller.id}
                   className="border-b border-border/30 transition-colors hover:bg-muted/30"
                 >
-                  {/* Name */}
+                  {/* Name with Photo or Avatar */}
                   <td className="px-4 py-3 font-medium text-foreground whitespace-nowrap">
                     <div className="flex items-center gap-2.5">
-                      <div
-                        className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white"
-                        style={{ background: 'linear-gradient(135deg, hsl(160 70% 40%), hsl(200 85% 50%))' }}
-                      >
-                        {seller.first_name.charAt(0).toUpperCase()}
-                      </div>
+                      {seller.profile_photo_url ? (
+                        <img
+                          src={getMediaUrl(seller.profile_photo_url)}
+                          alt={seller.first_name}
+                          className="h-7 w-7 shrink-0 rounded-full object-cover border border-border/50 shadow-sm"
+                        />
+                      ) : (
+                        <div
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white shadow-sm"
+                          style={{ background: 'linear-gradient(135deg, hsl(160 70% 40%), hsl(200 85% 50%))' }}
+                        >
+                          {seller.first_name.charAt(0).toUpperCase()}
+                        </div>
+                      )}
                       <span>{seller.first_name} {seller.last_name ?? ''}</span>
                     </div>
                   </td>
 
                   {/* Email */}
                   <td className="px-4 py-3 text-muted-foreground">{seller.email}</td>
+
+                  {/* Mobile */}
+                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                    {seller.mobile ? (
+                      <span className="font-mono text-[11px] text-foreground/90">{seller.mobile}</span>
+                    ) : (
+                      <span className="text-muted-foreground/40">—</span>
+                    )}
+                  </td>
+
+                  {/* Location */}
+                  <td className="px-4 py-3 text-muted-foreground whitespace-nowrap">
+                    {seller.location ? (
+                      <span className="inline-flex items-center gap-1 rounded-md bg-muted/60 px-2 py-0.5 text-[11px] font-medium text-foreground">
+                        <svg className="h-3 w-3 text-muted-foreground" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                        {seller.location}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground/40">—</span>
+                    )}
+                  </td>
 
                   {/* Status */}
                   <td className="px-4 py-3">

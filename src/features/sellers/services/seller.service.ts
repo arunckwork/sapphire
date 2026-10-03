@@ -31,8 +31,8 @@ export const sellerAdminService = {
       username: body.email,
     }),
 
-  /** Updates a seller's name fields (role cannot be changed via this endpoint) */
-  updateSeller: (id: string, body: Partial<Pick<User, 'first_name' | 'last_name'>>) =>
+  /** Updates a seller's name and contact fields (role cannot be changed via this endpoint) */
+  updateSeller: (id: string, body: Partial<Pick<User, 'first_name' | 'last_name' | 'mobile' | 'location'>>) =>
     alovaClient.Put<User>(ENDPOINTS.SELLERS.BY_ID(id), body),
 
   /** Suspends an active seller */
@@ -42,4 +42,20 @@ export const sellerAdminService = {
   /** Reactivates a suspended seller */
   activateSeller: (id: string) =>
     alovaClient.Post<void>(ENDPOINTS.SELLERS.ACTIVATE(id), {}),
+
+  /**
+   * Uploads (or replaces) the seller's profile photo.
+   * Must be called as a separate request after the text-field PUT because
+   * multipart/form-data and application/json cannot share a Content-Type header.
+   */
+  uploadPhoto: (id: string, photo: File) => {
+    const fd = new FormData();
+    fd.append('profile_photo', photo);
+    // Pass FormData directly — alova/fetch will set multipart Content-Type automatically
+    return alovaClient.Post<User>(ENDPOINTS.SELLERS.PHOTO(id), fd);
+  },
+
+  /** Removes the seller's profile photo */
+  removePhoto: (id: string) =>
+    alovaClient.Delete<void>(ENDPOINTS.SELLERS.PHOTO(id)),
 };

@@ -30,6 +30,7 @@ export const ENDPOINTS = {
     BY_ID: (id: string) => `/api/sellers/${id}`,                  // PUT  — update seller
     SUSPEND: (id: string) => `/api/sellers/${id}/suspend`,         // POST — suspend seller
     ACTIVATE: (id: string) => `/api/sellers/${id}/activate`,       // POST — activate seller
+    PHOTO: (id: string) => `/api/sellers/${id}/photo`,             // POST | DELETE — profile photo upload/remove
     /** Legacy autocomplete endpoint used by GemstoneDrawer / BulkStonesForm etc. */
     AUTOCOMPLETE: '/api/users/sellers',
   },

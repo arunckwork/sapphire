@@ -2,13 +2,15 @@
 
 import React, { useState } from 'react';
 import { useRole } from '@/features/auth';
+import { GemstoneOptionsProvider } from '@/features/masterdata';
 import { useSellers } from '../hooks/useSellers';
 import { useSellerMutations } from '../hooks/useSellerMutations';
 import { SellersTable } from './SellersTable';
 import { SellerDrawer } from './SellerDrawer';
 import type { User } from '@/features/users';
+import type { SellerFormData } from '../types/seller.types';
 
-export function SellersClient() {
+function SellersInner() {
   const { isAdmin, isManager } = useRole();
 
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
@@ -35,6 +37,18 @@ export function SellersClient() {
   const handleClose = () => {
     setIsDrawerOpen(false);
     setEditingSeller(null);
+  };
+
+  const handleAdd = async (formData: SellerFormData): Promise<boolean> => {
+    return addSeller(formData);
+  };
+
+  const handleEditSave = async (
+    id: string,
+    data: Pick<SellerFormData, 'first_name' | 'last_name' | 'mobile' | 'location'>,
+    photo: { file: File | null; remove: boolean },
+  ): Promise<boolean> => {
+    return editSeller(id, data, photo);
   };
 
   // Guard: only admin + manager can access this page
@@ -140,10 +154,22 @@ export function SellersClient() {
         onClose={handleClose}
         onSuccess={handleClose}
         editingSeller={editingSeller}
-        onAdd={addSeller}
-        onEdit={editSeller}
+        onAdd={handleAdd}
+        onEdit={handleEditSave}
         isSubmitting={isAdding || isEditing}
       />
     </div>
+  );
+}
+
+/**
+ * Wraps SellersInner with GemstoneOptionsProvider so that SellerDrawer can
+ * consume useGemstoneOptions() for the location_options masterdata dropdown.
+ */
+export function SellersClient() {
+  return (
+    <GemstoneOptionsProvider>
+      <SellersInner />
+    </GemstoneOptionsProvider>
   );
 }

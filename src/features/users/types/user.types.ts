@@ -10,6 +10,10 @@ export interface User {
   role: Role;
   status: UserStatus;
   createdAt: string;
+  /** Seller-specific extended fields — optional, populated only for role=user */
+  mobile?: string;
+  location?: string;
+  profile_photo_url?: string;
 }
 
 export interface UserFormData {
