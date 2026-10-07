@@ -25,9 +25,10 @@ export async function GET(request: NextRequest) {
     if (!res.ok) return NextResponse.json(data, { status: res.status });
     // Backend may return { data: User[] } or User[] directly — normalise to array
     const sellers = Array.isArray(data) ? data : (data.data ?? []);
+
     return NextResponse.json(sellers, { status: 200 });
   } catch (err) {
-    console.error('[GET /api/users/sellers]', err);
+
     return NextResponse.json({ message: 'Failed to fetch sellers' }, { status: 500 });
   }
 }

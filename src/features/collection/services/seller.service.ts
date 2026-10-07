@@ -1,6 +1,6 @@
 import { alovaClient } from '@/lib/alova';
 import { ENDPOINTS } from '@/constants/endpoints';
-import type { SellerRef, SellerResponseRef } from '../types/gemstone.types';
+import type { SellerRef } from '../types/gemstone.types';
 
 /**
  * Seller service — fetches users with role=user for the seller autocomplete.
@@ -8,5 +8,5 @@ import type { SellerRef, SellerResponseRef } from '../types/gemstone.types';
  */
 export const sellerService = {
   getSellers: () =>
-    alovaClient.Get<SellerResponseRef>(ENDPOINTS.SELLERS.AUTOCOMPLETE, { cacheFor: 60_000 }), // 60s cache — seller list rarely changes
+    alovaClient.Get<SellerRef[]>(ENDPOINTS.SELLERS.AUTOCOMPLETE, { cacheFor: 60_000 }), // 60s cache — seller list rarely changes
 };

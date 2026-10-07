@@ -76,10 +76,10 @@ export const ORIGIN_OPTIONS = [
 ] as const;
 
 export const WEIGHT_UNITS = [
-  { label: 'Carat (ct)', value: 'ct' },
+
   { label: 'Gram (g)', value: 'g' },
   { label: 'Kilogram (kg)', value: 'kg' },
-  { label: 'Ratti', value: 'ratti' },
+
 ] as const;
 
 export const SHAPE_OPTIONS = [
