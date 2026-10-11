@@ -36,6 +36,7 @@ function toFormData(data: CollectionFormData): FormData {
     fd.append('origin',        data.origin ?? '');
     fd.append('weight',        String(data.weight));
     fd.append('weight_unit',   data.weight_unit);
+    if (data.weight_in_carat != null) fd.append('weight_in_carat', String(data.weight_in_carat));
     fd.append('shape',         data.shape ?? '');
     fd.append('cut',           data.cut ?? '');
     fd.append('color',         data.color ?? '');
@@ -52,6 +53,7 @@ function toFormData(data: CollectionFormData): FormData {
   if (data.collection_type === 'jewellery') {
     fd.append('weight',      String(data.weight));
     fd.append('weight_unit', data.weight_unit);
+    if (data.weight_in_carat != null) fd.append('weight_in_carat', String(data.weight_in_carat));
     fd.append('description', data.description ?? '');
   }
 

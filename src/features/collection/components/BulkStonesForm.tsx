@@ -55,7 +55,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
 
       {/* ── Stone Rows ──────────────────────────────────────────────── */}
       <div className="space-y-3">
-        <h3 className={sectionHead}>Stone Rows</h3>
+        <h3 className={sectionHead}>Collection Details</h3>
 
         {errors.stones && (
           <span className="block text-[11px] text-rose-500">{errors.stones}</span>
@@ -68,9 +68,9 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
           >
             {/* Row header */}
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
-                Stone #{idx + 1}
-              </span>
+              {/* <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+                Collection #{idx + 1}
+              </span> */}
               {data.stones.length > 1 && (
                 <button
                   type="button"
@@ -110,7 +110,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
               />
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                   Quantity <span className="text-rose-500">*</span>
@@ -128,29 +128,44 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
                 <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                   Total Weight
                 </label>
-                <input
-                  type="number"
-                  min="0"
-                  step="0.001"
-                  value={row.weight || ''}
-                  onChange={(e) => updateRow(idx, { weight: parseFloat(e.target.value) || 0 })}
-                  className={inputBase}
-                  placeholder="0.00"
-                />
+                <div className="flex items-stretch rounded-lg border border-slate-300 dark:border-slate-700 overflow-hidden focus-within:ring-1 focus-within:ring-amber-500/50 transition-all">
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.001"
+                    value={row.weight || ''}
+                    onChange={(e) => updateRow(idx, { weight: parseFloat(e.target.value) || 0 })}
+                    className="flex-1 min-w-0 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none"
+                    placeholder="0.00"
+                  />
+                  <select
+                    value={row.weight_unit || 'ct'}
+                    onChange={(e) => updateRow(idx, { weight_unit: e.target.value })}
+                    className="shrink-0 border-l border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2 py-2 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer"
+                  >
+                    {WEIGHT_UNITS.map((u) => (
+                      <option key={u.value} value={u.value}>{u.label}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
+              {/* Weight in Carat (optional) */}
               <div>
                 <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
-                  Weight Unit
+                  Weight in Carat
+                  <span className="ml-1 text-slate-400 dark:text-slate-500 font-normal text-[10px]">(optional)</span>
                 </label>
-                <select
-                  value={row.weight_unit || 'ct'}
-                  onChange={(e) => updateRow(idx, { weight_unit: e.target.value })}
-                  className={`${inputBase} cursor-pointer`}
-                >
-                  {WEIGHT_UNITS.map((u) => (
-                    <option key={u.value} value={u.value}>{u.label}</option>
-                  ))}
-                </select>
+                <input
+                  type="number"
+                  min="0.0001"
+                  step="0.0001"
+                  value={row.weight_in_carat ?? ''}
+                  onChange={(e) =>
+                    updateRow(idx, { weight_in_carat: e.target.value === '' ? null : parseFloat(e.target.value) || 0 })
+                  }
+                  className={inputBase}
+                  placeholder="0.0000 ct"
+                />
               </div>
               <div>
                 <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
@@ -175,15 +190,15 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
             </div>
           </div>
         ))}
-
-        <button
+        {/* Temporarily commented out - as bulk stones will have only one stone type */}
+        {/* <button
           type="button"
           onClick={addRow}
           className="flex w-full items-center justify-center gap-1.5 rounded-lg border-2 border-dashed border-amber-500/40 py-2 text-xs font-semibold text-amber-600 dark:text-amber-400 hover:border-amber-500/70 hover:bg-amber-50/30 dark:hover:bg-amber-900/10 transition-colors"
         >
           <PlusIcon />
           Add Stone Row
-        </button>
+        </button> */}
       </div>
 
       {/* ── Description ──────────────────────────────────────────────── */}

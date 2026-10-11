@@ -48,6 +48,7 @@ const SINGLE_DEFAULTS: SingleStoneFormData = {
   origin: '',
   weight: 0,
   weight_unit: 'ct',
+  weight_in_carat: null,
   shape: '',
   cut: '',
   color: '',
@@ -67,6 +68,7 @@ const JEWELLERY_DEFAULTS: JewelleryFormData = {
   collection_type: 'jewellery',
   weight: 0,
   weight_unit: 'g',
+  weight_in_carat: null,
   description: '',
 };
 
@@ -102,11 +104,11 @@ function recordToFormData(record: CollectionRecord): CollectionFormData {
   };
   switch (record.collection_type) {
     case 'single_stone':
-      return { ...base, collection_type: 'single_stone', gemstone_type: record.gemstone_type, variety: record.variety, treatment: record.treatment, origin: record.origin, weight: record.weight, weight_unit: record.weight_unit, shape: record.shape, cut: record.cut, color: record.color, clarity: record.clarity, dimensions: record.dimensions };
+      return { ...base, collection_type: 'single_stone', gemstone_type: record.gemstone_type, variety: record.variety, treatment: record.treatment, origin: record.origin, weight: record.weight, weight_unit: record.weight_unit, weight_in_carat: record.weight_in_carat ?? null, shape: record.shape, cut: record.cut, color: record.color, clarity: record.clarity, dimensions: record.dimensions };
     case 'bulk_stones':
       return { ...base, collection_type: 'bulk_stones', stones: record.stones, description: record.description };
     case 'jewellery':
-      return { ...base, collection_type: 'jewellery', weight: record.weight, weight_unit: record.weight_unit, description: record.description };
+      return { ...base, collection_type: 'jewellery', weight: record.weight, weight_unit: record.weight_unit, weight_in_carat: record.weight_in_carat ?? null, description: record.description };
     case 'industrial_stones':
       return { ...base, collection_type: 'industrial_stones', stone_type: record.stone_type, variety: record.variety, weight: record.weight, weight_unit: record.weight_unit, description: record.description };
   }

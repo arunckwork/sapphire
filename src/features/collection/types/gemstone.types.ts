@@ -37,6 +37,7 @@ export interface BulkStoneRow {
   quantity: number;
   weight: number;
   weight_unit: string;
+  weight_in_carat?: number | null; // optional carat equivalent of weight — gem-trade standard
   price?: number;   // optional per-row asking price; used in Add New flow only
 }
 
@@ -75,6 +76,7 @@ export interface SingleStoneCollection extends CollectionBase {
   origin: string;
   weight: number;
   weight_unit: string;
+  weight_in_carat?: number | null; // optional carat equivalent
   shape: string;
   cut: string;
   color: string;
@@ -92,6 +94,7 @@ export interface JewelleryCollection extends CollectionBase {
   collection_type: 'jewellery';
   weight: number;
   weight_unit: string;
+  weight_in_carat?: number | null; // optional carat equivalent
   description: string;
 }
 
@@ -134,6 +137,7 @@ export interface SingleStoneFormData extends CollectionFormBase {
   origin: string;                      // value from ORIGIN_OPTIONS constant
   weight: number;
   weight_unit: string;                 // value from WEIGHT_UNITS constant
+  weight_in_carat?: number | null;     // optional carat equivalent of weight
   shape: string;                       // value from SHAPE_OPTIONS constant
   cut: string;                         // value from CUT_OPTIONS constant
   color: string;                       // value from COLOR_OPTIONS constant
@@ -151,6 +155,7 @@ export interface JewelleryFormData extends CollectionFormBase {
   collection_type: 'jewellery';
   weight: number;
   weight_unit: string;
+  weight_in_carat?: number | null;     // optional carat equivalent of weight
   description: string;
 }
 

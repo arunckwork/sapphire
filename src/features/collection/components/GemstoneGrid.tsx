@@ -58,7 +58,8 @@ const COLLECTION_TYPE_LABEL: Record<string, string> = {
 function getWeightDisplay(record: CollectionRecord): string {
   if (record.collection_type === 'single_stone') {
     const r = record as SingleStoneCollection;
-    return `${r.weight} ${r.weight_unit}`;
+    const base = `${r.weight} ${r.weight_unit}`;
+    return r.weight_in_carat != null ? `${base} · ${r.weight_in_carat} ct` : base;
   }
   if (record.collection_type === 'industrial_stones') {
     const r = record as IndustrialStonesCollection;
@@ -69,11 +70,17 @@ function getWeightDisplay(record: CollectionRecord): string {
     const qty = r.stones.reduce((acc, s) => acc + (s.quantity || 0), 0);
     const weightSum = r.stones.reduce((acc, s) => acc + (s.weight || 0), 0);
     const primaryUnit = r.stones[0]?.weight_unit || 'ct';
-    return weightSum > 0 ? `${weightSum} ${primaryUnit} · ${qty} pcs` : `${qty} pcs`;
+    const base = weightSum > 0 ? `${weightSum} ${primaryUnit} · ${qty} pcs` : `${qty} pcs`;
+    const caratSum = r.stones.some(s => s.weight_in_carat != null)
+      ? r.stones.reduce((acc, s) => acc + (s.weight_in_carat ?? 0), 0)
+      : null;
+    return caratSum != null ? `${base} · ${caratSum} ct` : base;
   }
   if (record.collection_type === 'jewellery') {
     const r = record as JewelleryCollection;
-    return r.weight ? `${r.weight} ${r.weight_unit}` : '—';
+    if (!r.weight) return '—';
+    const base = `${r.weight} ${r.weight_unit}`;
+    return r.weight_in_carat != null ? `${base} · ${r.weight_in_carat} ct` : base;
   }
   return '—';
 }
