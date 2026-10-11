@@ -102,16 +102,29 @@ export function MasterdataClient() {
   const activeTabMeta = MASTERDATA_CATEGORY_TABS.find((t) => t.key === activeCategory);
   const activeCount = items.filter((i) => i.is_active).length;
   const inactiveCount = items.length - activeCount;
+  const tabsContainerRef = React.useRef<HTMLDivElement>(null);
+  const activeTabRef = React.useRef<HTMLButtonElement>(null);
+
+  // Auto-scroll active category pill into view on mount or category change
+  React.useEffect(() => {
+    if (activeTabRef.current && tabsContainerRef.current) {
+      activeTabRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'nearest',
+        inline: 'center',
+      });
+    }
+  }, [activeCategory]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 sm:space-y-6">
       {/* ── Page Header ─────────────────────────────────────────── */}
-      <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-200 md:text-2xl">
             Masterdata Management
           </h1>
-          <p className="text-xs font-normal text-muted-foreground">
+          <p className="mt-0.5 text-xs font-normal text-muted-foreground">
             Manage dropdown options, gemstone categories, and standard classification values.
           </p>
         </div>
@@ -126,7 +139,7 @@ export function MasterdataClient() {
       </div>
 
       {/* ── Stats Summary Row ────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-3.5 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3.5">
         {[
           {
             title: `Total (${activeTabMeta?.label || 'Category'})`,
@@ -148,16 +161,18 @@ export function MasterdataClient() {
             border: 'border-border/40 hover:border-border/70',
             note: 'hidden from forms',
           },
-        ].map((stat) => (
+        ].map((stat, idx) => (
           <div
             key={stat.title}
-            className={`flex flex-col justify-between rounded-xl border bg-card/60 p-4 backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${stat.border}`}
+            className={`flex flex-col justify-between rounded-xl border bg-card/60 p-3 sm:p-4 backdrop-blur-md transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md ${stat.border} ${
+              idx === 2 ? 'col-span-2 sm:col-span-1' : ''
+            }`}
           >
-            <span className="text-[11px] font-medium tracking-wide text-muted-foreground">
+            <span className="text-[11px] font-medium tracking-wide text-muted-foreground truncate">
               {stat.title}
             </span>
-            <div className="mt-2.5 space-y-0.5">
-              <div className={`text-2xl font-bold tracking-tight ${stat.color}`}>
+            <div className="mt-2 space-y-0.5">
+              <div className={`text-xl sm:text-2xl font-bold tracking-tight ${stat.color}`}>
                 {isLoading ? '—' : stat.value}
               </div>
               {stat.note && (
@@ -169,25 +184,58 @@ export function MasterdataClient() {
       </div>
 
       {/* ── Category Tabs ────────────────────────────────────────── */}
-      <div className="border-b border-border/40 pb-2">
-        <div className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none">
-          {MASTERDATA_CATEGORY_TABS.map((tab) => {
-            const isActive = tab.key === activeCategory;
-            return (
-              <button
-                key={tab.key}
-                type="button"
-                onClick={() => handleTabChange(tab.key)}
-                className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
-                  isActive
-                    ? 'border border-amber-500/40 bg-amber-500/15 text-amber-700 dark:text-amber-400 font-semibold shadow-xs'
-                    : 'border border-border/40 bg-card/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
-                }`}
-              >
-                {tab.label}
-              </button>
-            );
-          })}
+      <div className="space-y-2 border-b border-border/40 pb-2.5">
+        {/* Mobile Dropdown Selector (sm:hidden) */}
+        <div className="sm:hidden">
+          <label htmlFor="mobile-category-select" className="mb-1 block text-[11px] font-medium text-muted-foreground">
+            Category
+          </label>
+          <div className="relative">
+            <select
+              id="mobile-category-select"
+              value={activeCategory}
+              onChange={(e) => handleTabChange(e.target.value as MasterDataCategoryKey)}
+              className="w-full appearance-none rounded-xl border border-border/60 bg-card py-2.5 pl-3 pr-10 text-xs font-semibold text-foreground shadow-xs focus:border-amber-500/60 focus:outline-none focus:ring-1 focus:ring-amber-500/30"
+            >
+              {MASTERDATA_CATEGORY_TABS.map((tab) => (
+                <option key={tab.key} value={tab.key}>
+                  {tab.label}
+                </option>
+              ))}
+            </select>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-muted-foreground">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="6 9 12 15 18 9" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        {/* Scrollable Pills Strip (edge-to-edge on mobile with auto-scroll) */}
+        <div className="relative -mx-4 px-4 sm:mx-0 sm:px-0">
+          <div
+            ref={tabsContainerRef}
+            className="flex items-center gap-1.5 overflow-x-auto py-1 scrollbar-none touch-pan-x"
+          >
+            {MASTERDATA_CATEGORY_TABS.map((tab) => {
+              const isActive = tab.key === activeCategory;
+              return (
+                <button
+                  key={tab.key}
+                  ref={isActive ? activeTabRef : null}
+                  type="button"
+                  onClick={() => handleTabChange(tab.key)}
+                  className={`shrink-0 rounded-lg px-3 py-1.5 text-xs font-medium transition-all ${
+                    isActive
+                      ? 'border border-amber-500/40 bg-amber-500/15 text-amber-700 dark:text-amber-400 font-semibold shadow-xs'
+                      : 'border border-border/40 bg-card/40 text-muted-foreground hover:bg-muted/70 hover:text-foreground'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 

@@ -51,6 +51,7 @@ function toFormData(data: CollectionFormData): FormData {
   }
 
   if (data.collection_type === 'jewellery') {
+    if (data.jewellery_type) fd.append('jewellery_type', data.jewellery_type);
     fd.append('weight',      String(data.weight));
     fd.append('weight_unit', data.weight_unit);
     if (data.weight_in_carat != null) fd.append('weight_in_carat', String(data.weight_in_carat));

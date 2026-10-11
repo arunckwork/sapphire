@@ -68,9 +68,8 @@ export function IndustrialStonesForm({ data, errors, onChange }: IndustrialStone
             <label htmlFor="ind_weight" className={labelBase}>
               Weight (Decimal) <span className="text-rose-500">*</span>
             </label>
-            <div className={`flex items-stretch rounded-lg border ${
-              errors.weight || errors.weight_unit ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
-            } overflow-hidden focus-within:ring-1 focus-within:ring-amber-500/50 transition-all`}>
+            <div className={`flex items-stretch rounded-lg border ${errors.weight || errors.weight_unit ? 'border-rose-500/60' : 'border-slate-300 dark:border-slate-700'
+              } overflow-hidden focus-within:ring-1 focus-within:ring-amber-500/50 transition-all`}>
               <input
                 id="ind_weight"
                 type="number"

@@ -55,7 +55,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
 
       {/* ── Stone Rows ──────────────────────────────────────────────── */}
       <div className="space-y-3">
-        <h3 className={sectionHead}>Collection Details</h3>
+        <h3 className={sectionHead}>Package Details</h3>
 
         {errors.stones && (
           <span className="block text-[11px] text-rose-500">{errors.stones}</span>
@@ -167,7 +167,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
                   placeholder="0.0000 ct"
                 />
               </div>
-              <div>
+              {/* <div>
                 <label className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                   Price
                   <span className="ml-1 text-slate-400 font-normal">(optional)</span>
@@ -186,7 +186,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
                     placeholder="0.00"
                   />
                 </div>
-              </div>
+              </div> */}
             </div>
           </div>
         ))}

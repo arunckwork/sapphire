@@ -92,6 +92,7 @@ export interface BulkStonesCollection extends CollectionBase {
 
 export interface JewelleryCollection extends CollectionBase {
   collection_type: 'jewellery';
+  jewellery_type?: string | null;  // optional — populated from jewellery_types masterdata
   weight: number;
   weight_unit: string;
   weight_in_carat?: number | null; // optional carat equivalent
@@ -153,6 +154,7 @@ export interface BulkStonesFormData extends CollectionFormBase {
 
 export interface JewelleryFormData extends CollectionFormBase {
   collection_type: 'jewellery';
+  jewellery_type: string;          // '' = not selected; value from jewellery_types masterdata
   weight: number;
   weight_unit: string;
   weight_in_carat?: number | null;     // optional carat equivalent of weight

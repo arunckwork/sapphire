@@ -160,6 +160,19 @@ export const INDUSTRIAL_STONE_TYPES = [
   { label: 'Graphite', value: 'graphite' },
 ] as const;
 
+export const JEWELLERY_TYPES = [
+  { label: 'Hand Ring',  value: 'hand_ring'  },
+  { label: 'Necklace',   value: 'necklace'   },
+  { label: 'Bracelet',   value: 'bracelet'   },
+  { label: 'Earrings',   value: 'earrings'   },
+  { label: 'Pendant',    value: 'pendant'    },
+  { label: 'Bangle',     value: 'bangle'     },
+  { label: 'Brooch',     value: 'brooch'     },
+  { label: 'Anklet',     value: 'anklet'     },
+  { label: 'Chain',      value: 'chain'      },
+  { label: 'Cufflinks',  value: 'cufflinks'  },
+] as const;
+
 export const PAYMENT_METHOD_OPTIONS = [
   { label: 'Cash', value: 'cash' },
   { label: 'Mobile Money', value: 'mobile_money' },
@@ -188,3 +201,4 @@ export type ColorValue = OptionValue<typeof COLOR_OPTIONS>;
 export type ClarityValue = OptionValue<typeof CLARITY_OPTIONS>;
 export type CertificationLabValue = OptionValue<typeof CERTIFICATION_LABS>;
 export type IndustrialStoneValue = OptionValue<typeof INDUSTRIAL_STONE_TYPES>;
+export type JewelleryTypeValue = OptionValue<typeof JEWELLERY_TYPES>;

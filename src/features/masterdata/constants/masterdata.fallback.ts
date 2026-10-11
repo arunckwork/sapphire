@@ -18,6 +18,7 @@ import {
   CLARITY_OPTIONS,
   CERTIFICATION_LABS,
   INDUSTRIAL_STONE_TYPES,
+  JEWELLERY_TYPES,
 } from '@/features/collection/constants/gemstone.constants';
 import type { MasterDataResponse } from '../types/masterdata.types';
 
@@ -33,4 +34,5 @@ export const STATIC_MASTERDATA_FALLBACK: MasterDataResponse = {
   certification_labs:     [...CERTIFICATION_LABS],
   industrial_stone_types: [...INDUSTRIAL_STONE_TYPES],
   location_options:       [], // populated from backend only — no hardcoded fallback
+  jewellery_types:        [...JEWELLERY_TYPES],
 };

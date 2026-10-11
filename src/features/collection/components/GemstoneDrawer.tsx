@@ -47,7 +47,7 @@ const SINGLE_DEFAULTS: SingleStoneFormData = {
   treatment: '',
   origin: '',
   weight: 0,
-  weight_unit: 'ct',
+  weight_unit: 'g',
   weight_in_carat: null,
   shape: '',
   cut: '',
@@ -59,13 +59,14 @@ const SINGLE_DEFAULTS: SingleStoneFormData = {
 const BULK_DEFAULTS: BulkStonesFormData = {
   ...BASE_DEFAULTS,
   collection_type: 'bulk_stones',
-  stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }],
+  stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'g' }],
   description: '',
 };
 
 const JEWELLERY_DEFAULTS: JewelleryFormData = {
   ...BASE_DEFAULTS,
   collection_type: 'jewellery',
+  jewellery_type: '',
   weight: 0,
   weight_unit: 'g',
   weight_in_carat: null,
@@ -78,7 +79,7 @@ const INDUSTRIAL_DEFAULTS: IndustrialStonesFormData = {
   stone_type: '',
   variety: '',
   weight: 0,
-  weight_unit: 'ct',
+  weight_unit: 'kg',
   description: '',
 };
 
@@ -108,7 +109,7 @@ function recordToFormData(record: CollectionRecord): CollectionFormData {
     case 'bulk_stones':
       return { ...base, collection_type: 'bulk_stones', stones: record.stones, description: record.description };
     case 'jewellery':
-      return { ...base, collection_type: 'jewellery', weight: record.weight, weight_unit: record.weight_unit, weight_in_carat: record.weight_in_carat ?? null, description: record.description };
+      return { ...base, collection_type: 'jewellery', jewellery_type: record.jewellery_type ?? '', weight: record.weight, weight_unit: record.weight_unit, weight_in_carat: record.weight_in_carat ?? null, description: record.description };
     case 'industrial_stones':
       return { ...base, collection_type: 'industrial_stones', stone_type: record.stone_type, variety: record.variety, weight: record.weight, weight_unit: record.weight_unit, description: record.description };
   }
@@ -448,8 +449,8 @@ export function GemstoneDrawer({
 
           {/* ── SECTION: Certification & Lab (all types) ─────────────── */}
           <div className="space-y-4">
-            <h3 className={sectionHead}>Certification & Lab</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <h3 className={sectionHead}>{formData.collection_type === 'industrial_stones' ? "Information Documents" : "Certification & Lab"}</h3>
+            {formData.collection_type !== 'industrial_stones' && (<div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <label htmlFor="certification_no" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1">
                   Certification No.
@@ -476,10 +477,11 @@ export function GemstoneDrawer({
                 onQuickAdd={quickAdd}
                 isAdding={pendingCategory === 'certification_labs'}
               />
-            </div>
+            </div>)}
 
             {/* Certificate upload */}
             <CertificateUploadField
+              label={formData.collection_type === 'industrial_stones' ? "Document" : "Certificate"}
               file={formData.certificate ?? null}
               existingUrl={editingRecord?.certificate_url}
               existingRemoved={formData.remove_certificate ?? false}

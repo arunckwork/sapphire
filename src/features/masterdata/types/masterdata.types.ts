@@ -15,6 +15,7 @@ export interface MasterDataResponse {
   certification_labs:     MasterDataOption[];
   industrial_stone_types: MasterDataOption[];
   location_options:       MasterDataOption[];
+  jewellery_types:        MasterDataOption[];
 }
 
 /* ── Admin CRUD types ─────────────────────────────────────────────────────── */
@@ -30,7 +31,8 @@ export type MasterDataCategoryKey =
   | 'clarity_options'
   | 'certification_labs'
   | 'industrial_stone_types'
-  | 'location_options';
+  | 'location_options'
+  | 'jewellery_types';
 
 /** Full item shape returned by admin list/detail endpoints */
 export interface MasterDataItem {
@@ -80,4 +82,5 @@ export const MASTERDATA_CATEGORY_TABS: { key: MasterDataCategoryKey; label: stri
   { key: 'certification_labs',     label: 'Cert. Labs' },
   { key: 'industrial_stone_types', label: 'Industrial Types' },
   { key: 'location_options',       label: 'Locations' },
+  { key: 'jewellery_types',        label: 'Jewellery Types' },
 ];
