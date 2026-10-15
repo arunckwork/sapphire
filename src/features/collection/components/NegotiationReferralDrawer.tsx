@@ -5,7 +5,7 @@ import { Drawer } from '@/components/shared/feedback/Drawer';
 import { useNegotiation } from '../hooks/useNegotiation';
 import { useAuthStore } from '@/features/auth';
 import { useCurrency } from '@/contexts/CurrencyContext';
-import { formatPrice } from '@/utils/format';
+import { formatPrice, getCurrencySymbol } from '@/utils/format';
 import type { CollectionRecord } from '../types/gemstone.types';
 
 interface NegotiationReferralDrawerProps {
@@ -249,8 +249,8 @@ export function NegotiationReferralDrawer({
               {/* Counter-Offer Price Input Field */}
               <div className="flex items-center gap-2">
                 <div className="relative flex-1">
-                  <span className="absolute inset-y-0 left-2.5 flex items-center text-xs text-muted-foreground pointer-events-none">
-                    $
+                  <span className="absolute inset-y-0 left-2.5 flex items-center text-xs text-muted-foreground pointer-events-none font-medium">
+                    {getCurrencySymbol(currency)}
                   </span>
                   <input
                     type="number"
@@ -259,7 +259,13 @@ export function NegotiationReferralDrawer({
                     value={counterPrice}
                     onChange={(e) => setCounterPrice(e.target.value)}
                     placeholder="Proposed Counter-Offer Price (optional)"
-                    className="w-full rounded-lg border border-border bg-background py-1.5 pl-6 pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:ring-1 focus:ring-amber-500/50"
+                    className={`w-full rounded-lg border border-border bg-background py-1.5 ${
+                      getCurrencySymbol(currency).length > 2
+                        ? 'pl-10'
+                        : getCurrencySymbol(currency).length > 1
+                        ? 'pl-8'
+                        : 'pl-6'
+                    } pr-3 text-xs text-foreground placeholder:text-muted-foreground focus:outline-hidden focus:ring-1 focus:ring-amber-500/50`}
                   />
                 </div>
                 {counterPrice && (

@@ -26,7 +26,7 @@ const EMPTY_ROW: BulkStoneRow = {
   variety: '',
   quantity: 1,
   weight: 0,
-  weight_unit: 'ct',
+  weight_unit: 'g',
 };
 
 export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: BulkStonesFormProps) {
@@ -139,7 +139,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
                     placeholder="0.00"
                   />
                   <select
-                    value={row.weight_unit || 'ct'}
+                    value={row.weight_unit || 'g'}
                     onChange={(e) => updateRow(idx, { weight_unit: e.target.value })}
                     className="shrink-0 border-l border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2 py-2 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer"
                   >

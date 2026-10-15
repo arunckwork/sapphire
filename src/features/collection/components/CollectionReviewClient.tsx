@@ -489,11 +489,11 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
             <div className="grid grid-cols-2 gap-x-8 gap-y-4">
               <DetailRow label="Collection Type" value={TYPE_LABEL[collection.collection_type]} />
               <DetailRow label="Asking Price" value={formatPrice(collection.asking_price, currency)} />
-              <DetailRow label="Certification No." value={collection.certification_no} />
-              <DetailRow label="Certification Lab" value={collection.certification_lab} />
+              {collection.collection_type !== "industrial_stones" && <><DetailRow label="Certification No." value={collection.certification_no} />
+                <DetailRow label="Certification Lab" value={collection.certification_lab} /></>}
               {/* Certificate */}
               <div className="col-span-2">
-                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Certificate</span>
+                <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Certificate/Document</span>
                 <div className="mt-0.5">
                   {collection.certificate_url ? (
                     /\.(pdf)$/i.test(collection.certificate_url) ? (

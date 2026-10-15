@@ -86,7 +86,7 @@ const INDUSTRIAL_DEFAULTS: IndustrialStonesFormData = {
 function defaultsForType(type: CollectionType): CollectionFormData {
   switch (type) {
     case 'single_stone': return { ...SINGLE_DEFAULTS };
-    case 'bulk_stones': return { ...BULK_DEFAULTS, stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'ct' }] };
+    case 'bulk_stones': return { ...BULK_DEFAULTS, stones: [{ gemstone_type: '', variety: '', quantity: 1, weight: 0, weight_unit: 'g' }] };
     case 'jewellery': return { ...JEWELLERY_DEFAULTS };
     case 'industrial_stones': return { ...INDUSTRIAL_DEFAULTS };
   }

@@ -64,9 +64,9 @@ export function SettingsForm() {
               onChange={(e) => setFormData((prev) => ({ ...prev, defaultCurrency: e.target.value }))}
               options={[
                 { label: 'Ariary (MGA)', value: 'MGA' },
-                { label: 'Sri Lankan Rupee (LKR)', value: 'LKR' },
-                { label: 'US Dollar (USD)', value: 'USD' },
-                { label: 'Euro (EUR)', value: 'EUR' },
+                { label: 'Sri Lankan Rupee (LKR)', value: 'LKR', disabled: true },
+                { label: 'US Dollar (USD)', value: 'USD', disabled: true },
+                { label: 'Euro (EUR)', value: 'EUR', disabled: true },
               ]}
             />
           </FormField>
