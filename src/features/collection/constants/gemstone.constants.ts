@@ -179,6 +179,13 @@ export const PAYMENT_METHOD_OPTIONS = [
   { label: 'Bank Transfer', value: 'bank_transfer' },
 ] as const;
 
+export const MOBILE_MONEY_PROVIDER_OPTIONS = [
+  { label: 'MVola', value: 'MVola' },
+  { label: 'Orange Money', value: 'Orange Money' },
+  { label: 'Airtel Money', value: 'Airtel Money' },
+  { label: 'Other', value: 'other' },
+] as const;
+
 export const COLLECTION_STATUS_OPTIONS = [
   { label: 'All Status', value: '' },
   { label: 'In Review', value: 'review' },

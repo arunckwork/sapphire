@@ -151,10 +151,13 @@ export const collectionService = {
     fd.append('finalized_price', String(data.finalized_price));
     fd.append('payment_method', data.payment_method);
 
-    // Mobile-money-specific optional fields
+    // Mobile-money-specific fields
     if (data.payment_method === 'mobile_money') {
       if (data.mobile_money_number?.trim()) {
         fd.append('mobile_money_number', data.mobile_money_number.trim());
+      }
+      if (data.mobile_money_provider?.trim()) {
+        fd.append('mobile_money_provider', data.mobile_money_provider.trim());
       }
       if (data.receipt) {
         fd.append('receipt', data.receipt);

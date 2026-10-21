@@ -8,7 +8,7 @@ import { useCollectionDetail } from '../hooks/useCollectionDetail';
 import { useRole } from '@/features/auth/hooks/useRole';
 import { collectionService } from '../services/collection.service';
 import { NegotiationReferralDrawer } from './NegotiationReferralDrawer';
-import { PAYMENT_METHOD_OPTIONS } from '../constants/gemstone.constants';
+import { PAYMENT_METHOD_OPTIONS, MOBILE_MONEY_PROVIDER_OPTIONS } from '../constants/gemstone.constants';
 import { getMediaUrl } from '@/utils/media';
 import { useCurrency } from '@/contexts/CurrencyContext';
 import { formatPrice, getCurrencySymbol } from '@/utils/format';
@@ -543,10 +543,13 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
   const [finalizedPrice, setFinalizedPrice] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod | ''>('');
   const [mobileMoneyNumber, setMobileMoneyNumber] = useState('');
+  const [mobileMoneyProvider, setMobileMoneyProvider] = useState('');
+  const [customProvider, setCustomProvider] = useState('');
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
   const [priceError, setPriceError] = useState('');
   const [methodError, setMethodError] = useState('');
   const [mobileNumberError, setMobileNumberError] = useState('');
+  const [providerError, setProviderError] = useState('');
   const [receiptError, setReceiptError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReceiptCameraOpen, setIsReceiptCameraOpen] = useState(false);
@@ -620,6 +623,17 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
       } else {
         setMobileNumberError('');
       }
+
+      if (!mobileMoneyProvider) {
+        setProviderError('Provider is required for mobile money payments');
+        hasError = true;
+      } else if (mobileMoneyProvider === 'other' && !customProvider.trim()) {
+        setProviderError('Please enter the provider name');
+        hasError = true;
+      } else {
+        setProviderError('');
+      }
+
       if (!receiptFile) {
         setReceiptError('Payment details is required for mobile money payments');
         hasError = true;
@@ -628,16 +642,22 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
       }
     } else {
       setMobileNumberError('');
+      setProviderError('');
       setReceiptError('');
     }
     if (hasError) return;
+
+    const resolvedProvider = paymentMethod === 'mobile_money'
+      ? (mobileMoneyProvider === 'other' ? customProvider.trim() : mobileMoneyProvider)
+      : undefined;
 
     setIsSubmitting(true);
     try {
       await collectionService.reviewCollection(id, {
         finalized_price: Number(finalizedPrice),
         payment_method: paymentMethod as PaymentMethod,
-        mobile_money_number: paymentMethod === 'mobile_money' ? mobileMoneyNumber : undefined,
+        mobile_money_number: paymentMethod === 'mobile_money' ? mobileMoneyNumber.trim() : undefined,
+        mobile_money_provider: resolvedProvider,
         receipt: paymentMethod === 'mobile_money' ? receiptFile : undefined,
       }).send();
       toast.success(`Collection ${collection.serial_no} accepted successfully.`);
@@ -874,7 +894,11 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
 
             {/* Mobile Money details (only when payment_method is mobile_money) */}
             {collection.payment_method === 'mobile_money' && (
-              <div className="grid grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <DetailRow
+                  label="Provider"
+                  value={collection.mobile_money_provider ?? undefined}
+                />
                 <DetailRow
                   label="Mobile Number"
                   value={collection.mobile_money_number ?? undefined}
@@ -1021,8 +1045,11 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
                     // Reset mobile money fields when switching away
                     if (e.target.value !== 'mobile_money') {
                       setMobileMoneyNumber('');
+                      setMobileMoneyProvider('');
+                      setCustomProvider('');
                       setReceiptFile(null);
                       setMobileNumberError('');
+                      setProviderError('');
                       setReceiptError('');
                       setIsReceiptCameraOpen(false);
                     }
@@ -1038,23 +1065,64 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
               </div>
             </div>
 
-            {/* ── Mobile Money optional fields ─────────────────────────── */}
+            {/* ── Mobile Money fields ─────────────────────────── */}
             {paymentMethod === 'mobile_money' && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-1 border-t border-amber-500/15">
-                {/* Mobile Number */}
-                <div>
-                  <label htmlFor="mobile_money_number" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
-                    Mobile Number <span className="text-rose-500">*</span>
-                  </label>
-                  <input
-                    id="mobile_money_number"
-                    type="text"
-                    value={mobileMoneyNumber}
-                    onChange={(e) => { setMobileMoneyNumber(e.target.value); setMobileNumberError(''); }}
-                    placeholder="e.g. +94 71 234 5678"
-                    className={inputCls(!!mobileNumberError)}
-                  />
-                  {mobileNumberError && <p className="mt-1 text-[11px] text-rose-500">{mobileNumberError}</p>}
+              <div className="space-y-4 pt-1 border-t border-amber-500/15">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {/* Mobile Number */}
+                  <div>
+                    <label htmlFor="mobile_money_number" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+                      Mobile Number <span className="text-rose-500">*</span>
+                    </label>
+                    <input
+                      id="mobile_money_number"
+                      type="text"
+                      value={mobileMoneyNumber}
+                      onChange={(e) => { setMobileMoneyNumber(e.target.value); setMobileNumberError(''); }}
+                      placeholder="e.g. 034 00 000 00 or +261 34 00 000 00"
+                      className={inputCls(!!mobileNumberError)}
+                    />
+                    {mobileNumberError && <p className="mt-1 text-[11px] text-rose-500">{mobileNumberError}</p>}
+                  </div>
+
+                  {/* Provider Selection */}
+                  <div>
+                    <label htmlFor="mobile_money_provider" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+                      Provider <span className="text-rose-500">*</span>
+                    </label>
+                    <select
+                      id="mobile_money_provider"
+                      value={mobileMoneyProvider}
+                      onChange={(e) => {
+                        setMobileMoneyProvider(e.target.value);
+                        setProviderError('');
+                        if (e.target.value !== 'other') {
+                          setCustomProvider('');
+                        }
+                      }}
+                      className={inputCls(!!providerError)}
+                    >
+                      <option value="">Select provider…</option>
+                      {MOBILE_MONEY_PROVIDER_OPTIONS.map((opt) => (
+                        <option key={opt.value} value={opt.value}>{opt.label}</option>
+                      ))}
+                    </select>
+
+                    {/* Manual write-in if 'other' is selected */}
+                    {mobileMoneyProvider === 'other' && (
+                      <div className="mt-2 animate-in fade-in slide-in-from-top-1 duration-150">
+                        <input
+                          type="text"
+                          value={customProvider}
+                          onChange={(e) => { setCustomProvider(e.target.value); setProviderError(''); }}
+                          placeholder="Enter provider name…"
+                          className={inputCls(!!providerError)}
+                          autoFocus
+                        />
+                      </div>
+                    )}
+                    {providerError && <p className="mt-1 text-[11px] text-rose-500">{providerError}</p>}
+                  </div>
                 </div>
 
                 {/* Receipt Upload */}
