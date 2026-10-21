@@ -62,6 +62,11 @@ function CollectionDetailRows({ record }: { record: CollectionRecord }) {
     const totalPrice = hasPrices
       ? r.stones.reduce((acc, s) => acc + (s.price ?? 0), 0)
       : null;
+    // total weight
+    const hasWeights = r.stones?.some((s) => s.weight != null) ?? false;
+    const totalWeight = hasWeights
+      ? r.stones.reduce((acc, s) => acc + (s.weight ?? 0), 0)
+      : null;
 
     return (
       <>
@@ -100,12 +105,14 @@ function CollectionDetailRows({ record }: { record: CollectionRecord }) {
                 <tr>
                   <td colSpan={2} className="px-3 py-2 text-left text-foreground">Total</td>
                   <td className="px-3 py-2 text-center text-foreground">{totalQty} pcs</td>
-                  <td className="px-3 py-2 text-right text-muted-foreground">—</td>
+                  <td className="px-3 py-2 text-right text-muted-foreground">
+                    {totalWeight != null ? `${totalWeight} ${r.stones?.[0]?.weight_unit}` : '—'}
+                  </td>
                   <td className="px-3 py-2 text-right text-foreground font-bold">
                     {totalCarat != null ? `${Number(totalCarat.toFixed(4))} ct` : '—'}
                   </td>
                   <td className="px-3 py-2 text-right text-foreground">
-                    {totalPrice != null ? formatPrice(totalPrice, currency) : '—'}
+                    {totalPrice != null ? formatPrice(totalPrice, currency) : (r.asking_price ? formatPrice(r.asking_price, currency) : '—')}
                   </td>
                 </tr>
               </tfoot>
