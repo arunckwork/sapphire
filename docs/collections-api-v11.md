@@ -11,8 +11,9 @@
 > [`collections-api-v6.md`](./collections-api-v6.md),
 > [`collections-api-v7.md`](./collections-api-v7.md),
 > [`collections-api-v8.md`](./collections-api-v8.md),
-> [`collections-api-v9.md`](./collections-api-v9.md), and
-> [`collections-api-v10.md`](./collections-api-v10.md).
+> [`collections-api-v9.md`](./collections-api-v9.md),
+> [`collections-api-v10.md`](./collections-api-v10.md), and
+> [`collections-api-v12.md`](./collections-api-v12.md).
 
 ---
 

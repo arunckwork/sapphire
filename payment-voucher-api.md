@@ -127,6 +127,7 @@ The voucher must be a **A4 portrait PDF** containing the following sections:
 |---|---|
 | Seller Name | `seller.first_name + seller.last_name` |
 | Seller Email | `seller.email` |
+| Seller Mobile | `seller.mobile` (from `users.mobile`; fallback "N/A" if empty — see [collections-api-v12.md](docs/collections-api-v12.md)) |
 
 ### Financial Summary
 | Label | Value |
