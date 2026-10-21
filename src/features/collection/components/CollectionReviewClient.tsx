@@ -546,11 +546,13 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
   const [mobileMoneyProvider, setMobileMoneyProvider] = useState('');
   const [customProvider, setCustomProvider] = useState('');
   const [receiptFile, setReceiptFile] = useState<File | null>(null);
+  const [bankDetails, setBankDetails] = useState('');
   const [priceError, setPriceError] = useState('');
   const [methodError, setMethodError] = useState('');
   const [mobileNumberError, setMobileNumberError] = useState('');
   const [providerError, setProviderError] = useState('');
   const [receiptError, setReceiptError] = useState('');
+  const [bankDetailsError, setBankDetailsError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isReceiptCameraOpen, setIsReceiptCameraOpen] = useState(false);
   const receiptCameraInputRef = useRef<HTMLInputElement>(null);
@@ -645,6 +647,18 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
       setProviderError('');
       setReceiptError('');
     }
+
+    if (paymentMethod === 'bank_transfer') {
+      if (!bankDetails.trim()) {
+        setBankDetailsError('Bank details are required for bank transfer payments');
+        hasError = true;
+      } else {
+        setBankDetailsError('');
+      }
+    } else {
+      setBankDetailsError('');
+    }
+
     if (hasError) return;
 
     const resolvedProvider = paymentMethod === 'mobile_money'
@@ -659,6 +673,7 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
         mobile_money_number: paymentMethod === 'mobile_money' ? mobileMoneyNumber.trim() : undefined,
         mobile_money_provider: resolvedProvider,
         receipt: paymentMethod === 'mobile_money' ? receiptFile : undefined,
+        bank_details: paymentMethod === 'bank_transfer' ? bankDetails.trim() : undefined,
       }).send();
       toast.success(`Collection ${collection.serial_no} accepted successfully.`);
       refetch();
@@ -936,6 +951,16 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
               </div>
             )}
 
+            {/* Bank Transfer details (only when payment_method is bank_transfer) */}
+            {collection.payment_method === 'bank_transfer' && (
+              <div>
+                <DetailRow
+                  label="Bank Details"
+                  value={collection.bank_details ?? undefined}
+                />
+              </div>
+            )}
+
             {/* Approved by */}
             <div>
               <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Approved By</span>
@@ -1052,6 +1077,11 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
                       setProviderError('');
                       setReceiptError('');
                       setIsReceiptCameraOpen(false);
+                    }
+                    // Reset bank transfer fields when switching away
+                    if (e.target.value !== 'bank_transfer') {
+                      setBankDetails('');
+                      setBankDetailsError('');
                     }
                   }}
                   className={inputCls(!!methodError)}
@@ -1203,6 +1233,26 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
                     onClose={() => setIsReceiptCameraOpen(false)}
                   />
                 )}
+              </div>
+            )}
+
+            {/* ── Bank Transfer fields ─────────────────────────── */}
+            {paymentMethod === 'bank_transfer' && (
+              <div className="pt-1 border-t border-amber-500/15">
+                <div>
+                  <label htmlFor="bank_details" className="block text-xs font-semibold text-slate-800 dark:text-slate-200 mb-1.5">
+                    Bank Details <span className="text-rose-500">*</span>
+                  </label>
+                  <input
+                    id="bank_details"
+                    type="text"
+                    value={bankDetails}
+                    onChange={(e) => { setBankDetails(e.target.value); setBankDetailsError(''); }}
+                    placeholder="e.g. Bank name, account number, account holder name"
+                    className={inputCls(!!bankDetailsError)}
+                  />
+                  {bankDetailsError && <p className="mt-1 text-[11px] text-rose-500">{bankDetailsError}</p>}
+                </div>
               </div>
             )}
 

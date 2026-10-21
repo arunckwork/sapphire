@@ -6,8 +6,9 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
  * PATCH /api/collections/:id/review
  *
  * Approve and accept a collection. Forwards a multipart/form-data body
- * containing { finalized_price, payment_method } and, when the payment method
- * is mobile_money, { mobile_money_number, mobile_money_provider, receipt } fields.
+ * containing { finalized_price, payment_method } and method-specific fields:
+ * - mobile_money: { mobile_money_number, mobile_money_provider, receipt }
+ * - bank_transfer: { bank_details }
  *
  * Content-Type is NOT set explicitly — fetch derives the multipart boundary
  * from the FormData body automatically.

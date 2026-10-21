@@ -62,6 +62,7 @@ interface CollectionBase {
   mobile_money_number?: string | null;  // mobile number used for mobile_money payment
   mobile_money_provider?: string | null; // mobile money provider name (e.g. MVola, Orange Money, Airtel Money)
   receipt_url?: string | null;          // URL of uploaded payment receipt (optional, mobile_money only)
+  bank_details?: string | null;         // bank account / transfer details (mandatory for bank_transfer)
   created_by?: UserRef | null;          // user who created the collection record
   approved_by?: UserRef | null;         // admin/manager who accepted the collection
   approved_at?: string | null;          // ISO timestamp of acceptance
@@ -195,6 +196,8 @@ export interface ReviewFormData {
   mobile_money_provider?: string;
   /** Mandatory receipt file when payment_method = 'mobile_money' */
   receipt?: File | null;
+  /** Mandatory when payment_method = 'bank_transfer' */
+  bank_details?: string;
 }
 
 /* ── Grid / Listing ───────────────────────────────────────────────────────── */

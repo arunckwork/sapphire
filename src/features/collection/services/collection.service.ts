@@ -164,6 +164,13 @@ export const collectionService = {
       }
     }
 
+    // Bank-transfer-specific fields
+    if (data.payment_method === 'bank_transfer') {
+      if (data.bank_details?.trim()) {
+        fd.append('bank_details', data.bank_details.trim());
+      }
+    }
+
     return alovaClient.Patch<CollectionRecord>(ENDPOINTS.COLLECTIONS.REVIEW(id), fd);
   },
 
