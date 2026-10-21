@@ -42,6 +42,7 @@ function CollectionDetailRows({ record }: { record: CollectionRecord }) {
         <DetailRow label="Treatment" value={r.treatment} />
         <DetailRow label="Origin" value={r.origin} />
         <DetailRow label="Weight" value={r.weight ? `${r.weight} ${r.weight_unit}` : undefined} />
+        <DetailRow label="Weight in Carat" value={r.weight_in_carat != null ? `${r.weight_in_carat} ct` : undefined} />
         <DetailRow label="Shape" value={r.shape} />
         <DetailRow label="Cut" value={r.cut} />
         <DetailRow label="Color" value={r.color} />
@@ -52,12 +53,24 @@ function CollectionDetailRows({ record }: { record: CollectionRecord }) {
   }
   if (record.collection_type === 'bulk_stones') {
     const r = record as BulkStonesCollection;
+    const totalQty = r.stones?.reduce((acc, s) => acc + (s.quantity || 0), 0) ?? 0;
+    const hasCarats = r.stones?.some((s) => s.weight_in_carat != null) ?? false;
+    const totalCarat = hasCarats
+      ? r.stones.reduce((acc, s) => acc + (s.weight_in_carat ?? 0), 0)
+      : null;
+    const hasPrices = r.stones?.some((s) => s.price != null && s.price > 0) ?? false;
+    const totalPrice = hasPrices
+      ? r.stones.reduce((acc, s) => acc + (s.price ?? 0), 0)
+      : null;
+
     return (
       <>
         <DetailRow label="Description" value={r.description} span={2} />
         <div className="col-span-2">
-          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Stones</span>
-          <div className="mt-1.5 overflow-hidden rounded-lg border border-border">
+          <span className="text-[11px] font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">
+            Stones {r.stones?.length ? `(${r.stones.length} ${r.stones.length === 1 ? 'lot' : 'lots'})` : ''}
+          </span>
+          <div className="mt-1.5 overflow-x-auto rounded-lg border border-border">
             <table className="w-full text-xs">
               <thead className="bg-muted/50 text-[10px] uppercase font-bold text-muted-foreground">
                 <tr>
@@ -65,20 +78,37 @@ function CollectionDetailRows({ record }: { record: CollectionRecord }) {
                   <th className="px-3 py-2 text-left">Variety</th>
                   <th className="px-3 py-2 text-center">Qty</th>
                   <th className="px-3 py-2 text-right">Weight</th>
+                  <th className="px-3 py-2 text-right">Carat Wt</th>
                   <th className="px-3 py-2 text-right">Price</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-border/60">
-                {r.stones.map((s, i) => (
+                {r.stones?.map((s, i) => (
                   <tr key={i}>
                     <td className="px-3 py-1.5 font-medium capitalize">{s.gemstone_type}</td>
                     <td className="px-3 py-1.5 text-muted-foreground capitalize">{s.variety || '—'}</td>
                     <td className="px-3 py-1.5 text-center">{s.quantity}</td>
                     <td className="px-3 py-1.5 text-right">{s.weight} {s.weight_unit}</td>
+                    <td className="px-3 py-1.5 text-right font-medium">
+                      {s.weight_in_carat != null ? `${s.weight_in_carat} ct` : '—'}
+                    </td>
                     <td className="px-3 py-1.5 text-right">{s.price ? formatPrice(s.price, currency) : '—'}</td>
                   </tr>
                 ))}
               </tbody>
+              <tfoot className="bg-muted/30 border-t border-border font-semibold text-muted-foreground">
+                <tr>
+                  <td colSpan={2} className="px-3 py-2 text-left text-foreground">Total</td>
+                  <td className="px-3 py-2 text-center text-foreground">{totalQty} pcs</td>
+                  <td className="px-3 py-2 text-right text-muted-foreground">—</td>
+                  <td className="px-3 py-2 text-right text-foreground font-bold">
+                    {totalCarat != null ? `${Number(totalCarat.toFixed(4))} ct` : '—'}
+                  </td>
+                  <td className="px-3 py-2 text-right text-foreground">
+                    {totalPrice != null ? formatPrice(totalPrice, currency) : '—'}
+                  </td>
+                </tr>
+              </tfoot>
             </table>
           </div>
         </div>
@@ -89,7 +119,9 @@ function CollectionDetailRows({ record }: { record: CollectionRecord }) {
     const r = record as JewelleryCollection;
     return (
       <>
-        <DetailRow label="Weight" value={r.weight ? `${r.weight} ${r.weight_unit}` : undefined} />
+        {r.jewellery_type && <DetailRow label="Jewellery Type" value={r.jewellery_type} />}
+        <DetailRow label="Gross Weight" value={r.weight ? `${r.weight} ${r.weight_unit}` : undefined} />
+        <DetailRow label="Weight in Carat" value={r.weight_in_carat != null ? `${r.weight_in_carat} ct` : undefined} />
         <DetailRow label="Description" value={r.description} span={2} />
       </>
     );
