@@ -66,6 +66,13 @@ interface CollectionBase {
   approved_at?: string | null;          // ISO timestamp of acceptance
   created_at: string;
   updated_at: string;
+  /**
+   * Computed by the backend (v9) — the most recent non-null counter_offer_price
+   * from the negotiation log for this collection.
+   * null when no negotiation records carry a counter-offer.
+   * Never persisted as a column; derived via SQL subquery on GET /collections/:id.
+   */
+  latest_counter_offer_price?: number | string | null;
 }
 
 export interface SingleStoneCollection extends CollectionBase {

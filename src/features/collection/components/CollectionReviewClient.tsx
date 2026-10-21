@@ -352,6 +352,23 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
   const openLightbox = (urls: string[], index: number) => setLightbox({ urls, index });
   const closeLightbox = () => setLightbox(null);
 
+  // Pre-populate finalizedPrice when a collection first loads into the review form.
+  // Must be above the early returns to satisfy the Rules of Hooks.
+  // Priority: latest counter-offer (v9 API field) → asking_price → leave blank.
+  // The `finalizedPrice === ''` guard ensures this is a one-shot default —
+  // any subsequent user edit is never overwritten by a re-render.
+  useEffect(() => {
+    if (!collection || collection.status === 'accepted' || !canReview) return;
+    if (finalizedPrice !== '') return; // user has already typed — don't reset
+    const counterOffer = collection.latest_counter_offer_price;
+    if (counterOffer != null && counterOffer !== '') {
+      setFinalizedPrice(String(counterOffer));
+    } else if (collection.asking_price) {
+      setFinalizedPrice(String(collection.asking_price));
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [collection?.id]); // intentionally keyed on collection identity only
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64 gap-3 text-muted-foreground">
@@ -750,11 +767,21 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
                   />
                 </div>
                 {priceError && <p className="mt-1 text-[11px] text-rose-500">{priceError}</p>}
-                {collection.asking_price && (
-                  <p className="mt-1 text-[11px] text-muted-foreground">
-                    Asking price: {formatPrice(collection.asking_price, currency)}
-                  </p>
-                )}
+                <div className="mt-1 flex flex-col gap-0.5">
+                  {collection.latest_counter_offer_price != null && (
+                    <p className="text-[11px] text-amber-600 dark:text-amber-400 font-medium">
+                      Pre-filled from latest counter-offer
+                    </p>
+                  )}
+                  {collection.asking_price && (
+                    <p className="text-[11px] text-muted-foreground">
+                      Asking price: {formatPrice(collection.asking_price, currency)}
+                      {collection.latest_counter_offer_price != null && (
+                        <> &middot; Counter-offer: {formatPrice(Number(collection.latest_counter_offer_price), currency)}</>
+                      )}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Payment Method */}
