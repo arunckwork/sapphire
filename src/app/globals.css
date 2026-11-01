@@ -5,6 +5,7 @@
 /* ── Design Tokens ─────────────────────────────────────────────────── */
 @layer base {
   :root {
+    color-scheme: light;
     /* ── Light Mode — Light Gray (#F4F6FA) base, Navy text, Gold accents ── */
     --background: 220 33% 96%;        /* #F4F6FA — light gray */
     --foreground: 213 71% 14%;        /* #0B1F3A — navy blue */
@@ -49,6 +50,7 @@
   }
 
   .dark {
+    color-scheme: dark;
     /* ── Dark Mode — Deep Navy (#0B1F3A) base, Gold accents ── */
     --background: 213 71% 8%;         /* deep navy, darker than #0B1F3A */
     --foreground: 220 33% 92%;        /* near-white text */
@@ -109,6 +111,42 @@
     font-family: var(--font-sans, system-ui, sans-serif);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Native select dropdown options theming across all browsers */
+  select {
+    color-scheme: light;
+  }
+
+  .dark select,
+  html.dark select {
+    color-scheme: dark;
+  }
+
+  option,
+  optgroup {
+    background-color: hsl(0 0% 100%);
+    color: hsl(213 71% 14%);
+  }
+
+  .dark option,
+  .dark optgroup,
+  html.dark option,
+  html.dark optgroup {
+    background-color: hsl(213 65% 11%) !important;
+    color: hsl(220 33% 92%) !important;
+  }
+
+  .dark option:checked,
+  html.dark option:checked {
+    background-color: hsl(213 60% 18%) !important;
+    color: hsl(47 70% 62%) !important;
+  }
+
+  .dark option:disabled,
+  html.dark option:disabled {
+    color: hsl(220 20% 45%) !important;
+    background-color: hsl(213 65% 9%) !important;
   }
 
   /* Compact typography scale with refined weights */
