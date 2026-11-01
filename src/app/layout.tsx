@@ -25,7 +25,7 @@ const themeInitScript = `
 (function() {
   try {
     var stored = localStorage.getItem('theme');
-    var theme = stored || 'system';
+    var theme = stored || 'dark';
     if (theme === 'system') {
       theme = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
     }
@@ -43,6 +43,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
+      className="dark"
       suppressHydrationWarning
     >
       <head>

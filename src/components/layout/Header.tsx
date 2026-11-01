@@ -51,7 +51,7 @@ export function Header() {
           <button
             type="button"
             onClick={() => setTheme(isDark ? 'light' : 'dark')}
-            className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white dark:bg-[hsl(213_65%_14%)] text-muted-foreground transition-all hover:border-[hsl(47_65%_52%/0.5)] hover:text-primary cursor-pointer"
+            className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white dark:bg-[hsl(213_65%_14%)] text-[hsl(var(--gold))] transition-all hover:border-[hsl(47_65%_52%/0.5)] hover:bg-[hsl(47_65%_52%/0.1)] active:scale-95 cursor-pointer shadow-xs"
             title={`Switch to ${isDark ? 'Light' : 'Dark'} Mode`}
             aria-label="Toggle Theme"
           >
