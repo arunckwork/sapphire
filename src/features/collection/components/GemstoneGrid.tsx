@@ -40,10 +40,10 @@ interface CollectionGridProps {
 }
 
 const COLLECTION_TYPE_BADGE: Record<string, string> = {
-  single_stone: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 border-amber-500/30',
-  bulk_stones: 'bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-400 border-sky-500/30',
-  jewellery: 'bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400 border-purple-500/30',
-  industrial_stones: 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border-slate-500/30',
+  single_stone: 'bg-amber-100 text-amber-800 dark:bg-amber-900/25 dark:text-amber-300 border-amber-500/30',
+  bulk_stones: 'bg-sky-100 text-sky-800 dark:bg-sky-900/25 dark:text-sky-300 border-sky-500/30',
+  jewellery: 'bg-purple-100 text-purple-800 dark:bg-purple-900/25 dark:text-purple-300 border-purple-500/30',
+  industrial_stones: 'bg-slate-100 text-slate-700 dark:bg-slate-800/60 dark:text-slate-300 border-slate-500/30',
 };
 
 const COLLECTION_TYPE_LABEL: Record<string, string> = {
@@ -177,7 +177,7 @@ export function GemstoneGrid({
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search serial, seller, cert…"
-              className="w-full rounded-lg border border-border bg-background pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50"
+              className="w-full rounded-lg border border-border bg-background pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring)/0.5)] dark:focus:ring-[hsl(var(--gold)/0.4)]"
             />
             <SearchIcon />
           </div>
@@ -186,7 +186,7 @@ export function GemstoneGrid({
           <select
             value={filters.collection_type}
             onChange={(e) => onFilterChange({ collection_type: e.target.value })}
-            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
+            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring)/0.5)] cursor-pointer"
           >
             <option value="">All Types</option>
             {COLLECTION_TYPE_OPTIONS.map((opt) => (
@@ -198,7 +198,7 @@ export function GemstoneGrid({
           <select
             value={filters.status}
             onChange={(e) => onFilterChange({ status: e.target.value })}
-            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
+            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring)/0.5)] cursor-pointer"
           >
             {COLLECTION_STATUS_OPTIONS.map((opt) => (
               <option key={opt.value} value={opt.value}>{opt.label}</option>
@@ -219,7 +219,14 @@ export function GemstoneGrid({
         {canManage && (
           <button
             onClick={onAddNew}
-            className="flex items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-xs font-bold text-slate-950 shadow-md shadow-amber-500/20 hover:from-amber-400 hover:to-amber-500 transition-all duration-200 shrink-0"
+            className="flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-bold shadow-md transition-all duration-200 shrink-0"
+            style={{
+              background: 'linear-gradient(135deg, hsl(47 62% 40%) 0%, hsl(47 65% 52%) 50%, hsl(42 70% 62%) 100%)',
+              color: 'hsl(213 71% 10%)',
+              boxShadow: '0 4px 16px hsl(47 65% 52% / 0.35)',
+            }}
+            onMouseEnter={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 6px 24px hsl(47 65% 52% / 0.55)'; }}
+            onMouseLeave={(e) => { (e.currentTarget as HTMLButtonElement).style.boxShadow = '0 4px 16px hsl(47 65% 52% / 0.35)'; }}
           >
             <PlusIcon />
             <span>Add Collection</span>
@@ -326,7 +333,7 @@ export function GemstoneGrid({
                             : <span className="italic">—</span>}
                         </span>
                         {item.serial_no && (
-                          <span className="font-mono text-[10px] text-amber-600 dark:text-amber-400">
+                          <span className="font-mono text-[10px]" style={{ color: 'hsl(47 65% 48%)' }}>
                             {item.serial_no}
                           </span>
                         )}
@@ -473,7 +480,7 @@ export function GemstoneGrid({
               <select
                 value={limit}
                 onChange={(e) => onLimitChange(Number(e.target.value))}
-                className="rounded-md border border-border bg-background px-2 py-0.5 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-amber-500/50 cursor-pointer"
+                className="rounded-md border border-border bg-background px-2 py-0.5 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-[hsl(var(--ring)/0.5)] cursor-pointer"
               >
                 {[10, 25, 50, 100].map((n) => (
                   <option key={n} value={n}>{n}</option>

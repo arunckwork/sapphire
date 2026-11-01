@@ -5,77 +5,90 @@
 /* ── Design Tokens ─────────────────────────────────────────────────── */
 @layer base {
   :root {
-    /* Refined Light Mode — Soft pearl slate background with rich high-contrast typography */
-    --background: 215 28% 97%;
-    --foreground: 222.2 84% 9.8%;
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 9.8%;
+    /* ── Light Mode — Light Gray (#F4F6FA) base, Navy text, Gold accents ── */
+    --background: 220 33% 96%;        /* #F4F6FA — light gray */
+    --foreground: 213 71% 14%;        /* #0B1F3A — navy blue */
+    --card: 0 0% 100%;                /* #FFFFFF — pure white cards */
+    --card-foreground: 213 71% 14%;
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 9.8%;
-    --primary: 221.2 83.2% 53.3%;
-    --primary-foreground: 210 40% 98%;
-    --secondary: 215 25% 93.5%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
-    --muted: 215 25% 93.5%;
-    --muted-foreground: 215.4 20% 40%;
-    --accent: 215 25% 93.5%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --popover-foreground: 213 71% 14%;
+    --primary: 47 65% 52%;            /* #D4AF37 — gold */
+    --primary-foreground: 213 71% 14%; /* navy text on gold */
+    --secondary: 220 28% 92%;
+    --secondary-foreground: 213 71% 14%;
+    --muted: 220 28% 92%;
+    --muted-foreground: 213 45% 38%;
+    --accent: 47 65% 52%;             /* gold accent */
+    --accent-foreground: 213 71% 14%;
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 214.3 28% 88%;
-    --input: 214.3 28% 88%;
-    --ring: 221.2 83.2% 53.3%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 22% 87%;
+    --input: 220 22% 87%;
+    --ring: 47 65% 52%;               /* gold ring */
     --radius: 0.5rem;
 
     /* Gem palette — light mode */
-    --gem-sapphire: 221 91% 48%;
+    --gem-sapphire: 213 71% 30%;      /* navy-derived sapphire */
     --gem-ruby: 350 89% 48%;
     --gem-emerald: 152 76% 36%;
     --gem-amethyst: 270 67% 52%;
-    --gem-gold: 43 96% 45%;
-    --gem-diamond: 200 20% 88%;
+    --gem-gold: 47 65% 45%;           /* gold */
+    --gem-diamond: 220 25% 85%;
 
     /* Grid & Surface tokens — light mode */
-    --table-header-bg: 215 25% 90%;
-    --table-header-fg: 222.2 47% 20%;
-    --table-footer-bg: 215 25% 93%;
-    --table-footer-fg: 215.4 20% 35%;
+    --table-header-bg: 213 71% 14%;   /* navy header */
+    --table-header-fg: 47 65% 65%;    /* gold text in navy header */
+    --table-footer-bg: 220 28% 92%;
+    --table-footer-fg: 213 45% 38%;
+
+    /* Brand-specific tokens */
+    --navy: 213 71% 14%;
+    --gold: 47 68% 38%;
+    --gold-light: 47 65% 65%;
+    --gold-dark: 47 65% 30%;
   }
 
   .dark {
-    --background: 224 40% 6%;
-    --foreground: 215 15% 82%; /* Soft off-white for comfortable reading */
-    --card: 224 35% 9%;
-    --card-foreground: 215 15% 82%;
-    --popover: 224 35% 9%;
-    --popover-foreground: 215 15% 82%;
-    --primary: 217 91% 60%;
-    --primary-foreground: 224 40% 6%;
-    --secondary: 224 30% 14%;
-    --secondary-foreground: 215 15% 82%;
-    --muted: 224 30% 14%;
-    --muted-foreground: 215 15% 58%;
-    --accent: 270 50% 25%;
-    --accent-foreground: 215 15% 82%;
+    /* ── Dark Mode — Deep Navy (#0B1F3A) base, Gold accents ── */
+    --background: 213 71% 8%;         /* deep navy, darker than #0B1F3A */
+    --foreground: 220 33% 92%;        /* near-white text */
+    --card: 213 65% 11%;              /* slightly lighter navy for cards */
+    --card-foreground: 220 33% 92%;
+    --popover: 213 65% 11%;
+    --popover-foreground: 220 33% 92%;
+    --primary: 47 65% 52%;            /* gold */
+    --primary-foreground: 213 71% 8%; /* dark navy text on gold */
+    --secondary: 213 60% 16%;
+    --secondary-foreground: 220 33% 85%;
+    --muted: 213 60% 16%;
+    --muted-foreground: 220 20% 55%;
+    --accent: 47 50% 25%;             /* muted gold accent */
+    --accent-foreground: 47 65% 70%;
     --destructive: 0 72% 51%;
-    --destructive-foreground: 215 15% 82%;
-    --border: 224 30% 16%;
-    --input: 224 30% 14%;
-    --ring: 217 91% 60%;
+    --destructive-foreground: 220 33% 92%;
+    --border: 213 55% 20%;            /* subtle navy border */
+    --input: 213 60% 16%;
+    --ring: 47 65% 52%;               /* gold ring */
 
     /* Gem palette — dark mode */
-    --gem-sapphire: 217 91% 60%;
+    --gem-sapphire: 213 71% 55%;
     --gem-ruby: 350 89% 60%;
     --gem-emerald: 152 76% 48%;
     --gem-amethyst: 270 67% 65%;
-    --gem-gold: 43 96% 58%;
-    --gem-diamond: 200 30% 85%;
+    --gem-gold: 47 65% 60%;           /* bright gold in dark mode */
+    --gem-diamond: 220 30% 80%;
 
     /* Grid & Surface tokens — dark mode */
-    --table-header-bg: 224 35% 13%;
-    --table-header-fg: 215 15% 85%;
-    --table-footer-bg: 224 35% 11%;
-    --table-footer-fg: 215 15% 65%;
+    --table-header-bg: 213 71% 12%;   /* deep navy header */
+    --table-header-fg: 47 65% 65%;    /* gold text */
+    --table-footer-bg: 213 65% 10%;
+    --table-footer-fg: 220 20% 60%;
+
+    /* Brand-specific tokens */
+    --navy: 213 71% 14%;
+    --gold: 47 70% 62%;
+    --gold-light: 47 65% 72%;
+    --gold-dark: 47 65% 42%;
   }
 }
 
@@ -115,7 +128,7 @@
 
   /* Gem glow effects */
   .gem-glow-sapphire {
-    box-shadow: 0 0 32px 4px hsl(217 91% 60% / 0.35), 0 0 80px 8px hsl(217 91% 60% / 0.12);
+    box-shadow: 0 0 32px 4px hsl(213 71% 40% / 0.35), 0 0 80px 8px hsl(213 71% 40% / 0.12);
   }
   .gem-glow-ruby {
     box-shadow: 0 0 32px 4px hsl(350 89% 60% / 0.35), 0 0 80px 8px hsl(350 89% 60% / 0.12);
@@ -126,41 +139,47 @@
   .gem-glow-emerald {
     box-shadow: 0 0 32px 4px hsl(152 76% 48% / 0.35), 0 0 80px 8px hsl(152 76% 48% / 0.12);
   }
+  .gem-glow-gold {
+    box-shadow: 0 0 32px 4px hsl(47 65% 52% / 0.45), 0 0 80px 8px hsl(47 65% 52% / 0.18);
+  }
 
-  /* Theme-aware Glassmorphism card */
+  /* Theme-aware Glassmorphism card — Light: white/gold border, Dark: navy/gold glow */
   .glass-card {
     background: linear-gradient(
       135deg,
-      rgba(255, 255, 255, 0.95) 0%,
-      rgba(248, 250, 252, 0.9) 100%
+      rgba(255, 255, 255, 0.97) 0%,
+      rgba(244, 246, 250, 0.94) 100%
     );
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
-    border: 1px solid rgba(226, 232, 240, 0.9);
-    box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(212, 175, 55, 0.22);
+    box-shadow: 0 4px 24px -2px rgba(11, 31, 58, 0.09), 0 0 0 1px rgba(212, 175, 55, 0.07);
   }
 
   .dark .glass-card {
     background: linear-gradient(
       135deg,
-      hsl(224 35% 12% / 0.85) 0%,
-      hsl(224 35% 10% / 0.92) 100%
+      hsl(213 65% 13% / 0.92) 0%,
+      hsl(213 71% 10% / 0.97) 100%
     );
     backdrop-filter: blur(24px);
     -webkit-backdrop-filter: blur(24px);
-    border: 1px solid hsl(217 91% 60% / 0.15);
-    box-shadow: none;
+    border: 1px solid hsl(47 65% 52% / 0.22);
+    box-shadow: 0 8px 40px hsl(213 71% 4% / 0.6), 0 0 0 1px hsl(47 65% 52% / 0.08);
   }
 
-  /* Gem gradient button */
+  /* Gold gradient primary button */
   .btn-gem {
-    background: linear-gradient(135deg, hsl(230 80% 45%) 0%, hsl(217 91% 60%) 50%, hsl(200 85% 65%) 100%);
+    background: linear-gradient(135deg, hsl(47 62% 40%) 0%, hsl(47 65% 52%) 45%, hsl(42 70% 60%) 100%);
     background-size: 200% 200%;
+    color: hsl(213 71% 10%);
+    font-weight: 700;
+    letter-spacing: 0.01em;
     transition: background-position 0.4s ease, box-shadow 0.3s ease, transform 0.15s ease;
   }
   .btn-gem:hover {
     background-position: right center;
-    box-shadow: 0 8px 30px hsl(217 91% 60% / 0.5);
+    box-shadow: 0 8px 32px hsl(47 65% 52% / 0.6), 0 2px 8px hsl(47 65% 52% / 0.3);
     transform: translateY(-1px);
   }
   .btn-gem:active { transform: translateY(0); }
@@ -179,19 +198,24 @@
     0%   { background-position: -200% center; }
     100% { background-position: 200% center; }
   }
+  @keyframes gold-pulse-ring {
+    0%, 100% { box-shadow: 0 0 0 0 hsl(47 65% 52% / 0.4); }
+    50%       { box-shadow: 0 0 0 6px hsl(47 65% 52% / 0); }
+  }
 
   .gem-float { animation: gem-float 8s ease-in-out infinite; }
   .gem-float-slow { animation: gem-float 12s ease-in-out infinite reverse; }
   .gem-pulse { animation: gem-pulse 4s ease-in-out infinite; }
 
-  /* Shimmer text */
+  /* Gold shimmer text */
   .text-shimmer {
     background: linear-gradient(
       90deg,
-      hsl(43 96% 45%) 0%,
-      hsl(43 96% 65%) 30%,
-      hsl(43 96% 45%) 60%,
-      hsl(43 96% 35%) 100%
+      hsl(47 65% 38%) 0%,
+      hsl(47 65% 60%) 28%,
+      hsl(42 72% 72%) 50%,
+      hsl(47 65% 60%) 72%,
+      hsl(47 65% 38%) 100%
     );
     background-size: 200% auto;
     -webkit-background-clip: text;
@@ -203,10 +227,11 @@
   .dark .text-shimmer {
     background: linear-gradient(
       90deg,
-      hsl(43 96% 70%) 0%,
-      hsl(43 96% 90%) 30%,
-      hsl(43 96% 70%) 60%,
-      hsl(43 96% 55%) 100%
+      hsl(47 65% 52%) 0%,
+      hsl(47 65% 76%) 28%,
+      hsl(42 72% 88%) 50%,
+      hsl(47 65% 76%) 72%,
+      hsl(47 65% 52%) 100%
     );
     background-size: 200% auto;
     -webkit-background-clip: text;
@@ -214,28 +239,35 @@
     -webkit-text-fill-color: transparent;
   }
 
-  /* Input gem style */
+  /* Input gem style — gold focus ring */
   .input-gem {
     background: hsl(0 0% 100%);
-    border: 1px solid hsl(214.3 28% 86%);
-    color: hsl(222.2 84% 9.8%);
+    border: 1.5px solid hsl(220 22% 85%);
+    color: hsl(213 71% 14%);
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
   }
-  .input-gem::placeholder { color: hsl(215.4 16.3% 55%); }
+  .input-gem::placeholder { color: hsl(213 35% 54%); }
   .input-gem:focus {
     outline: none;
-    border-color: hsl(221.2 83.2% 53.3%);
-    box-shadow: 0 0 0 3px hsl(221.2 83.2% 53.3% / 0.15);
+    border-color: hsl(47 65% 52%);
+    box-shadow: 0 0 0 3px hsl(47 65% 52% / 0.18);
   }
 
   .dark .input-gem {
-    background: hsl(224 40% 8% / 0.8);
-    border: 1px solid hsl(224 30% 20%);
-    color: hsl(215 15% 85%);
+    background: hsl(213 65% 10% / 0.9);
+    border: 1.5px solid hsl(213 55% 22%);
+    color: hsl(220 33% 92%);
   }
-  .dark .input-gem::placeholder { color: hsl(215 15% 42%); }
+  .dark .input-gem::placeholder { color: hsl(220 20% 46%); }
   .dark .input-gem:focus {
-    border-color: hsl(217 91% 60% / 0.7);
-    box-shadow: 0 0 0 3px hsl(217 91% 60% / 0.15), 0 0 12px hsl(217 91% 60% / 0.2);
+    border-color: hsl(47 65% 52% / 0.8);
+    box-shadow: 0 0 0 3px hsl(47 65% 52% / 0.18), 0 0 12px hsl(47 65% 52% / 0.12);
+  }
+
+  /* Golden Page Title */
+  .page-title-gold {
+    color: hsl(var(--gold));
+    letter-spacing: -0.02em;
   }
 }
+

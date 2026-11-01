@@ -172,7 +172,7 @@ export function InventoryGrid({
               value={localSearch}
               onChange={(e) => setLocalSearch(e.target.value)}
               placeholder="Search serial, seller, cert…"
-              className="w-full rounded-lg border border-border bg-background pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-teal-500/50"
+              className="w-full rounded-lg border border-border bg-background pl-8 pr-3 py-1.5 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-[hsl(47_65%_52%/0.5)]"
             />
             <SearchIcon />
           </div>
@@ -181,7 +181,7 @@ export function InventoryGrid({
           <select
             value={filters.collection_type}
             onChange={(e) => onFilterChange({ collection_type: e.target.value })}
-            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500/50 cursor-pointer"
+            className="rounded-lg border border-border bg-background px-3 py-1.5 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-[hsl(47_65%_52%/0.5)] cursor-pointer"
           >
             <option value="">All Types</option>
             {COLLECTION_TYPE_OPTIONS.map((opt) => (
@@ -212,7 +212,7 @@ export function InventoryGrid({
                 {/* Collection Type + Seller */}
                 <th
                   onClick={() => handleSort('collection_type')}
-                  className="px-4 py-3.5 cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors select-none"
+                  className="px-4 py-3.5 cursor-pointer hover:opacity-80 transition-opacity select-none"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Collection</span>
@@ -228,7 +228,7 @@ export function InventoryGrid({
                 {/* Asking Price */}
                 <th
                   onClick={() => handleSort('asking_price')}
-                  className="px-4 py-3.5 cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors select-none"
+                  className="px-4 py-3.5 cursor-pointer hover:opacity-80 transition-opacity select-none"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Asking Price</span>
@@ -246,7 +246,7 @@ export function InventoryGrid({
                 {/* Date */}
                 <th
                   onClick={() => handleSort('created_at')}
-                  className="px-4 py-3.5 cursor-pointer hover:text-teal-600 dark:hover:text-teal-400 transition-colors select-none"
+                  className="px-4 py-3.5 cursor-pointer hover:opacity-80 transition-opacity select-none"
                 >
                   <div className="flex items-center gap-1.5">
                     <span>Added</span>
@@ -306,7 +306,7 @@ export function InventoryGrid({
                             : <span className="italic">—</span>}
                         </span>
                         {item.serial_no && (
-                          <span className="font-mono text-[10px] text-teal-600 dark:text-teal-400">
+                          <span className="font-mono text-[10px] text-[hsl(var(--primary))] font-medium">
                             {item.serial_no}
                           </span>
                         )}
@@ -362,7 +362,7 @@ export function InventoryGrid({
                     {/* Payment Method */}
                     <td className="px-4 py-3.5">
                       {item.payment_method ? (
-                        <span className="inline-flex items-center rounded-full border border-teal-500/30 bg-teal-50 dark:bg-teal-900/20 px-2 py-0.5 text-[10px] font-semibold text-teal-700 dark:text-teal-300">
+                        <span className="inline-flex items-center rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold text-amber-700 dark:text-amber-400">
                           {PAYMENT_METHOD_LABEL[item.payment_method] ?? item.payment_method}
                         </span>
                       ) : (
@@ -429,7 +429,7 @@ export function InventoryGrid({
                             target="_blank"
                             rel="noopener noreferrer"
                             title="View Payment Voucher"
-                            className="rounded-md p-1.5 text-muted-foreground hover:bg-teal-500/10 hover:text-teal-600 dark:hover:text-teal-400 transition-colors"
+                            className="rounded-md p-1.5 text-muted-foreground hover:bg-[hsl(var(--primary)/0.15)] hover:text-[hsl(var(--primary))] transition-colors"
                           >
                             <VoucherIcon />
                           </a>
@@ -476,7 +476,7 @@ export function InventoryGrid({
               <select
                 value={limit}
                 onChange={(e) => onLimitChange(Number(e.target.value))}
-                className="rounded-md border border-border bg-background px-2 py-0.5 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-teal-500/50 cursor-pointer"
+                className="rounded-md border border-border bg-background px-2 py-0.5 text-[11px] text-foreground focus:outline-none focus:ring-1 focus:ring-[hsl(47_65%_52%/0.5)] cursor-pointer"
               >
                 {[10, 25, 50, 100].map((n) => (
                   <option key={n} value={n}>{n}</option>
@@ -516,7 +516,7 @@ export function InventoryGrid({
 
 function SortIndicator({ field, currentSort }: { field: SortField; currentSort: SortConfig }) {
   if (currentSort.field !== field) return <span className="text-muted-foreground text-[10px]">↕</span>;
-  return <span className="text-teal-600 dark:text-teal-400 text-[10px]">{currentSort.order === 'asc' ? '↑' : '↓'}</span>;
+  return <span className="text-[hsl(var(--primary))] text-[10px]">{currentSort.order === 'asc' ? '↑' : '↓'}</span>;
 }
 
 /* ── Icons ───────────────────────────────────────────────────────────────── */

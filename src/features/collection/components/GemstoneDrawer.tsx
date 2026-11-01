@@ -246,9 +246,9 @@ export function GemstoneDrawer({
 
   /* ── Shared styles ─────────────────────────────────────────────────── */
   const inputBase =
-    'w-full rounded-lg border bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors';
+    'w-full rounded-lg border bg-white dark:bg-[hsl(213_65%_9%)] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[hsl(47_65%_52%/0.5)] transition-colors';
   const sectionHead =
-    'text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5';
+    'text-xs font-bold uppercase tracking-wider text-[hsl(47_65%_48%)] dark:text-[hsl(47_65%_62%)] border-b border-slate-200 dark:border-[hsl(213_55%_20%)] pb-1.5';
 
   return (
     <>
@@ -260,12 +260,12 @@ export function GemstoneDrawer({
       />
 
       {/* Drawer Panel */}
-      <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-white dark:bg-slate-900 border-l border-slate-200 dark:border-slate-800 text-slate-900 dark:text-slate-100 shadow-2xl animate-in slide-in-from-right duration-300">
+      <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col bg-white dark:bg-[hsl(213_65%_10%)] border-l border-slate-200 dark:border-[hsl(213_55%_20%)] text-slate-900 dark:text-slate-100 shadow-2xl animate-in slide-in-from-right duration-300">
 
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shrink-0">
+        <div className="flex items-center justify-between border-b border-slate-200 dark:border-[hsl(213_55%_20%)] px-6 py-4 bg-white/95 dark:bg-[hsl(213_65%_10%/0.97)] backdrop-blur-md shrink-0">
           <div>
-            <h2 className="text-lg font-bold text-slate-900 dark:text-slate-100">
+            <h2 className="text-lg font-bold text-[hsl(var(--gold))]">
               {editingRecord ? 'Edit Collection' : 'Add New Collection'}
             </h2>
             <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
@@ -575,12 +575,12 @@ export function GemstoneDrawer({
         </form>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-slate-800 px-6 py-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shrink-0">
+        <div className="flex items-center justify-end gap-3 border-t border-slate-200 dark:border-[hsl(213_55%_20%)] px-6 py-4 bg-white/95 dark:bg-[hsl(213_65%_10%/0.95)] backdrop-blur-md shrink-0">
           <button
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="rounded-lg border border-slate-300 dark:border-slate-700 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors disabled:opacity-50"
+            className="rounded-lg border border-slate-300 dark:border-[hsl(213_55%_20%)] px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-[hsl(213_65%_14%)] transition-colors disabled:opacity-50 cursor-pointer"
           >
             Cancel
           </button>
@@ -588,7 +588,7 @@ export function GemstoneDrawer({
             type="button"
             onClick={handleSubmit}
             disabled={isSubmitting}
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2 text-xs font-bold text-slate-950 hover:from-amber-400 hover:to-amber-500 transition-colors shadow-md shadow-amber-500/20 disabled:opacity-60 disabled:cursor-not-allowed"
+            className="btn-gem flex items-center gap-2 rounded-lg px-5 py-2 text-xs font-bold shadow-md shadow-[hsl(47_65%_52%/0.25)] hover:shadow-[hsl(47_65%_52%/0.4)] disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
           >
             {isSubmitting && <SpinnerIcon />}
             {editingRecord ? 'Update Collection' : 'Save Collection'}

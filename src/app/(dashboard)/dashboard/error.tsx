@@ -10,7 +10,7 @@ export default function DashboardError({ error: _error, reset }: DashboardErrorP
     <div className="flex flex-col items-center justify-center py-20 text-center">
       <div className="max-w-sm space-y-3">
         <p className="text-4xl">⚠️</p>
-        <h2 className="text-lg font-semibold text-foreground">Failed to load dashboard</h2>
+        <h2 className="text-lg font-bold text-[hsl(var(--gold))]">Failed to load dashboard</h2>
         <p className="text-sm text-muted-foreground">
           Something went wrong loading your dashboard. Please try again.
         </p>

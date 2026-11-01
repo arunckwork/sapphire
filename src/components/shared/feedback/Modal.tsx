@@ -95,7 +95,7 @@ export function Modal({
           <div className="flex items-start justify-between border-b border-[hsl(var(--border))] px-6 py-4">
             <div className="space-y-1 pr-4">
               {title && (
-                <h3 className="text-lg font-bold tracking-tight text-[hsl(var(--foreground))]">
+                <h3 className="text-lg font-bold tracking-tight text-[hsl(var(--gold))]">
                   {title}
                 </h3>
               )}

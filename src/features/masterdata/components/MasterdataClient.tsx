@@ -121,7 +121,7 @@ export function MasterdataClient() {
       {/* ── Page Header ─────────────────────────────────────────── */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900 dark:text-slate-200 md:text-2xl">
+          <h1 className="text-xl font-bold tracking-tight text-[hsl(var(--gold))] md:text-2xl">
             Masterdata Management
           </h1>
           <p className="mt-0.5 text-xs font-normal text-muted-foreground">

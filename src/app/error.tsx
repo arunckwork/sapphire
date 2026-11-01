@@ -24,7 +24,7 @@ export default function ErrorPage({ error, reset }: ErrorPageProps) {
     <div className="flex min-h-screen flex-col items-center justify-center p-6 text-center">
       <div className="max-w-md space-y-4">
         <div className="text-6xl">⚠️</div>
-        <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
+        <h1 className="text-2xl font-bold text-[hsl(var(--gold))]">Something went wrong</h1>
         <p className="text-muted-foreground">
           An unexpected error occurred. Please try again or contact support if the problem persists.
         </p>

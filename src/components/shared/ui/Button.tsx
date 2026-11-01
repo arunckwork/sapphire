@@ -17,7 +17,7 @@ export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElemen
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-[hsl(var(--primary))] text-white hover:opacity-90 active:scale-[0.98] shadow-sm shadow-[hsl(var(--primary)/0.25)]',
+    'bg-[hsl(var(--primary))] text-[hsl(var(--primary-foreground))] font-semibold hover:opacity-95 active:scale-[0.98] shadow-sm shadow-[hsl(var(--primary)/0.25)]',
   secondary:
     'bg-[hsl(var(--secondary))] text-[hsl(var(--foreground))] hover:bg-[hsl(var(--muted))] active:scale-[0.98]',
   outline:
@@ -27,7 +27,7 @@ const variantStyles: Record<ButtonVariant, string> = {
   danger:
     'bg-[hsl(var(--destructive))] text-white hover:opacity-90 active:scale-[0.98] shadow-sm shadow-[hsl(var(--destructive)/0.25)]',
   gem:
-    'btn-gem text-white active:scale-[0.98]',
+    'btn-gem active:scale-[0.98]',
 };
 
 const sizeStyles: Record<ButtonSize, string> = {

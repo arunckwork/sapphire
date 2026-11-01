@@ -195,7 +195,7 @@ export function NegotiationReferralDrawer({
                   <div
                     className={`max-w-[85%] rounded-2xl p-3.5 text-xs shadow-xs transition-all ${
                       isMe
-                        ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-white rounded-tr-xs'
+                        ? 'bg-gradient-to-r from-[hsl(47_62%_40%)] to-[hsl(47_65%_55%)] text-slate-950 font-medium rounded-tr-xs'
                         : 'bg-card border border-border/80 text-foreground rounded-tl-xs'
                     }`}
                   >
@@ -293,7 +293,7 @@ export function NegotiationReferralDrawer({
                 <button
                   type="submit"
                   disabled={isSending || (!messageText.trim() && !counterPrice)}
-                  className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-gradient-to-r from-amber-500 to-amber-600 text-white shadow-sm shadow-amber-500/30 transition-all hover:from-amber-400 hover:to-amber-500 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+                  className="btn-gem flex h-9 w-9 shrink-0 items-center justify-center rounded-xl shadow-sm transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
                   title="Send Message"
                 >
                   {isSending ? (

@@ -39,8 +39,12 @@ export function ProfileForm() {
       <Card className="p-6">
         <div className="flex items-center gap-4">
           <div
-            className="flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-bold text-white shadow-md"
-            style={{ background: 'linear-gradient(135deg, hsl(43 96% 50%), hsl(30 90% 40%))' }}
+            className="flex h-16 w-16 items-center justify-center rounded-2xl text-2xl font-bold shadow-md"
+            style={{
+              background: 'linear-gradient(135deg, hsl(47 62% 40%), hsl(47 65% 58%))',
+              color: 'hsl(213 71% 10%)',
+              boxShadow: '0 0 18px hsl(47 65% 52% / 0.35)',
+            }}
           >
             {initial}
           </div>

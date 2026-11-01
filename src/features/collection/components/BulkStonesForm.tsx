@@ -17,9 +17,9 @@ interface BulkStonesFormProps {
 }
 
 const sectionHead =
-  'text-xs font-bold uppercase tracking-wider text-amber-600 dark:text-amber-400 border-b border-slate-200 dark:border-slate-800 pb-1.5';
+  'text-xs font-bold uppercase tracking-wider text-[hsl(47_65%_48%)] dark:text-[hsl(47_65%_62%)] border-b border-slate-200 dark:border-[hsl(213_55%_20%)] pb-1.5';
 const inputBase =
-  'w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 transition-colors';
+  'w-full rounded-lg border border-slate-300 dark:border-[hsl(213_55%_20%)] bg-white dark:bg-[hsl(213_65%_9%)] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[hsl(47_65%_52%/0.5)] transition-colors';
 
 const EMPTY_ROW: BulkStoneRow = {
   gemstone_type: '',
@@ -64,7 +64,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
         {data.stones.map((row, idx) => (
           <div
             key={idx}
-            className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-950/40 p-3 space-y-3"
+            className="rounded-lg border border-slate-200 dark:border-[hsl(213_55%_20%)] bg-slate-50/60 dark:bg-[hsl(213_65%_9%/0.6)] p-3 space-y-3"
           >
             {/* Row header */}
             <div className="flex items-center justify-between">
@@ -135,13 +135,13 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
                     step="0.001"
                     value={row.weight || ''}
                     onChange={(e) => updateRow(idx, { weight: parseFloat(e.target.value) || 0 })}
-                    className="flex-1 min-w-0 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none"
+                    className="flex-1 min-w-0 bg-white dark:bg-[hsl(213_65%_9%)] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none"
                     placeholder="0.00"
                   />
                   <select
                     value={row.weight_unit || 'g'}
                     onChange={(e) => updateRow(idx, { weight_unit: e.target.value })}
-                    className="shrink-0 border-l border-slate-300 dark:border-slate-700 bg-slate-50 dark:bg-slate-900 px-2 py-2 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer"
+                    className="shrink-0 border-l border-slate-300 dark:border-[hsl(213_55%_20%)] bg-slate-50 dark:bg-[hsl(213_65%_12%)] px-2 py-2 text-xs text-slate-700 dark:text-slate-300 focus:outline-none cursor-pointer"
                   >
                     {WEIGHT_UNITS.map((u) => (
                       <option key={u.value} value={u.value}>{u.label}</option>
@@ -209,7 +209,7 @@ export function BulkStonesForm({ data, errors, onChange, onStonePricesChange }: 
           onChange={(e) => onChange('description', e.target.value)}
           rows={3}
           placeholder="Describe the bulk lot, provenance, notes…"
-          className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-950 px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-amber-500/50 resize-none transition-colors"
+          className="w-full rounded-lg border border-slate-300 dark:border-[hsl(213_55%_20%)] bg-white dark:bg-[hsl(213_65%_9%)] px-3.5 py-2 text-xs text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500 focus:outline-none focus:ring-1 focus:ring-[hsl(47_65%_52%/0.5)] resize-none transition-colors"
         />
       </div>
     </div>

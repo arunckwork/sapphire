@@ -501,7 +501,7 @@ function ReceiptCameraModal({ onCapture, onClose }: ReceiptCameraModalProps) {
               <button type="button" onClick={handleRetake} className="rounded-lg border border-border bg-background px-4 py-2 text-xs font-semibold text-foreground hover:bg-accent transition-colors cursor-pointer">
                 Retake
               </button>
-              <button type="button" onClick={handleConfirmUse} className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-4 py-2 text-xs font-bold text-white shadow-xs hover:from-amber-400 hover:to-amber-500 transition-all cursor-pointer">
+              <button type="button" onClick={handleConfirmUse} className="btn-gem flex items-center gap-1.5 rounded-lg px-4 py-2 text-xs font-bold shadow-xs transition-all cursor-pointer">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
                 Use Photo
               </button>
@@ -511,7 +511,7 @@ function ReceiptCameraModal({ onCapture, onClose }: ReceiptCameraModalProps) {
               type="button"
               onClick={handleSnap}
               disabled={isLoading || !!errorMsg}
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 px-5 py-2 text-xs font-bold text-white shadow-md shadow-amber-500/25 hover:from-amber-400 hover:to-amber-500 transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
+              className="btn-gem flex items-center gap-2 rounded-lg px-5 py-2 text-xs font-bold shadow-md transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer"
             >
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="4" fill="currentColor" />
@@ -704,11 +704,11 @@ export function CollectionReviewClient({ id, isFromInventory = false }: Collecti
 
         {/* ── Header Card ────────────────────────────────────────────────── */}
         <div className="rounded-2xl border border-border bg-card/90 backdrop-blur-md shadow-sm overflow-hidden">
-          <div className="relative px-6 py-5 bg-gradient-to-r from-slate-50 to-white dark:from-slate-900 dark:to-slate-800 border-b border-border">
+          <div className="relative px-6 py-5 bg-gradient-to-r from-slate-50 to-white dark:from-[hsl(213_65%_12%)] dark:to-[hsl(213_65%_9%)] border-b border-border">
             <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
               <div className="space-y-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <h1 className="text-xl font-bold text-foreground">{collection.serial_no}</h1>
+                  <h1 className="text-xl font-bold tracking-tight text-[hsl(var(--gold))]">{collection.serial_no}</h1>
                   <span className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${isAccepted
                     ? 'border-emerald-500/30 bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
                     : 'border-amber-500/30 bg-amber-50 text-amber-700 dark:bg-amber-900/20 dark:text-amber-400'

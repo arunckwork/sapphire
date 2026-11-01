@@ -153,7 +153,7 @@ export function SellersTable({
           <Button
             id="add-seller-btn"
             type="button"
-            variant="primary"
+            variant="gem"
             onClick={onAddNew}
             className="h-8 text-xs px-3"
           >
@@ -169,11 +169,14 @@ export function SellersTable({
       <div className="overflow-x-auto">
         <table className="w-full text-xs">
           <thead>
-            <tr className="border-b border-border/40 bg-muted/30">
+            <tr
+              className="border-b border-border/40"
+              style={{ backgroundColor: 'hsl(var(--table-header-bg))', color: 'hsl(var(--table-header-fg))' }}
+            >
               {COLUMNS.map((col) => (
                 <th
                   key={col.key}
-                  className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide text-muted-foreground ${col.sortable ? 'cursor-pointer select-none hover:text-foreground transition-colors' : ''}`}
+                  className={`px-4 py-2.5 text-left text-[11px] font-semibold uppercase tracking-wide ${col.sortable ? 'cursor-pointer select-none hover:opacity-80 transition-opacity' : ''}`}
                   onClick={col.sortable ? () => onSort(col.sortable!) : undefined}
                 >
                   {col.label}
@@ -217,8 +220,11 @@ export function SellersTable({
                         />
                       ) : (
                         <div
-                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold text-white shadow-sm"
-                          style={{ background: 'linear-gradient(135deg, hsl(160 70% 40%), hsl(200 85% 50%))' }}
+                          className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-bold shadow-sm"
+                          style={{
+                            background: 'linear-gradient(135deg, hsl(47 62% 40%), hsl(47 65% 58%))',
+                            color: 'hsl(213 71% 10%)',
+                          }}
                         >
                           {seller.first_name.charAt(0).toUpperCase()}
                         </div>

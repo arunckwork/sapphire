@@ -113,7 +113,7 @@ export function MasterdataTable({
           <button
             type="button"
             onClick={onAddNew}
-            className="flex h-9 sm:h-8 items-center gap-1.5 rounded-lg bg-amber-500 px-3.5 sm:px-3 text-xs font-semibold text-white shadow-sm transition-all hover:bg-amber-600 active:scale-95 shrink-0"
+            className="btn-gem flex h-9 sm:h-8 items-center gap-1.5 rounded-lg px-3.5 sm:px-3 text-xs font-semibold shadow-sm transition-all active:scale-95 shrink-0"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <line x1="12" y1="5" x2="12" y2="19" />
@@ -228,13 +228,16 @@ export function MasterdataTable({
             <div className="hidden sm:block overflow-x-auto">
               <table className="w-full text-xs">
                 <thead>
-                  <tr className="border-b border-border/40 bg-muted/30">
-                    <th className="px-4 py-2.5 text-left font-semibold text-muted-foreground w-12">#</th>
-                    <th className="px-4 py-2.5 text-left font-semibold text-muted-foreground">Label</th>
-                    <th className="px-4 py-2.5 text-left font-semibold text-muted-foreground">Value</th>
-                    <th className="hidden px-4 py-2.5 text-center font-semibold text-muted-foreground lg:table-cell w-20">Order</th>
-                    <th className="px-4 py-2.5 text-center font-semibold text-muted-foreground w-24">Status</th>
-                    <th className="px-4 py-2.5 text-right font-semibold text-muted-foreground w-36">Actions</th>
+                  <tr
+                    className="border-b border-border/40"
+                    style={{ backgroundColor: 'hsl(var(--table-header-bg))', color: 'hsl(var(--table-header-fg))' }}
+                  >
+                    <th className="px-4 py-2.5 text-left font-semibold w-12">#</th>
+                    <th className="px-4 py-2.5 text-left font-semibold">Label</th>
+                    <th className="px-4 py-2.5 text-left font-semibold">Value</th>
+                    <th className="hidden px-4 py-2.5 text-center font-semibold lg:table-cell w-20">Order</th>
+                    <th className="px-4 py-2.5 text-center font-semibold w-24">Status</th>
+                    <th className="px-4 py-2.5 text-right font-semibold w-36">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border/30">

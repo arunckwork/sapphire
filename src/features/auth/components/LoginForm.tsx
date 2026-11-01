@@ -41,16 +41,21 @@ export function LoginForm() {
       {/* Brand Header */}
       <div className="mb-6 flex flex-col items-center gap-2">
         <div
-          className="flex h-11 w-11 items-center justify-center rounded-xl text-white shadow-md"
-          style={{ background: 'linear-gradient(135deg, hsl(200 85% 50%), hsl(217 91% 60%))' }}
+          className="flex h-11 w-11 items-center justify-center rounded-xl shadow-lg"
+          style={{
+            background: 'linear-gradient(135deg, hsl(47 62% 40%), hsl(47 65% 58%))',
+            boxShadow: '0 0 18px hsl(47 65% 52% / 0.45)',
+          }}
         >
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <polygon points="12 2 22 8.5 12 22 2 8.5 12 2" />
-            <line x1="2" y1="8.5" x2="22" y2="8.5" />
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M12 2L22 9L12 22L2 9L12 2Z" fill="hsl(213 71% 10%)" fillOpacity="0.35" />
+            <path d="M12 2L22 9L12 22L2 9L12 2Z" stroke="hsl(213 71% 10%)" strokeWidth="1.8" strokeLinejoin="round" />
+            <path d="M2 9H22" stroke="hsl(213 71% 10%)" strokeWidth="1.8" />
+            <path d="M12 2L7 9L12 22L17 9L12 2Z" stroke="hsl(213 71% 10%)" strokeWidth="1" strokeLinejoin="round" strokeOpacity="0.5" />
           </svg>
         </div>
         <div className="text-center">
-          <h1 className="text-xl font-bold tracking-tight text-foreground">Welcome back</h1>
+          <h1 className="text-xl font-bold tracking-tight text-[hsl(var(--gold))]">Welcome back</h1>
           <p className="mt-0.5 text-xs text-muted-foreground">Sign in to your Trove workspace</p>
         </div>
       </div>
@@ -102,7 +107,8 @@ export function LoginForm() {
             </label>
             <Link
               href={ROUTES.FORGOT_PASSWORD}
-              className="text-primary hover:underline font-medium"
+              className="font-semibold hover:underline"
+              style={{ color: 'hsl(47 65% 48%)' }}
             >
               Forgot password?
             </Link>
@@ -125,7 +131,11 @@ export function LoginForm() {
       {/* Register Link Footer */}
       <p className="mt-4 text-center text-xs text-muted-foreground">
         Don&apos;t have an account?{' '}
-        <Link href={ROUTES.REGISTER} className="text-primary font-medium hover:underline">
+        <Link
+          href={ROUTES.REGISTER}
+          className="font-semibold hover:underline"
+          style={{ color: 'hsl(47 65% 48%)' }}
+        >
           Create account
         </Link>
       </p>
